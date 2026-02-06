@@ -511,11 +511,12 @@ import plotly.graph_objects as go
 def render_topic_3_sequence():
     st.header("🌌 Topic 3: The Rhythm of Infinity (Sequences & Series)")
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5= st.tabs([
         "1. Decompressing Sigma (How it works)",
-        "2. Hall of Fame (The Logic)",
-        "3. Pascal to Normal",
-        "4. Taylor Series (Expansion)"
+        "2. Arithmetic (AP) and Geometric (GP) Progression",
+        "3. Hall of Fame (The Logic)",
+        "4. Pascal to Normal",
+        "5. Taylor Series (Expansion)"
     ])
 
     # --- TAB 1: 排版优化 + Sigma 慢动作拆解 ---
@@ -630,9 +631,179 @@ def render_topic_3_sequence():
         st.markdown("#### The Result:")
         st.latex(
             rf"S_{{{n_cuts}}} = \sum_{{k=1}}^{{{n_cuts}}} \frac{{1}}{{2^k}} = {sum([1 / 2 ** i for i in range(1, n_cuts + 1)]):.6f}")
-
-        # --- TAB 2: 名人堂 (硬核数学 + 视频资源) ---
+#AP 和GP
         with tab2:
+            st.header("🧬 Topic 3: The Limit of Growth")
+            st.caption("From Discrete Progressions to the Continuous Constant (e)")
+
+            # === 1. 互动实验：线性与指数的较量 ===
+            st.subheader("1. The Rhythm: Linear vs. Exponential")
+            st.write("First, let's see how Arithmetic (AP) and Geometric (GP) sequences behave.")
+
+            c_input, c_vis = st.columns([1, 2])
+
+            with c_input:
+                st.info("🐢 **Arithmetic (AP)**")
+                a_ap = st.number_input("Start (a)", value=1, key="ap_a_final")
+                d = st.number_input("Common Difference (d)", value=2, key="ap_d_final")
+
+                st.markdown("---")
+
+                st.error("🚀 **Geometric (GP)**")
+                a_gp = st.number_input("Start (a)", value=1, key="gp_a_final")
+                r = st.number_input("Common Ratio (r)", value=1.5, step=0.1, key="gp_r_final")
+
+                st.markdown("---")
+                n_steps = st.slider("Number of Terms (n)", 5, 30, 15)
+
+            with c_vis:
+                # 计算数据
+                n_vals = np.arange(1, n_steps + 1)
+                ap_vals = a_ap + (n_vals - 1) * d
+                gp_vals = a_gp * (r ** (n_vals - 1))
+
+                # 绘制对比图
+                fig_growth = go.Figure()
+                fig_growth.add_trace(go.Scatter(x=n_vals, y=ap_vals, mode='lines+markers', name='AP (Linear)',
+                                                line=dict(color='#00ADB5', width=3)))
+                fig_growth.add_trace(go.Scatter(x=n_vals, y=gp_vals, mode='lines+markers', name='GP (Exponential)',
+                                                line=dict(color='#FF2E63', width=3)))
+
+                fig_growth.update_layout(
+                    title="Growth Rate Comparison",
+                    xaxis_title="Term (n)",
+                    yaxis_title="Value",
+                    template="plotly_dark",
+                    height=400,
+                    margin=dict(l=20, r=20, t=40, b=20),
+                    plot_bgcolor='rgba(0,0,0,0)'
+                )
+                st.plotly_chart(fig_growth, use_container_width=True)
+
+            # === 2. 深度推导：逻辑的魅力 (宽屏版) ===
+            st.divider()
+            st.subheader("2. The Logic Behind the Formulas")
+            st.write("For students who struggle with formulas: Don't memorize, **visualize**.")
+
+            # --- AP 推导 ---
+            st.markdown("#### 🐢 Arithmetic Sum ($S_n$) : The Symmetry Trick")
+            with st.expander("Show Derivation: How young Gauss added 1 to 100", expanded=True):
+                st.info("💡 **Concept:** List the numbers forward and backward. The sum of each pair is constant.")
+                st.markdown(r"""
+                Let's sum an AP:
+                $$ S_n = a + (a+d) + (a+2d) + \dots + L $$
+
+                **Step 1:** Write it forward and then backward.
+                $$ S_n = a \quad + (a+d) \quad + \dots + L $$
+                $$ S_n = L \quad + (L-d) \quad + \dots + a $$
+
+                **Step 2:** Add them vertically. Notice $a+L = (a+d)+(L-d)$.
+                $$ 2S_n = (a+L) + (a+L) + \dots + (a+L) $$
+
+                Since there are $n$ pairs:
+                $$ 2S_n = n(a+L) $$
+
+                $$ \boxed{S_n = \frac{n}{2}(a + L)} $$
+                """)
+
+            # --- GP 推导 ---
+            st.markdown("#### 🚀 Geometric Sum ($S_n$) : The Cancellation Trick")
+            with st.expander("Show Derivation: The 'Shift and Destroy' Method", expanded=True):
+                st.error(
+                    "💡 **Concept:** Multiply the whole sequence by $r$ to shift it, then subtract to cancel the middle.")
+                st.markdown(r"""
+                Let's sum a GP:
+                $$ S_n = a + ar + ar^2 + \dots + ar^{n-1} $$
+
+                **Step 1:** Multiply by $r$ (every term shifts one step right).
+                $$ rS_n = ar + ar^2 + ar^3 + \dots + ar^n $$
+
+                **Step 2:** Subtract ($S_n - rS_n$).
+                Look at the middle! All terms except the very first and the very last vanish.
+
+                $$ 
+                \begin{aligned}
+                S_n &= a + \color{red}{ar + ar^2 + \dots + ar^{n-1}} \\
+                - (rS_n &= \quad \color{red}{ar + ar^2 + \dots + ar^{n-1}} + ar^n) \\
+                \hline
+                S_n(1-r) &= a - ar^n
+                \end{aligned}
+                $$
+
+                **Step 3:** Solve for $S_n$.
+                $$ \boxed{S_n = \frac{a(1-r^n)}{1-r}} $$
+                """)
+
+            # === 3. 历史与实验室：e 的诞生 ===
+            st.divider()
+            st.subheader("🧪 3. The Discovery of 'e' (1683)")
+
+            st.markdown("""
+            ### 📜 The Story of "Maximum Greed"
+            In 1683, **Jacob Bernoulli** studied compound interest. He wanted to know:
+            > *"If a bank offers **100% interest** per year on **$1**, how rich can I get if I compound it **infinitely often**?"*
+            """)
+
+            c_e_lab, c_e_fig = st.columns([1, 1.5])
+
+            with c_e_lab:
+                st.info("👇 **Compounding Experiment**")
+
+                # 频率滑块
+                steps = [1, 2, 4, 12, 52, 365, 8760, 100000]
+                labels = ["Yearly", "6-Months", "Quarterly", "Monthly", "Weekly", "Daily", "Hourly", "Continuously"]
+
+                sel_label = st.select_slider("Change Frequency (n)", options=labels, value="Yearly")
+                n_val = steps[labels.index(sel_label)]
+
+                # 计算 e 的逼近值
+                e_approx = (1 + 1 / n_val) ** n_val
+
+                st.write(f"**Frequency (n):** {n_val}")
+                st.latex(rf"\left( 1 + \frac{{1}}{{{n_val}}} \right)^{{{n_val}}}")
+                st.metric("Final Amount", f"${e_approx:.6f}", delta=f"{e_approx - np.e:.6f} from e")
+
+                if n_val == 1:
+                    st.warning("Just $2.00. Not very greedy.")
+                elif n_val >= 365:
+                    st.success("You are hitting the 'Growth Wall'!")
+
+            with c_e_fig:
+                # 绘制逼近曲线
+                x_e = np.linspace(1, 100, 200)
+                y_e = (1 + 1 / x_e) ** x_e
+
+                fig_e = go.Figure()
+                fig_e.add_trace(
+                    go.Scatter(x=x_e, y=y_e, mode='lines', name='Money', line=dict(color='#00ADB5', width=4)))
+
+                # 画出 e 的渐近线
+                fig_e.add_hline(y=np.e, line_dash="dash", line_color="#FF2E63",
+                                annotation_text="The Wall (e ≈ 2.718)", annotation_position="bottom right")
+
+                # 标记当前点
+                curr_x = min(n_val, 100)
+                fig_e.add_trace(go.Scatter(x=[curr_x], y=[(1 + 1 / curr_x) ** curr_x], mode='markers',
+                                           marker=dict(size=12, color='#FDB827'), name='Your Choice'))
+
+                fig_e.update_layout(title="The Limit of Growth", template="plotly_dark", height=320,
+                                    margin=dict(l=10, r=10, t=40, b=10), plot_bgcolor='rgba(0,0,0,0)')
+                st.plotly_chart(fig_e, use_container_width=True)
+
+            st.markdown("""
+            #### 🧐 The Conclusion
+            Bernoulli realized that even with "infinite greed," you cannot grow your money to infinity. 
+            The sequence is bounded by a mathematical constant: **$e$**. 
+
+            This constant $e$ is the foundation of **natural growth**—from bacteria colonies to radioactive decay.
+            """)
+
+            st.caption("""
+                **Fun Fact:** Although Bernoulli discovered it, the letter **'e'** was chosen by **Leonhard Euler** 50 years later. 
+                Some say 'e' stands for "Exponential", others say it stands for "Euler". 
+                """)
+        # --- TAB 3: 名人堂 (硬核数学 + 视频资源) ---
+        with tab3:
             st.subheader("🏛️ The Hall of Fame: Rigorous Proofs")
             st.caption("Detailed mathematical derivation of three legendary series.")
 
@@ -808,9 +979,9 @@ def render_topic_3_sequence():
                                       template="plotly_dark", height=500)
                     st.plotly_chart(fig, use_container_width=True)
 
-# --- TAB 3: 杨辉三角 (保持之前修复好的版本) ---
+# --- TAB 4: 杨辉三角 (保持之前修复好的版本) ---
 
-    with tab3:
+    with tab4:
         st.subheader("The Architecture of Chance")
 
         col_ctrl, col_vis = st.columns([1.2, 2.5])
@@ -899,8 +1070,8 @@ def render_topic_3_sequence():
             fig_bar.update_layout(height=250, margin=dict(l=0, r=0, t=10, b=0))
             st.plotly_chart(fig_bar, use_container_width=True)
 
-    # --- TAB 4: Taylor Series (通项 + 详细展开) ---
-    with tab4:
+    # --- TAB 5: Taylor Series (通项 + 详细展开) ---
+    with tab5:
         st.subheader("Taylor Series: From Formula to Polynomial")
 
         # --- 🆕 新增：泰勒级数的起源与作用 ---
