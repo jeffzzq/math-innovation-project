@@ -471,34 +471,86 @@ def render_topic_1_number_system():
                 fig.update_layout(xaxis_range=[-1.2, 2], yaxis_range=[-0.5, 3.5], height=450, title="Radians = Curved Radius")
                 st.plotly_chart(fig, use_container_width=True)
 
-        # Sub-Tab 3: 3D 螺旋 (保留)
+        # Sub-Tab 3: 3D 螺旋 (修复按钮 + 加入欧拉公式解释)
         elif physics_step == "3. Dimension Up: The 3D Helix":
-            with col1:
-                st.markdown("### Euler's Formula: The Ultimate Form")
-                cols = st.columns(4)
-                if 'euler_t_3d' not in st.session_state: st.session_state['euler_t_3d'] = 2.0
-                if cols[0].button("0"): st.session_state['euler_t_3d'] = 0.0
-                if cols[1].button("π/2"): st.session_state['euler_t_3d'] = np.pi / 2
-                if cols[2].button("π"): st.session_state['euler_t_3d'] = np.pi
-                if cols[3].button("2π"): st.session_state['euler_t_3d'] = 2 * np.pi
-                t_3d = st.slider("Time Flow (t)", 0.0, 4 * np.pi, float(st.session_state['euler_t_3d']), key='slider_3d_helix')
-                st.session_state['euler_t_3d'] = t_3d
-                if abs(t_3d - np.pi) < 0.1: st.error("🌟 **Moment of Truth**: When t = π, the helix rotates exactly half a circle and lands on Real -1!")
-            with col2:
-                t_range = np.linspace(0, 4 * np.pi, 300)
-                x_helix = t_range
-                y_helix = np.cos(t_range)
-                z_helix = np.sin(t_range)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter3d(x=x_helix, y=y_helix, z=z_helix, mode='lines', line=dict(color='#00ADB5', width=5), name='e^it (Helix)'))
-                fig.add_trace(go.Scatter3d(x=x_helix, y=np.ones_like(t_range) * 2, z=z_helix, mode='lines', line=dict(color='#FF2E63', width=3), opacity=0.5, name='Sin(t) Proj'))
-                fig.add_trace(go.Scatter3d(x=x_helix, y=y_helix, z=np.ones_like(t_range) * -2, mode='lines', line=dict(color='#FDB827', width=3), opacity=0.5, name='Cos(t) Proj'))
-                cur_x, cur_y, cur_z = t_3d, np.cos(t_3d), np.sin(t_3d)
-                fig.add_trace(go.Scatter3d(x=[cur_x], y=[cur_y], z=[cur_z], mode='markers', marker=dict(size=10, color='#FF2E63')))
-                fig.add_trace(go.Scatter3d(x=[cur_x, cur_x, cur_x], y=[2, cur_y, cur_y], z=[cur_z, cur_z, -2], mode='lines', line=dict(color='#FF2E63', dash='dash')))
-                fig.update_layout(scene=dict(xaxis_title='Time (t)', yaxis_title='Real', zaxis_title='Imag', aspectmode='manual', aspectratio=dict(x=2, y=1, z=1), xaxis=dict(range=[0, 13]), yaxis=dict(range=[-2, 2]), zaxis=dict(range=[-2, 2])), height=500, margin=dict(l=0, r=0, b=0, t=0))
-                st.plotly_chart(fig, use_container_width=True)
 
+            # --- 1. 定义回调函数 (这是修复按钮“没反应”的关键) ---
+            def set_t_3d(val):
+                st.session_state['euler_t_3d'] = float(val)
+
+            with col1:
+                # --- 2. 新增：欧拉公式教学区 ---
+                st.markdown(r"### $$ e^{it} = \cos(t) + i\sin(t) $$")
+                st.caption("Student: *'How does a circle become a wave?'*")
+                st.markdown("""
+                When you pull a 2D circle through **Time**, it becomes a **3D Helix**.
+                * 🟡 **Yellow Shadow (Real):** $\cos(t)$ - A wave viewed from the side.
+                * 🔴 **Pink Shadow (Imaginary):** $\sin(t)$ - A wave viewed from the top.
+                """)
+                st.divider()
+
+                # --- 3. 修复后的控制按钮 (使用 on_click) ---
+                st.write("**Jump to specific time:**")
+                cols = st.columns(4)
+
+                # 初始化 State
+                if 'euler_t_3d' not in st.session_state:
+                    st.session_state['euler_t_3d'] = 2.0
+
+                # 按钮逻辑：点击时直接触发函数修改 State，无需刷新
+                cols[0].button("0", on_click=set_t_3d, args=(0.0,))
+                cols[1].button("π/2", on_click=set_t_3d, args=(np.pi / 2,))
+                cols[2].button("π", on_click=set_t_3d, args=(np.pi,))
+                cols[3].button("2π", on_click=set_t_3d, args=(2 * np.pi,))
+
+                # 滑块：读取 session_state 的值作为默认值
+                t_3d = st.slider("Time Flow (t)", 0.0, 4 * np.pi, value=float(st.session_state['euler_t_3d']),
+                                 key='slider_3d_helix')
+
+                # 同步滑块的值回 session_state (防止手动拖动滑块后状态不同步)
+                st.session_state['euler_t_3d'] = t_3d
+
+                if abs(t_3d - np.pi) < 0.1:
+                    st.error(
+                        "🌟 **Moment of Truth**: When t = π, the helix rotates exactly half a circle and lands on Real -1! ($e^{i\pi} = -1$)")
+
+            with col2:
+                # --- 4. 你的核心绘图代码 (完全保留原样) ---
+                t_range = np.linspace(0, 4 * np.pi, 300)
+                x_helix = t_range  # Time
+                y_helix = np.cos(t_range)  # Real
+                z_helix = np.sin(t_range)  # Imag
+
+                fig = go.Figure()
+
+                # 主螺旋
+                fig.add_trace(
+                    go.Scatter3d(x=x_helix, y=y_helix, z=z_helix, mode='lines', line=dict(color='#00ADB5', width=5),
+                                 name='e^it (Helix)'))
+
+                # 投影 (Sin - Pink)
+                fig.add_trace(go.Scatter3d(x=x_helix, y=np.ones_like(t_range) * 2, z=z_helix, mode='lines',
+                                           line=dict(color='#FF2E63', width=3), opacity=0.5, name='Sin(t) Proj'))
+
+                # 投影 (Cos - Yellow)
+                fig.add_trace(go.Scatter3d(x=x_helix, y=y_helix, z=np.ones_like(t_range) * -2, mode='lines',
+                                           line=dict(color='#FDB827', width=3), opacity=0.5, name='Cos(t) Proj'))
+
+                # 当前点
+                cur_x, cur_y, cur_z = t_3d, np.cos(t_3d), np.sin(t_3d)
+                fig.add_trace(go.Scatter3d(x=[cur_x], y=[cur_y], z=[cur_z], mode='markers',
+                                           marker=dict(size=10, color='red')))  # 改成了白色点更明显，你可以改回 #FF2E63
+
+                # 连接线
+                fig.add_trace(
+                    go.Scatter3d(x=[cur_x, cur_x, cur_x], y=[2, cur_y, cur_y], z=[cur_z, cur_z, -2], mode='lines',
+                                 line=dict(color='#FF2E63', dash='dash')))
+
+                fig.update_layout(
+                    scene=dict(xaxis_title='Time (t)', yaxis_title='Real', zaxis_title='Imag', aspectmode='manual',
+                               aspectratio=dict(x=2, y=1, z=1), xaxis=dict(range=[0, 13]), yaxis=dict(range=[-2, 2]),
+                               zaxis=dict(range=[-2, 2])), height=500, margin=dict(l=0, r=0, b=0, t=0))
+                st.plotly_chart(fig, use_container_width=True)
 
 #Topic 3: Sequence and Series
 
