@@ -471,15 +471,19 @@ def render_topic_1_number_system():
                 fig.update_layout(xaxis_range=[-1.2, 2], yaxis_range=[-0.5, 3.5], height=450, title="Radians = Curved Radius")
                 st.plotly_chart(fig, use_container_width=True)
 
-        # Sub-Tab 3: 3D 螺旋 (修复按钮 + 加入欧拉公式解释)
+        # Sub-Tab 3: 3D 螺旋 (终极修复版)
         elif physics_step == "3. Dimension Up: The 3D Helix":
 
-            # --- 1. 定义回调函数 (这是修复按钮“没反应”的关键) ---
-            def set_t_3d(val):
+            # --- 1. 核心修复：把变量名统一为 'euler_t_3d' ---
+            # 如果系统里没有这个变量，先创建一个默认值 2.0
+            if 'euler_t_3d' not in st.session_state:
+                st.session_state['euler_t_3d'] = 2.0
+
+            # 定义一个简单的回调函数，专门用来改这个值
+            def set_t(val):
                 st.session_state['euler_t_3d'] = float(val)
 
             with col1:
-                # --- 2. 新增：欧拉公式教学区 ---
                 st.markdown(r"### $$ e^{it} = \cos(t) + i\sin(t) $$")
                 st.caption("Student: *'How does a circle become a wave?'*")
                 st.markdown("""
@@ -489,37 +493,31 @@ def render_topic_1_number_system():
                 """)
                 st.divider()
 
-                # --- 3. 修复后的控制按钮 (使用 on_click) ---
                 st.write("**Jump to specific time:**")
                 cols = st.columns(4)
 
-                # 初始化 State
-                if 'euler_t_3d' not in st.session_state:
-                    st.session_state['euler_t_3d'] = 2.0
+                # --- 2. 按钮：点击时，直接修改 'euler_t_3d' ---
+                cols[0].button("0", on_click=set_t, args=(0.0,))
+                cols[1].button("π/2", on_click=set_t, args=(np.pi / 2,))
+                cols[2].button("π", on_click=set_t, args=(np.pi,))
+                cols[3].button("2π", on_click=set_t, args=(2 * np.pi,))
 
-                # 按钮逻辑：点击时直接触发函数修改 State，无需刷新
-                cols[0].button("0", on_click=set_t_3d, args=(0.0,))
-                cols[1].button("π/2", on_click=set_t_3d, args=(np.pi / 2,))
-                cols[2].button("π", on_click=set_t_3d, args=(np.pi,))
-                cols[3].button("2π", on_click=set_t_3d, args=(2 * np.pi,))
-
-                # 滑块：读取 session_state 的值作为默认值
-                t_3d = st.slider("Time Flow (t)", 0.0, 4 * np.pi, value=float(st.session_state['euler_t_3d']),
-                                 key='slider_3d_helix')
-
-                # 同步滑块的值回 session_state (防止手动拖动滑块后状态不同步)
-                st.session_state['euler_t_3d'] = t_3d
+                # --- 3. 滑块：关键修改！ ---
+                # 这里的 key 必须也是 'euler_t_3d'。
+                # 这样滑块和按钮就“心意相通”了，动谁都会更新同一个值。
+                # 注意：因为用了 key，所以不需要写 value=...，它会自动读取。
+                t_3d = st.slider("Time Flow (t)", 0.0, 4 * np.pi, key='euler_t_3d')
 
                 if abs(t_3d - np.pi) < 0.1:
                     st.error(
                         "🌟 **Moment of Truth**: When t = π, the helix rotates exactly half a circle and lands on Real -1! ($e^{i\pi} = -1$)")
 
             with col2:
-                # --- 4. 你的核心绘图代码 (完全保留原样) ---
+                # --- 4. 绘图部分 (保持原样，只是把变量换成了 t_3d) ---
                 t_range = np.linspace(0, 4 * np.pi, 300)
-                x_helix = t_range  # Time
-                y_helix = np.cos(t_range)  # Real
-                z_helix = np.sin(t_range)  # Imag
+                x_helix = t_range
+                y_helix = np.cos(t_range)
+                z_helix = np.sin(t_range)
 
                 fig = go.Figure()
 
@@ -538,8 +536,8 @@ def render_topic_1_number_system():
 
                 # 当前点
                 cur_x, cur_y, cur_z = t_3d, np.cos(t_3d), np.sin(t_3d)
-                fig.add_trace(go.Scatter3d(x=[cur_x], y=[cur_y], z=[cur_z], mode='markers',
-                                           marker=dict(size=10, color='red')))  # 改成了白色点更明显，你可以改回 #FF2E63
+                fig.add_trace(
+                    go.Scatter3d(x=[cur_x], y=[cur_y], z=[cur_z], mode='markers', marker=dict(size=10, color='red')))
 
                 # 连接线
                 fig.add_trace(
