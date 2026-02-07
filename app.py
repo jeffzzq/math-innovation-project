@@ -1267,110 +1267,186 @@ def render_topic_3_sequence():
 
 
 # ==========================================
-# 0. THE GRAND TALE: 序幕 (微积分全景)
+# 0. THE GRAND TALE: ULTIMATE EDITION (深度史诗版)
 # ==========================================
 def render_calculus_grand_story():
-    st.header("📜 The Calculus Saga: Taming the Infinite")
-    st.caption("Humanity's greatest intellectual achievement: How we used finite minds to understand infinite change.")
+    st.header("📜 The Calculus Saga: A 2000-Year War")
+    st.caption("The complete history of how humanity learned to control the Infinite.")
 
-    # --- 1. 核心概念：三位一体 (The Trinity) ---
-    st.markdown("### 1. The Three Pillars")
-    st.write("Calculus is not a set of isolated topics; it is **one** continuous story of mastering 'Infinity'.")
+    # 定义五个历史阶段的 Tabs
+    eras = st.tabs([
+        "1. The Seed (450 BC)",
+        "2. The Dawn (1630s)",
+        "3. The Revolution (1660s)",
+        "4. The Crisis (1734)",
+        "5. The Salvation (1820s)"
+    ])
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.info("### 🌉 The Bridge\n**(Limits)**")
-        st.write("*“How do we get infinitely close without touching?”*")
-        st.caption("Solving the logical crisis of the infinite.")
-    with col2:
-        st.warning("### 🔪 The Knife\n**(Differentiation)**")
-        st.write("*“What is the speed of a frozen moment?”*")
-        st.caption("Slicing time into infinitely thin pieces.")
-    with col3:
-        st.success("### 🧱 The Glue\n**(Integration)**")
-        st.write("*“How do we rebuild the whole from fragments?”*")
-        st.caption("The accumulation and reconstruction of slices.")
+    # --- 第一幕：启蒙与恐惧 (The Seed) ---
+    with eras[0]:
+        st.subheader("🏛️ Era 1: The Fear of Infinity")
+
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            st.markdown("### The Origins")
+            st.write("""
+            **Who:** Zeno of Elea & Archimedes.
+
+            **The Concept:** Ancient Greeks loved perfect shapes (Circles, Squares). But they were terrified of "Infinity".
+
+            * **Zeno's Paradox:** Proved that motion is logically impossible if space is infinitely divisible.
+            * **Archimedes' Struggle:** He wanted to find the area of a circle. He couldn't integrate, so he used the **Method of Exhaustion**.
+            """)
+            st.info(
+                "He drew polygons with more and more sides. He knew the area was *approaching* a limit, but he lacked the algebra to define it.")
+
+        with col2:
+            # 可视化：阿基米德割圆术
+            n_sides = st.slider("Archimedes' Polygons (n)", 3, 50, 3)
+            theta = np.linspace(0, 2 * np.pi, n_sides + 1)
+            x_poly = np.cos(theta)
+            y_poly = np.sin(theta)
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=np.cos(np.linspace(0, 2 * np.pi, 100)), y=np.sin(np.linspace(0, 2 * np.pi, 100)),
+                                     mode='lines', line=dict(color='gray', dash='dot'), name='True Circle'))
+            fig.add_trace(go.Scatter(x=x_poly, y=y_poly, fill="toself", name=f'{n_sides}-gon'))
+            fig.update_layout(title="Approximating Pi", height=300, margin=dict(l=0, r=0, t=30, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+
+    # --- 第二幕：差点发明微积分的人 (The Dawn) ---
+    with eras[1]:
+        st.subheader("🔦 Era 2: The Almost-Inventors")
+        st.write("Before Newton, one man came incredibly close.")
+
+        c1, c2 = st.columns([1.5, 1])
+        with c1:
+            st.markdown("### Pierre de Fermat (The Pioneer)")
+            st.write("**His Method:** *Adequality* (Pseudo-Equality).")
+            st.write("Fermat wanted to find the maximum point of a curve. Here is his exact algorithm:")
+
+            st.markdown("""
+            **Fermat's Algorithm (Example: $y = x^2$):**
+            1.  Let $x$ be the point, and $x+E$ be a point essentially close to it.
+            2.  Assume $f(x) \approx f(x+E)$ at the peak.
+            3.  Expand: $x^2 \approx (x+E)^2 = x^2 + 2xE + E^2$.
+            4.  Subtract $x^2$: $0 \approx 2xE + E^2$.
+            5.  **Divide by E**: $0 \approx 2x + E$.  <-- (Vital Step)
+            6.  **Set E = 0**: Result is $2x$.
+            """)
+
+            st.error("""
+            **Why wasn't he credited?**
+            1.  **Logical Flaw:** He divided by $E$ (so $E \neq 0$) then set $E=0$. This is illegal in algebra.
+            2.  **Missing Link:** He saw this only as a geometry trick for tangents. He did **not** realize that Finding Tangents (Differentiation) and Finding Areas (Integration) were connected.
+            """)
+
+        with c2:
+            st.image(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Pierre_de_Fermat.jpg/220px-Pierre_de_Fermat.jpg",
+                caption="Pierre de Fermat")
+            st.caption("The Prince of Amateurs. He had the technique, but not the system.")
+
+    # --- 第三幕：真正的发明者 (The Revolution) ---
+    with eras[2]:
+        st.subheader("🍎 Era 3: The Birth of Calculus")
+        st.markdown(
+            "In the 1660s, a plague hit London. Cambridge University closed. **Isaac Newton** went home and changed the world.")
+
+        tab_newton, tab_leibniz, tab_ftc = st.tabs(["Newton's Physics", "Leibniz's Notation", "The Holy Grail (FTC)"])
+
+        with tab_newton:
+            st.write("**Motivation:** Planetary Motion.")
+            st.write("Kepler described *how* planets move, but Newton wanted to know *why* (Gravity).")
+            st.write("To do this, he needed to calculate **Instantaneous Velocity** (Speed at a frozen moment).")
+            st.info("He invented **Fluxions** ($\\dot{x}$). He treated time as a flowing river.")
+
+        with tab_leibniz:
+            st.write("**Motivation:** Geometry & Logic.")
+            st.write(
+                "Gottfried Wilhelm Leibniz wanted a perfect language for analysis. He realized that the slope was a ratio of tiny differences.")
+            st.latex(r"\text{Slope} = \frac{dy}{dx}")
+            st.success(
+                "Leibniz's notation was so powerful that it allowed people to 'calculate' without thinking too hard. That is why we use his symbols today.")
+
+        with tab_ftc:
+            st.markdown("### The Fundamental Theorem of Calculus (FTC)")
+            st.warning("**This is why they are the fathers, and Fermat is not.**")
+            st.write("They discovered the **Great Connection**:")
+            st.markdown("""
+            > **Integration (Area) is the inverse of Differentiation (Slope).**
+            """)
+            st.write("This turned two hard problems into one solvable system. It was the 'atomic bomb' of mathematics.")
+
+    # --- 第四幕：危机与攻击 (The Crisis) ---
+    with eras[3]:
+        st.subheader("👻 Era 4: The Logical Crisis (1734)")
+
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            st.markdown("### Bishop Berkeley's Attack")
+            st.write(
+                "Calculus worked, but its logic was broken. Newton and Leibniz treated infinitesimal quantities ($dx$, $o$) as:")
+            st.markdown("""
+            * **Non-zero** when they needed to divide by them.
+            * **Zero** when they wanted to get rid of them.
+            """)
+
+            st.error("""
+            **The Critique:**
+            Bishop Berkeley wrote *The Analyst*, mocking them:
+            > *"And what are these fluxions? The ghosts of departed quantities!"*
+
+            He argued: If math is built on a lie ($0 \neq 0$), then science is no better than religion.
+            """)
+
+            st.success("""
+            **The Defense:**
+            **Thomas Bayes** (yes, the probability guy) wrote a defense, arguing that the *logic of the ratio* was sound, even if the definition of the tiny number was fuzzy.
+            """)
+
+        with c2:
+            st.image(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/George_Berkeley_by_John_Smibert.jpg/220px-George_Berkeley_by_John_Smibert.jpg",
+                caption="Bishop George Berkeley")
+
+    # --- 第五幕：救赎与完善 (The Salvation) ---
+    with eras[4]:
+        st.subheader("🏁 Era 5: The Rigor (1820s)")
+        st.write(
+            "For 150 years, mathematicians used Calculus like a 'magic wand' without knowing why it worked. Until **Cauchy**.")
+
+        c1, c2 = st.columns([1, 1])
+        with c1:
+            st.markdown("### Augustin-Louis Cauchy")
+            st.write("He threw away the concept of 'infinitesimals' ($dx$ as a tiny number).")
+            st.write("He introduced the concept of **Limits**.")
+
+            st.info("""
+            **The Shift:**
+            * Old Way: $x$ *is* infinitely close to $c$.
+            * Cauchy's Way: $x$ *approaches* $c$ arbitrarily close.
+            """)
+            st.write(
+                "This solved the division by zero paradox. We never divide by zero; we look at the **trend** as we get closer to zero.")
+
+        with c2:
+            # 简单的 Epsilon-Delta 可视化
+            st.latex(r"\lim_{x \to c} f(x) = L")
+            st.write(
+                "**Karl Weierstrass** later perfected this into the $(\epsilon, \delta)$ language we use in universities today.")
+            st.caption("Calculus was finally complete.")
 
     st.divider()
+    st.markdown("### 🎬 Conclusion")
+    st.write("You are now standing at the end of this 2000-year journey.")
+    st.write("In the next chapters, you will use the tools forged by these giants.")
 
-    # --- 2. 交互式可视化：伟大的连接 (The Great Connection) ---
-    st.markdown("### 2. The Great Connection (Interactive)")
-    st.write(
-        "Move the slider to see how **Position (Function)**, **Speed (Slope)**, and **Accumulation (Area)** change in perfect harmony.")
-
-    # 滑块：控制时间/位置 x
-    x_val = st.slider("Timeline / Position (x)", 0.0, 4.0, 2.0)
-
-    # 数据准备: f(x) = x^2/4
-    x_plot = np.linspace(0, 4.5, 200)
-    y_plot = x_plot ** 2 / 4
-    slope = x_val / 2  # 导数值 (f'(x) = x/2)
-    area_val = (x_val ** 3) / 12  # 积分值 (F(x) = x^3/12)
-
-    fig = go.Figure()
-
-    # A. 积分 (阴影面积) - 代表“累积”
-    x_area = np.linspace(0, x_val, 100)
-    y_area = x_area ** 2 / 4
-    fig.add_trace(go.Scatter(x=x_area, y=y_area, fill='tozeroy', mode='none',
-                             name=f'Integration (Area={area_val:.2f})', fillcolor='rgba(0, 173, 181, 0.3)'))
-
-    # B. 主函数曲线 - 代表“路径”
-    fig.add_trace(go.Scatter(x=x_plot, y=y_plot, mode='lines', name='Function f(x)', line=dict(color='white', width=3)))
-
-    # C. 微分 (切线) - 代表“瞬间速度”
-    # 计算切线方程: y - y1 = m(x - x1)
-    x_tan = np.linspace(max(0, x_val - 1), min(4.5, x_val + 1), 20)
-    y_tan = slope * (x_tan - x_val) + (x_val ** 2 / 4)
-    fig.add_trace(go.Scatter(x=x_tan, y=y_tan, mode='lines', name=f'Differentiation (Slope={slope:.2f})',
-                             line=dict(color='#FF2E63', width=4)))
-
-    # D. 当前状态点
-    fig.add_trace(go.Scatter(x=[x_val], y=[x_val ** 2 / 4], mode='markers',
-                             marker=dict(size=15, color='#FDB827', line=dict(width=2, color='white')),
-                             name='Current Moment'))
-
-    fig.update_layout(title="The Trinity of Calculus Visualized", template="plotly_dark", height=450,
-                      margin=dict(t=40, b=40))
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.divider()
-
-    # --- 3. 历史博物馆：200年的战争 ---
-    st.markdown("### 3. The Hall of Fame: The Intellectual War")
-
-    # 分四个阶段讲述历史
-    hist_tab1, hist_tab2, hist_tab3, hist_tab4 = st.tabs(
-        ["Fermat: The Pioneer", "Newton/Leibniz: The Inventors", "Berkeley/Bayes: The Crisis", "Cauchy: The Savior"])
-
-    with hist_tab1:
-        st.markdown("#### 🔦 Pierre de Fermat - The Prince of Amateurs")
-        st.write(
-            "Long before Newton, Fermat discovered a strange trick: to find a peak, he shifted $x$ by a tiny amount $E$, calculated the result, and then forced $E$ to vanish.")
-        st.latex(r"f(x+E) \approx f(x)")
-        st.warning(
-            "The Flaw: Fermat couldn't explain why $E$ could be a divisor (not 0) and then suddenly disappear (be 0).")
-
-    with hist_tab2:
-        st.markdown("#### ⚔️ Newton & Leibniz - The Great Debate")
-        st.write(
-            "Newton approached from Physics (planetary speed); Leibniz approached from Geometry (tangents). They independently invented Calculus.")
-        st.write("**Newton:** Called it 'Fluxions'.\n**Leibniz:** Invented the notation $\\frac{dy}{dx}$ we use today.")
-
-    with hist_tab3:
-        st.markdown("#### 👻 Bishop Berkeley vs. Thomas Bayes")
-        st.error(
-            "**Berkeley (1734):** He mocked Calculus as 'pseudo-science'. He famously called $dx$ the 'Ghost of departed quantities'—neither zero nor non-zero.")
-        st.success(
-            "**Thomas Bayes:** Yes, the probability genius! He anonymously published a defense of Newton, proving that the 'limit' of motion was logically sound, saving Calculus from disgrace.")
-
-    with hist_tab4:
-        st.markdown("#### 🏁 Augustin-Louis Cauchy - The Rigorist")
-        st.write(
-            "It took 150 years for Cauchy to finally banish the 'ghosts' using the strict definition of **Limits**.")
-        st.info(
-            "He taught us: We don't need $dx$ to BE zero; we only need it to 'approach' zero infinitely. Calculus finally became a rigorous science.")
-
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        st.info("👉 **Chapter I: Limits** (Cauchy's Tool)")
+    with col_btn2:
+        st.info("👉 **Chapter II: Differentiation** (Newton's Knife)")
 
 # ==========================================
 # Chapter I: Limits (The Paradox) - 第一章：极限
