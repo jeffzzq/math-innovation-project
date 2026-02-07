@@ -1265,331 +1265,248 @@ def render_topic_3_sequence():
 
             st.success(r"Conclusion: $e^{ix} = \cos(x) + i\sin(x)$")
 
-#topic 9 微分
+
+# ==========================================
+# 0. THE GRAND TALE: 序幕 (微积分全景)
+# ==========================================
+def render_calculus_grand_story():
+    st.header("📜 The Calculus Saga: Taming the Infinite")
+    st.caption("Humanity's greatest intellectual achievement: How we used finite minds to understand infinite change.")
+
+    # --- 1. 核心概念：三位一体 (The Trinity) ---
+    st.markdown("### 1. The Three Pillars")
+    st.write("Calculus is not a set of isolated topics; it is **one** continuous story of mastering 'Infinity'.")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info("### 🌉 The Bridge\n**(Limits)**")
+        st.write("*“How do we get infinitely close without touching?”*")
+        st.caption("Solving the logical crisis of the infinite.")
+    with col2:
+        st.warning("### 🔪 The Knife\n**(Differentiation)**")
+        st.write("*“What is the speed of a frozen moment?”*")
+        st.caption("Slicing time into infinitely thin pieces.")
+    with col3:
+        st.success("### 🧱 The Glue\n**(Integration)**")
+        st.write("*“How do we rebuild the whole from fragments?”*")
+        st.caption("The accumulation and reconstruction of slices.")
+
+    st.divider()
+
+    # --- 2. 交互式可视化：伟大的连接 (The Great Connection) ---
+    st.markdown("### 2. The Great Connection (Interactive)")
+    st.write(
+        "Move the slider to see how **Position (Function)**, **Speed (Slope)**, and **Accumulation (Area)** change in perfect harmony.")
+
+    # 滑块：控制时间/位置 x
+    x_val = st.slider("Timeline / Position (x)", 0.0, 4.0, 2.0)
+
+    # 数据准备: f(x) = x^2/4
+    x_plot = np.linspace(0, 4.5, 200)
+    y_plot = x_plot ** 2 / 4
+    slope = x_val / 2  # 导数值 (f'(x) = x/2)
+    area_val = (x_val ** 3) / 12  # 积分值 (F(x) = x^3/12)
+
+    fig = go.Figure()
+
+    # A. 积分 (阴影面积) - 代表“累积”
+    x_area = np.linspace(0, x_val, 100)
+    y_area = x_area ** 2 / 4
+    fig.add_trace(go.Scatter(x=x_area, y=y_area, fill='tozeroy', mode='none',
+                             name=f'Integration (Area={area_val:.2f})', fillcolor='rgba(0, 173, 181, 0.3)'))
+
+    # B. 主函数曲线 - 代表“路径”
+    fig.add_trace(go.Scatter(x=x_plot, y=y_plot, mode='lines', name='Function f(x)', line=dict(color='white', width=3)))
+
+    # C. 微分 (切线) - 代表“瞬间速度”
+    # 计算切线方程: y - y1 = m(x - x1)
+    x_tan = np.linspace(max(0, x_val - 1), min(4.5, x_val + 1), 20)
+    y_tan = slope * (x_tan - x_val) + (x_val ** 2 / 4)
+    fig.add_trace(go.Scatter(x=x_tan, y=y_tan, mode='lines', name=f'Differentiation (Slope={slope:.2f})',
+                             line=dict(color='#FF2E63', width=4)))
+
+    # D. 当前状态点
+    fig.add_trace(go.Scatter(x=[x_val], y=[x_val ** 2 / 4], mode='markers',
+                             marker=dict(size=15, color='#FDB827', line=dict(width=2, color='white')),
+                             name='Current Moment'))
+
+    fig.update_layout(title="The Trinity of Calculus Visualized", template="plotly_dark", height=450,
+                      margin=dict(t=40, b=40))
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # --- 3. 历史博物馆：200年的战争 ---
+    st.markdown("### 3. The Hall of Fame: The Intellectual War")
+
+    # 分四个阶段讲述历史
+    hist_tab1, hist_tab2, hist_tab3, hist_tab4 = st.tabs(
+        ["Fermat: The Pioneer", "Newton/Leibniz: The Inventors", "Berkeley/Bayes: The Crisis", "Cauchy: The Savior"])
+
+    with hist_tab1:
+        st.markdown("#### 🔦 Pierre de Fermat - The Prince of Amateurs")
+        st.write(
+            "Long before Newton, Fermat discovered a strange trick: to find a peak, he shifted $x$ by a tiny amount $E$, calculated the result, and then forced $E$ to vanish.")
+        st.latex(r"f(x+E) \approx f(x)")
+        st.warning(
+            "The Flaw: Fermat couldn't explain why $E$ could be a divisor (not 0) and then suddenly disappear (be 0).")
+
+    with hist_tab2:
+        st.markdown("#### ⚔️ Newton & Leibniz - The Great Debate")
+        st.write(
+            "Newton approached from Physics (planetary speed); Leibniz approached from Geometry (tangents). They independently invented Calculus.")
+        st.write("**Newton:** Called it 'Fluxions'.\n**Leibniz:** Invented the notation $\\frac{dy}{dx}$ we use today.")
+
+    with hist_tab3:
+        st.markdown("#### 👻 Bishop Berkeley vs. Thomas Bayes")
+        st.error(
+            "**Berkeley (1734):** He mocked Calculus as 'pseudo-science'. He famously called $dx$ the 'Ghost of departed quantities'—neither zero nor non-zero.")
+        st.success(
+            "**Thomas Bayes:** Yes, the probability genius! He anonymously published a defense of Newton, proving that the 'limit' of motion was logically sound, saving Calculus from disgrace.")
+
+    with hist_tab4:
+        st.markdown("#### 🏁 Augustin-Louis Cauchy - The Rigorist")
+        st.write(
+            "It took 150 years for Cauchy to finally banish the 'ghosts' using the strict definition of **Limits**.")
+        st.info(
+            "He taught us: We don't need $dx$ to BE zero; we only need it to 'approach' zero infinitely. Calculus finally became a rigorous science.")
+
+
+# ==========================================
+# Chapter I: Limits (The Paradox) - 第一章：极限
+# ==========================================
+def render_topic_8_limits():
+    st.header("🌉 Chapter I: Limits & Continuity")
+
+    # 剧情回顾：连接 Grand Tale
+    with st.expander("🔙 Recap: Banish the Ghosts", expanded=False):
+        st.write(
+            "In the Grand Tale, we saw Berkeley's attack on $0/0$. **Limits** are the surgical tools that fix this logical contradiction.")
+
+    t1, t2, t3 = st.tabs(["The Toolkit (Calculation)", "The Handshake (Existence)", "Repair Game (Continuity)"])
+
+    # --- Tab 1: 计算工具箱 ---
+    with t1:
+        st.subheader("🧰 The Surgical Tools for 0/0")
+        choice = st.radio("Choose your tool:", ["Factorization", "Conjugate"], horizontal=True)
+        if "Factorization" in choice:
+            st.latex(r"\lim_{x \to 2} \frac{x^2 - 4}{x - 2} = \lim_{x \to 2} \frac{(x-2)(x+2)}{(x-2)} = 4")
+            st.caption("We surgically remove the 'problem term' $(x-2)$ that causes the error.")
+        else:
+            st.latex(r"\lim_{x \to 0} \frac{\sqrt{x+9}-3}{x} = \frac{1}{6}")
+            st.caption("Using the 'Conjugate Mirror' to clear the square root.")
+
+    # --- Tab 2: 存在性 (左右极限) ---
+    with t2:
+        st.subheader("🤝 The Handshake Rule")
+        st.write(
+            "A limit exists only if the traveler from the Left and the traveler from the Right meet at the same point.")
+
+        # 交互：断桥实验
+        broken = st.toggle("Break the Bridge")
+        x = np.linspace(0, 4, 100)
+        # 如果 broken 为真，右半部分向上平移
+        y = np.where(x < 2, x ** 2, (x + 2 if broken else x ** 2))
+
+        fig = go.Figure(go.Scatter(x=x, y=y, line=dict(color='#00ADB5', width=3)))
+        st.plotly_chart(fig, use_container_width=True)
+        st.write("Result: " + ("❌ Limit DNE (L ≠ R)" if broken else "✅ Limit Exists (L = R)"))
+
+    # --- Tab 3: 连续性修复游戏 ---
+    with t3:
+        st.subheader("🔧 The Continuity Repair")
+        st.info("Remember the 'Removable Discontinuity'? You can fix the function by moving this point.")
+
+        # 滑块：移动点的高度
+        target_y = st.slider("Adjust f(2) height", 0.0, 8.0, 1.0)
+
+        x_line = np.linspace(0, 4, 100)
+        y_line = x_line + 2
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x_line, y=y_line, name='Function Path', line=dict(color='gray')))
+        fig.add_trace(
+            go.Scatter(x=[2], y=[target_y], mode='markers', marker=dict(size=15, color='#FDB827'), name='Your Point'))
+        st.plotly_chart(fig, use_container_width=True)
+
+        # 判定是否修复成功
+        if abs(target_y - 4.0) < 0.1:
+            st.success("🎉 Repair Successful! The function is now continuous.")
+
+
+# ==========================================
+# Chapter II: Differentiation (The Motion) - 第二章：微分
+# ==========================================
 def render_topic_differentiation():
-        st.header("📈 Topic 9: The Art of Change (Differentiation)")
-        st.caption("From Form 4 Physics to Newton's Apple")
+    st.header("📈 Chapter II: Differentiation (The Knife)")
 
-        # 使用 Tabs 分割过多的内容，保持页面整洁
-        tab1, tab2, tab3, tab4, tab5 = st.tabs([
-            "1. Physics & History",
-            "2. First Principles",
-            "3. Visualizing Rules",
-            "4. Max/Min & Inflection",
-            "5. Advanced (Implicit/Parametric)"
-        ])
+    # 剧情回顾
+    with st.expander("🔙 Recap: The Snapshot of the Moment", expanded=False):
+        st.write(
+            "Newton invented differentiation to calculate planetary speed. It is essentially finding the ultimate direction of a slope as the gap vanishes.")
 
-        # === Tab 1: 物理直觉与历史 (全新升级版) ===
-        with tab1:
-            # --- Part A: 物理图像大翻新 ---
-            st.subheader("🏎️ Part A: The Physics Connection (Visualized)")
-            st.write("You've been doing differentiation since Form 4 physics, you just didn't call it that.")
-            st.caption("Look at how the **gradient** of the top graph becomes the **value** of the bottom graph.")
+    t1, t2, t3 = st.tabs(["First Principles", "Visual Gallery", "Parametric (God's Eye)"])
 
-            # 准备数据：一个简单的加速运动 s = t^2
-            t_phy = np.linspace(0, 4, 100)
-            s_phy = t_phy ** 2  # Displacement (Quadratic curves upwards)
-            v_phy = 2 * t_phy  # Velocity (Straight diagonal line)
-            a_phy = np.full_like(t_phy, 2)  # Acceleration (Flat horizontal line)
+    # --- Tab 1: 第一性原理 (割线变切线) ---
+    with t1:
+        st.subheader("🔍 The Microscopic Definition")
+        st.latex(r"f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}")
 
-            # 使用 Plotly 子图来垂直堆叠三个图表
-            from plotly.subplots import make_subplots
-            fig_phy = make_subplots(rows=3, cols=1,
-                                    shared_xaxes=True,  # 共用一个X轴
-                                    vertical_spacing=0.1,
-                                    subplot_titles=("1. Displacement (s) vs Time", "2. Velocity (v) = Gradient of s",
-                                                    "3. Acceleration (a) = Gradient of v"))
+        # 滑块：h 趋近于 0
+        h = st.slider("Let distance h approach 0", 0.01, 2.0, 1.0)
 
-            # 图1: 位移 (加个填充色让它看起来更有分量)
-            fig_phy.add_trace(
-                go.Scatter(x=t_phy, y=s_phy, name='s=t²', line=dict(color='#00ADB5', width=3), fill='tozeroy'), row=1,
-                col=1)
-            # 图2: 速度 (用亮一点的颜色强调它是斜率)
-            fig_phy.add_trace(go.Scatter(x=t_phy, y=v_phy, name='v=2t', line=dict(color='#FF2E63', width=3)), row=2,
-                              col=1)
-            # 图3: 加速度 (用醒目的颜色)
-            fig_phy.add_trace(go.Scatter(x=t_phy, y=a_phy, name='a=2', line=dict(color='#FDB827', width=4)), row=3,
-                              col=1)
+        x = np.linspace(0, 3, 100)
+        # 计算割线数据
+        x1, x2 = 1.0, 1.0 + h
+        m = (x2 ** 2 - x1 ** 2) / (x2 - x1)  # 斜率
+        y_secant = x1 ** 2 + m * (x - x1)  # 割线方程
 
-            # 美化布局
-            fig_phy.update_layout(height=600, template="plotly_dark", hovermode="x unified", margin=dict(t=60, b=20))
-            # 给Y轴加标签
-            fig_phy.update_yaxes(title_text="s (meters)", row=1, col=1)
-            fig_phy.update_yaxes(title_text="v (m/s)", row=2, col=1)
-            fig_phy.update_yaxes(title_text="a (m/s²)", row=3, col=1)
-            fig_phy.update_xaxes(title_text="Time (t)", row=3, col=1)
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x, y=x ** 2, name='Curve'))
+        fig.add_trace(go.Scatter(x=[x1, x2], y=[x1 ** 2, x2 ** 2], mode='markers', marker=dict(color='red')))
+        fig.add_trace(go.Scatter(x=x, y=y_secant, line=dict(dash='dash'), name='Secant to Tangent'))
+        st.plotly_chart(fig, use_container_width=True)
 
-            st.plotly_chart(fig_phy, use_container_width=True)
+        if h < 0.1:
+            st.success("🌟 Miracle Moment: The Secant line has become the Tangent! The slope is now the derivative.")
 
-            st.success(
-                "💡 In Math, finding the gradient **IS** Differentiation! $v = \\frac{ds}{dt}$, $a = \\frac{dv}{dt}$.")
+    # --- Tab 2: 导数画廊 ---
+    with t2:
+        st.subheader("🎨 Derivative Gallery")
+        f_type = st.selectbox("Choose a function:", ["Polynomial (x³)", "Trigonometric (sin x)", "Exponential (eˣ)"])
+        x = np.linspace(-3, 3, 100)
 
-            st.divider()
+        # 根据选择生成不同的函数数据
+        if "x³" in f_type:
+            y, yp = x ** 3, 3 * x ** 2
+        elif "sin" in f_type:
+            y, yp = np.sin(x), np.cos(x)
+        else:
+            y, yp = np.exp(x), np.exp(x)
 
-            # --- Part B: 费马故事大扩容 ---
-            st.subheader("📜 Part B: Fermat's \"Adequality\" (The Blueprint of Calculus)")
-            st.write("Fermat wanted to find the slope of $y = x^2$. He used a clever trick called **Adequality**.")
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x, y=y, name='Original f(x)'))
+        fig.add_trace(go.Scatter(x=x, y=yp, name="Derivative f'(x) (Slope)", line=dict(dash='dot')))
+        st.plotly_chart(fig, use_container_width=True)
 
-            # 1. 上半区：可视化 vs 数学推导
-            col_vis, col_math = st.columns([1.5, 1])
+    # --- Tab 3: 参数方程 (上帝视角) ---
+    with t3:
+        st.subheader("🌀 Parametric: Beyond x and y")
+        st.write("In physics, $x$ and $y$ are often controlled by Time ($t$).")
 
-            with col_vis:
-                st.markdown("#### 1. Visualizing the Trick")
-                st.info("👇 **Drag $E$ to 0** to see the Secant become a Tangent.")
+        # 滑块：控制时间 t
+        t_val = st.slider("Time (t)", 0.0, 6.28, 0.0)
+        st.latex(r"x = \cos(t), \quad y = \sin(t)")
 
-                E_val = st.slider("Step Size (E)", -1.0, 1.0, 0.5, step=0.01)
+        t_range = np.linspace(0, 6.28, 100)
+        fig = go.Figure(go.Scatter(x=np.cos(t_range), y=np.sin(t_range), name='Motion Path'))
 
-                # 绘图逻辑
-                x_base = np.linspace(0, 3, 100)
-                y_base = x_base ** 2
-                x_p, y_p = 1.0, 1.0
-                x_q = x_p + E_val
-                y_q = x_q ** 2
-                slope = (y_q - y_p) / (x_q - x_p) if abs(E_val) > 1e-5 else 2.0
+        # 红色标记点代表粒子位置
+        fig.add_trace(
+            go.Scatter(x=[np.cos(t_val)], y=[np.sin(t_val)], mode='markers', marker=dict(size=15, color='red')))
+        fig.update_layout(width=400, height=400)
+        st.plotly_chart(fig, use_container_width=True)
 
-                fig_fermat = go.Figure()
-                fig_fermat.add_trace(go.Scatter(x=x_base, y=y_base, name='y=x²', line=dict(color='gray')))
-                fig_fermat.add_trace(
-                    go.Scatter(x=[x_p], y=[y_p], mode='markers+text', text=["P"], textposition="top center",
-                               marker=dict(size=12, color='#00ADB5')))
-                fig_fermat.add_trace(
-                    go.Scatter(x=[x_q], y=[y_q], mode='markers+text', text=["Q"], textposition="top center",
-                               marker=dict(size=12, color='#FF2E63')))
-                x_line = np.array([0, 3])
-                y_line = slope * (x_line - x_p) + y_p
-                fig_fermat.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name=f'Slope={slope:.2f}',
-                                                line=dict(color='#FDB827', width=3)))
-                fig_fermat.update_layout(height=350, xaxis_range=[0, 2.5], yaxis_range=[0, 5], template="plotly_dark",
-                                         margin=dict(l=20, r=20, t=20, b=20))
-                st.plotly_chart(fig_fermat, use_container_width=True)
 
-            with col_math:
-                st.markdown("#### 2. The Math")
-                st.write("How Fermat calculated it:")
-                st.markdown(r"""
-                        **Step 1:** $f(x+E) \approx f(x)$
-                        $$(x+E)^2 \approx x^2$$
-                        **Step 2:** Expand
-                        $$x^2 + 2xE + E^2 \approx x^2$$
-                        **Step 3:** Divide by $E$
-                        $$2x + E \approx 0$$
-                        **Step 4:** Let $E = 0$
-                        $$\text{Slope} = 2x$$
-                        """)
-                if abs(E_val) < 0.05:
-                    st.success(r"✅ Result: $2x$")
-                else:
-                    st.warning(f"Current: $2x + {E_val:.2f}$")
-
-            st.divider()
-
-            # 2. 下半区：分析 vs 历史 (照片放在这里！)
-            c1, c2 = st.columns([1.5, 1])
-
-            with c1:
-                st.error("🚫 Why didn't he invent Calculus?")
-                st.markdown("""
-                        **The Logical Contradiction:**
-                        * To divide by $E$, **$E$ cannot be 0**.
-                        * To get the final answer, he sets **$E = 0$**.
-
-                        This "illegal" logic prevented him from being the Father of Calculus. 
-                        **Newton & Leibniz** later fixed this with the concept of **Limit ($\lim$)**.
-                        """)
-
-            with c2:
-                # === 📸 这里是存放照片的位置 ===
-                # 你可以把 "fermat.jpg" 换成你本地图片的文件名，或者网络链接
-                # 如果暂时没图，它会显示一个占位符
-                st.markdown("### 🧐 Pierre de Fermat")
-
-                # 使用 try-except 防止图片没找到时报错
-                try:
-                    st.image("fermat.jpg", caption="The Amateur Prince of Math", width=150)
-                except:
-                    st.info("[🖼️ Place Fermat's Portrait Here]")
-
-                # Fun Fact 模块 (保持不变)
-                st.warning("""
-                        **🤓 Fun Fact: The Mathematician Who Hated Proofs**
-
-                        Fermat was famous for stating brilliant mathematical results but **refusing to show his work**. 
-
-                        His most famous prank was **"Fermat's Last Theorem"**. He scribbled in the margin of a book:
-                        > *"I have discovered a truly marvelous demonstration of this proposition that this margin is too narrow to contain."*
-
-                        ...and then he died. It took humanity **358 years** (until 1994) to finally prove he was right!
-                        """)
-        # === Tab 2: First Principles (可视化极限) ===
-        with tab2:
-            st.subheader("🔍 The First Principle")
-            st.markdown(
-                r"Differentiation is just finding the slope of the tangent. But how do we find the slope at **one point**?")
-
-            st.latex(r"f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}")
-
-            col_fp1, col_fp2 = st.columns([1, 2])
-            with col_fp1:
-                st.write("### Visualize $h \\to 0$")
-                h_val = st.slider("Select value of h (Distance between points)", 0.01, 2.0, 1.0, step=0.01)
-                x_target = 1.0  # 在 x=1 处求导
-
-            with col_fp2:
-                # 函数 f(x) = x^2
-                x_range = np.linspace(0, 3, 100)
-                y_curve = x_range ** 2
-
-                # Secant Line (割线)
-                x1 = x_target
-                y1 = x1 ** 2
-                x2 = x_target + h_val
-                y2 = x2 ** 2
-                m_secant = (y2 - y1) / (x2 - x1)
-
-                # 绘制割线
-                x_secant = np.array([x1 - 0.5, x2 + 0.5])
-                y_secant = y1 + m_secant * (x_secant - x1)
-
-                fig_lim = go.Figure()
-                # 曲线
-                fig_lim.add_trace(go.Scatter(x=x_range, y=y_curve, name='f(x)=x^2', line=dict(color='gray')))
-                # 两点
-                fig_lim.add_trace(go.Scatter(x=[x1, x2], y=[y1, y2], mode='markers', name='Points',
-                                             marker=dict(size=10, color='red')))
-                # 割线
-                fig_lim.add_trace(
-                    go.Scatter(x=x_secant, y=y_secant, name=f'Secant (Slope={m_secant:.2f})', line=dict(color='blue')))
-
-                fig_lim.update_layout(title=f"Secant becomes Tangent as h -> 0", height=400, xaxis_range=[0, 3],
-                                      yaxis_range=[0, 9])
-                st.plotly_chart(fig_lim, use_container_width=True)
-
-                if h_val < 0.1:
-                    st.success(
-                        f"🌟 Look! When h is tiny, the Secant line becomes the Tangent line! The slope is {m_secant:.2f} (Exact: 2.0)")
-
-        # === Tab 3: 可视化不同函数与法则 ===
-        with tab3:
-            st.subheader("🎨 The Gallery of Derivatives")
-
-            func_choice = st.selectbox("Choose a function to differentiate:",
-                                       ["Polynomial (x^3)", "Trigonometric (sin x)", "Exponential (e^x)"])
-
-            x_vis = np.linspace(-2 * np.pi, 2 * np.pi, 200)
-
-            if func_choice == "Polynomial (x^3)":
-                y_orig = x_vis ** 3
-                y_prime = 3 * x_vis ** 2
-                title = "Slope of Cubic is Quadratic"
-            elif func_choice == "Trigonometric (sin x)":
-                y_orig = np.sin(x_vis)
-                y_prime = np.cos(x_vis)
-                title = "Derivative of Sin is Cos (Shifted Phase)"
-            else:
-                x_vis = np.linspace(-2, 2, 100)  # e^x range smaller
-                y_orig = np.exp(x_vis)
-                y_prime = np.exp(x_vis)
-                title = "e^x is Immortal! (It is its own derivative)"
-
-            fig_func = go.Figure()
-            fig_func.add_trace(go.Scatter(x=x_vis, y=y_orig, name='f(x)', line=dict(width=3)))
-            fig_func.add_trace(go.Scatter(x=x_vis, y=y_prime, name="f'(x) Gradient", line=dict(dash='dash', width=3)))
-            fig_func.update_layout(title=title, height=350)
-            st.plotly_chart(fig_func, use_container_width=True)
-
-            st.markdown("---")
-            st.write("### 🛠️ The Toolkit (Rules)")
-            r1, r2, r3 = st.columns(3)
-            with r1:
-                st.info("**Product Rule**")
-                st.latex(r"\frac{d}{dx}(uv) = u'v + uv'")
-                st.caption("When two functions multiply.")
-            with r2:
-                st.warning("**Quotient Rule**")
-                st.latex(r"\frac{d}{dx}\left(\frac{u}{v}\right) = \frac{u'v - uv'}{v^2}")
-                st.caption("Low d-High minus High d-Low...")
-            with r3:
-                st.error("**Chain Rule**")
-                st.latex(r"\frac{dy}{dx} = \frac{dy}{du} \times \frac{du}{dx}")
-                st.caption("Like peeling an onion (Layers).")
-
-        # === Tab 4: Stationary Points (Max/Min/Inflection) ===
-        with tab4:
-            st.subheader("🏔️ Maximum, Minimum & Inflection")
-            st.markdown("How do we know if we are at the top of a hill or bottom of a valley?")
-
-            st.latex(r"\text{Stationary Point: } \frac{dy}{dx} = 0")
-
-            # 构造一个三次函数 y = x^3 - 3x (根在 -sqrt(3), 0, sqrt(3)，极值在 -1, 1)
-            x_opt = np.linspace(-2.5, 2.5, 100)
-            y_opt = x_opt ** 3 - 3 * x_opt
-
-            # 用户互动点
-            x_point = st.slider("Move the point along the curve:", -2.0, 2.0, -1.0, step=0.1)
-            y_point = x_point ** 3 - 3 * x_point
-            slope = 3 * x_point ** 2 - 3  # f'(x)
-            concavity = 6 * x_point  # f''(x)
-
-            # 绘制切线
-            # y - y1 = m(x - x1) => y = m(x-x1) + y1
-            x_tan = np.linspace(x_point - 0.5, x_point + 0.5, 10)
-            y_tan = slope * (x_tan - x_point) + y_point
-
-            fig_opt = go.Figure()
-            fig_opt.add_trace(go.Scatter(x=x_opt, y=y_opt, name='f(x) = x^3 - 3x'))
-            fig_opt.add_trace(
-                go.Scatter(x=x_tan, y=y_tan, name=f"Tangent (Slope={slope:.2f})", line=dict(color='red', width=3)))
-            fig_opt.add_trace(go.Scatter(x=[x_point], y=[y_point], mode='markers', marker=dict(size=12, color='red')))
-
-            # 动态注释
-            status = ""
-            if abs(slope) < 0.1:
-                status += "🛑 **Stationary Point!** "
-                if concavity < 0:
-                    status += "(Maximum 🏔️ because f'' < 0)"
-                elif concavity > 0:
-                    status += "(Minimum 🥣 because f'' > 0)"
-                else:
-                    status += "(Inflection Point?)"
-            elif abs(concavity) < 0.1:  # x=0
-                status += "🔄 **Inflection Point!** (Concavity changes here)"
-            else:
-                status += "Just a normal point."
-
-            st.markdown(f"### Status: {status}")
-            st.plotly_chart(fig_opt, use_container_width=True)
-
-            st.write(f"**1st Derivative (Gradient):** {slope:.2f}")
-            st.write(f"**2nd Derivative (Concavity):** {concavity:.2f}")
-
-        # === Tab 5: Advanced (Implicit & Parametric) ===
-        with tab5:
-            st.subheader("🌀 Beyond Simple y=f(x)")
-
-            col_adv1, col_adv2 = st.columns(2)
-
-            with col_adv1:
-                st.markdown("### 1. Parametric Differentiation")
-                st.write("Instead of $y$ depending on $x$, both depend on a parameter $t$.")
-                st.latex(r"x = 2\cos(t), \quad y = 2\sin(t) \quad (\text{A Circle!})")
-                st.write("To find gradient:")
-                st.latex(r"\frac{dy}{dx} = \frac{dy/dt}{dx/dt}")
-
-            with col_adv2:
-                st.markdown("### 2. Implicit Differentiation")
-                st.write("When x and y are mixed together and you can't separate them.")
-                st.latex(r"x^2 + y^2 = 25")
-                st.write("We differentiate term by term, treating $y$ as a function of $x$ (adding $\\frac{dy}{dx}$).")
-
-            # 画个圆作为 Parametric 的例子
-            t_par = np.linspace(0, 2 * np.pi, 100)
-            x_par = np.cos(t_par)
-            y_par = np.sin(t_par)
-
-            fig_par = go.Figure(data=go.Scatter(x=x_par, y=y_par, mode='lines', name='Parametric Circle'))
-            fig_par.update_layout(title="Parametric Curve: Circle", width=400, height=400, xaxis_range=[-1.5, 1.5],
-                                  yaxis_range=[-1.5, 1.5])
-            st.plotly_chart(fig_par, use_container_width=True)
 # ==========================================
 # 4. 占位符模块
 # ==========================================
@@ -1605,36 +1522,75 @@ def render_coming_soon(topic_name):
         st.warning("Developer Mode: Module Not Linked")
 
 # ==========================================
-# 5. 主程序入口
+# ==========================================
+# 5. 主程序入口 (极简叙事版)
 # ==========================================
 def main():
-    st.sidebar.title("📚 Matri-X Navigation")
-    topic_selection = st.sidebar.radio(
-        "Select Chapter:",
-        [
-            "Topic 1: Number Systems",
-            "Topic 2: Equations & Inequalities",
-            "Topic 3: Sequences & Series",
-            "Topic 4: Matrices",
-            "Topic 5: Linear Equations",
-            "Topic 6: Polynomials",
-            "Topic 7: Trigonometry",
-            "Topic 9: Differentiation"
-        ]
-    )
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Designed for Matrikulasi Innovation")
+    st.sidebar.title("🧮 Mathovator")
+    st.sidebar.caption("Matrikulasi Innovation Project")
 
-    if topic_selection == "Topic 1: Number Systems":
+    # 定义菜单：前面保持原样，微积分部分开启 Saga 叙事
+    menu_options = [
+        "Topic 1: Number Systems",
+        "Topic 2: Equations & Inequalities",
+        "Topic 3: Sequences & Series",
+        "Topic 4: Matrices",
+        "Topic 5: Linear Equations",
+        "Topic 6: Polynomials",
+        "Topic 7: Trigonometry",
+
+        # === 唯一的高亮区域：微积分史诗 ===
+        "--- 📜 THE CALCULUS SAGA ---",
+        "0. The Grand Tale (Overview)",  # 总览故事
+        "Chapter I: Limits (The Paradox)",  # 极限
+        "Chapter II: Differentiation (The Motion)",  # 微分
+        "Chapter III: Integration (The Area)"  # 积分
+    ]
+
+    # 侧边栏选择
+    topic_selection = st.sidebar.selectbox("Navigate:", menu_options)
+
+    # 动态显示氛围感
+    if "Topic" in topic_selection:
+        st.sidebar.markdown("---")
+        st.sidebar.caption("Classical Mathematical Structures")
+    elif "Chapter" in topic_selection or "Grand Tale" in topic_selection:
+        st.sidebar.markdown("---")
+        st.sidebar.success("🔥 Exploring the Science of Change.")
+
+    st.sidebar.markdown("---")
+
+    # === 路由逻辑 (Routing) ===
+
+    # 1. 微积分总览
+    if topic_selection == "0. The Grand Tale (Overview)":
+        render_calculus_grand_story()
+
+        # 2. 前置章节 (直接根据原名跳转)
+    elif topic_selection == "Topic 1: Number Systems":
         render_topic_1_number_system()
-    elif topic_selection == "Topic 2: Equations & Inequalities":
-        render_coming_soon("Topic 2: Equations & Inequalities")
+
     elif topic_selection == "Topic 3: Sequences & Series":
-        render_topic_3_sequence()  # <--- 这里调用了新函数！
-    elif topic_selection == "Topic 9: Differentiation":
-        render_topic_differentiation()
-    else:
+        render_topic_3_sequence()
+
+    # 其他还没做的代数 Topic 占位
+    elif "Topic" in topic_selection:
         render_coming_soon(topic_selection)
+
+    # 3. 微积分章节 (Saga 系列)
+    elif topic_selection == "Chapter I: Limits (The Paradox)":
+        render_topic_8_limits()
+
+    elif topic_selection == "Chapter II: Differentiation (The Motion)":
+        render_topic_differentiation()
+
+    elif topic_selection == "Chapter III: Integration (The Area)":
+        render_coming_soon("Integration (The Area)")
+
+    # 处理分割线
+    elif "---" in topic_selection:
+        st.info("👇 Please select a Chapter from the Calculus Saga below.")
+
 
 if __name__ == "__main__":
     main()
