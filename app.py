@@ -1267,187 +1267,467 @@ def render_topic_3_sequence():
 
 
 # ==========================================
-# 0. THE GRAND TALE: ULTIMATE EDITION (深度史诗版)
+# THE GRAND TALE: THE MAGNUM OPUS EDITION (绝对详尽版)
 # ==========================================
 def render_calculus_grand_story():
-    st.header("📜 The Calculus Saga: A 2000-Year War")
-    st.caption("The complete history of how humanity learned to control the Infinite.")
+    st.title("📜 The Calculus Saga: The 2000-Year War on Infinity")
+    st.markdown("### *From the Mind of God to the Measure of Man.*")
 
-    # 定义五个历史阶段的 Tabs
-    eras = st.tabs([
-        "1. The Seed (450 BC)",
-        "2. The Dawn (1630s)",
-        "3. The Revolution (1660s)",
-        "4. The Crisis (1734)",
-        "5. The Salvation (1820s)"
-    ])
-
-    # --- 第一幕：启蒙与恐惧 (The Seed) ---
-    with eras[0]:
-        st.subheader("🏛️ Era 1: The Fear of Infinity")
-
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            st.markdown("### The Origins")
-            st.write("""
-            **Who:** Zeno of Elea & Archimedes.
-
-            **The Concept:** Ancient Greeks loved perfect shapes (Circles, Squares). But they were terrified of "Infinity".
-
-            * **Zeno's Paradox:** Proved that motion is logically impossible if space is infinitely divisible.
-            * **Archimedes' Struggle:** He wanted to find the area of a circle. He couldn't integrate, so he used the **Method of Exhaustion**.
-            """)
-            st.info(
-                "He drew polygons with more and more sides. He knew the area was *approaching* a limit, but he lacked the algebra to define it.")
-
-        with col2:
-            # 可视化：阿基米德割圆术
-            n_sides = st.slider("Archimedes' Polygons (n)", 3, 50, 3)
-            theta = np.linspace(0, 2 * np.pi, n_sides + 1)
-            x_poly = np.cos(theta)
-            y_poly = np.sin(theta)
-
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=np.cos(np.linspace(0, 2 * np.pi, 100)), y=np.sin(np.linspace(0, 2 * np.pi, 100)),
-                                     mode='lines', line=dict(color='gray', dash='dot'), name='True Circle'))
-            fig.add_trace(go.Scatter(x=x_poly, y=y_poly, fill="toself", name=f'{n_sides}-gon'))
-            fig.update_layout(title="Approximating Pi", height=300, margin=dict(l=0, r=0, t=30, b=0))
-            st.plotly_chart(fig, use_container_width=True)
-
-    # --- 第二幕：差点发明微积分的人 (The Dawn) ---
-    with eras[1]:
-        st.subheader("🔦 Era 2: The Almost-Inventors")
-        st.write("Before Newton, one man came incredibly close.")
-
-        c1, c2 = st.columns([1.5, 1])
-        with c1:
-            st.markdown("### Pierre de Fermat (The Pioneer)")
-            st.write("**His Method:** *Adequality* (Pseudo-Equality).")
-            st.write("Fermat wanted to find the maximum point of a curve. Here is his exact algorithm:")
-
-            st.markdown("""
-            **Fermat's Algorithm (Example: $y = x^2$):**
-            1.  Let $x$ be the point, and $x+E$ be a point essentially close to it.
-            2.  Assume $f(x) \approx f(x+E)$ at the peak.
-            3.  Expand: $x^2 \approx (x+E)^2 = x^2 + 2xE + E^2$.
-            4.  Subtract $x^2$: $0 \approx 2xE + E^2$.
-            5.  **Divide by E**: $0 \approx 2x + E$.  <-- (Vital Step)
-            6.  **Set E = 0**: Result is $2x$.
-            """)
-
-            st.error("""
-            **Why wasn't he credited?**
-            1.  **Logical Flaw:** He divided by $E$ (so $E \neq 0$) then set $E=0$. This is illegal in algebra.
-            2.  **Missing Link:** He saw this only as a geometry trick for tangents. He did **not** realize that Finding Tangents (Differentiation) and Finding Areas (Integration) were connected.
-            """)
-
-        with c2:
-            st.image(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Pierre_de_Fermat.jpg/220px-Pierre_de_Fermat.jpg",
-                caption="Pierre de Fermat")
-            st.caption("The Prince of Amateurs. He had the technique, but not the system.")
-
-    # --- 第三幕：真正的发明者 (The Revolution) ---
-    with eras[2]:
-        st.subheader("🍎 Era 3: The Birth of Calculus")
-        st.markdown(
-            "In the 1660s, a plague hit London. Cambridge University closed. **Isaac Newton** went home and changed the world.")
-
-        tab_newton, tab_leibniz, tab_ftc = st.tabs(["Newton's Physics", "Leibniz's Notation", "The Holy Grail (FTC)"])
-
-        with tab_newton:
-            st.write("**Motivation:** Planetary Motion.")
-            st.write("Kepler described *how* planets move, but Newton wanted to know *why* (Gravity).")
-            st.write("To do this, he needed to calculate **Instantaneous Velocity** (Speed at a frozen moment).")
-            st.info("He invented **Fluxions** ($\\dot{x}$). He treated time as a flowing river.")
-
-        with tab_leibniz:
-            st.write("**Motivation:** Geometry & Logic.")
-            st.write(
-                "Gottfried Wilhelm Leibniz wanted a perfect language for analysis. He realized that the slope was a ratio of tiny differences.")
-            st.latex(r"\text{Slope} = \frac{dy}{dx}")
-            st.success(
-                "Leibniz's notation was so powerful that it allowed people to 'calculate' without thinking too hard. That is why we use his symbols today.")
-
-        with tab_ftc:
-            st.markdown("### The Fundamental Theorem of Calculus (FTC)")
-            st.warning("**This is why they are the fathers, and Fermat is not.**")
-            st.write("They discovered the **Great Connection**:")
-            st.markdown("""
-            > **Integration (Area) is the inverse of Differentiation (Slope).**
-            """)
-            st.write("This turned two hard problems into one solvable system. It was the 'atomic bomb' of mathematics.")
-
-    # --- 第四幕：危机与攻击 (The Crisis) ---
-    with eras[3]:
-        st.subheader("👻 Era 4: The Logical Crisis (1734)")
-
+    # --- 0. 序章：神学与动机 (The Theological Spark) ---
+    with st.expander("✨ Prologue: The Mind of God (17th Century Context)", expanded=True):
         c1, c2 = st.columns([2, 1])
         with c1:
-            st.markdown("### Bishop Berkeley's Attack")
-            st.write(
-                "Calculus worked, but its logic was broken. Newton and Leibniz treated infinitesimal quantities ($dx$, $o$) as:")
-            st.markdown("""
-            * **Non-zero** when they needed to divide by them.
-            * **Zero** when they wanted to get rid of them.
+            st.write("""
+            **Why was Calculus invented? Not for homework, but for Faith.**
+
+            In the 17th Century, science was not separate from religion. The "Heavens" (Stars) were literally believed to be the realm of God. 
+            Scientists believed the universe was a machine designed by a perfect Creator. To discover the mathematical laws of the universe was to **read the mind of God**.
             """)
+            st.markdown(
+                "> *\"Nature and nature's laws lay hid in night; God said **'Let Newton be'** and all was light.\"* — Alexander Pope")
 
-            st.error("""
-            **The Critique:**
-            Bishop Berkeley wrote *The Analyst*, mocking them:
-            > *"And what are these fluxions? The ghosts of departed quantities!"*
+            st.write("""
+            **The Great Conflict:**
+            * **The Church (Ptolemy):** Earth is the center. Humans are special.
+            * **The Rebels (Copernicus/Kepler):** The Sun is the center. The math is elegant.
 
-            He argued: If math is built on a lie ($0 \neq 0$), then science is no better than religion.
+            To prove the Sun was the center, they needed to predict planetary motion with **perfect accuracy**. Old geometry failed. They needed a new math.
             """)
-
-            st.success("""
-            **The Defense:**
-            **Thomas Bayes** (yes, the probability guy) wrote a defense, arguing that the *logic of the ratio* was sound, even if the definition of the tiny number was fuzzy.
-            """)
-
         with c2:
-            st.image(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/George_Berkeley_by_John_Smibert.jpg/220px-George_Berkeley_by_John_Smibert.jpg",
-                caption="Bishop George Berkeley")
-
-    # --- 第五幕：救赎与完善 (The Salvation) ---
-    with eras[4]:
-        st.subheader("🏁 Era 5: The Rigor (1820s)")
-        st.write(
-            "For 150 years, mathematicians used Calculus like a 'magic wand' without knowing why it worked. Until **Cauchy**.")
-
-        c1, c2 = st.columns([1, 1])
-        with c1:
-            st.markdown("### Augustin-Louis Cauchy")
-            st.write("He threw away the concept of 'infinitesimals' ($dx$ as a tiny number).")
-            st.write("He introduced the concept of **Limits**.")
-
-            st.info("""
-            **The Shift:**
-            * Old Way: $x$ *is* infinitely close to $c$.
-            * Cauchy's Way: $x$ *approaches* $c$ arbitrarily close.
-            """)
-            st.write(
-                "This solved the division by zero paradox. We never divide by zero; we look at the **trend** as we get closer to zero.")
-
-        with c2:
-            # 简单的 Epsilon-Delta 可视化
-            st.latex(r"\lim_{x \to c} f(x) = L")
-            st.write(
-                "**Karl Weierstrass** later perfected this into the $(\epsilon, \delta)$ language we use in universities today.")
-            st.caption("Calculus was finally complete.")
+            st.image("https://upload.wikimedia.org/wikipedia/commons/d/d4/Johannes_Kepler_1610.jpg",
+                     caption="Kepler: 'I am thinking God's thoughts after Him.'")
 
     st.divider()
-    st.markdown("### 🎬 Conclusion")
-    st.write("You are now standing at the end of this 2000-year journey.")
-    st.write("In the next chapters, you will use the tools forged by these giants.")
 
-    col_btn1, col_btn2 = st.columns(2)
-    with col_btn1:
-        st.info("👉 **Chapter I: Limits** (Cauchy's Tool)")
-    with col_btn2:
-        st.info("👉 **Chapter II: Differentiation** (Newton's Knife)")
+    # --- 1. 核心直觉 (The Intuition) ---
+    st.markdown("### 1. The Artifact: The Trinity of Change")
+    st.info(
+        "Before we walk through history, hold the core concept in your hand. Calculus unites three things that seem separate.")
 
+    # 交互滑块
+    t_val = st.slider("Time / Position (t)", 0.0, 4.0, 2.0)
+    x = np.linspace(0, 4.5, 200)
+    y = x ** 2 / 4
+    slope = t_val / 2
+    area_val = (t_val ** 3) / 12
+
+    fig = go.Figure()
+    # 积分
+    x_area = np.linspace(0, t_val, 100)
+    y_area = x_area ** 2 / 4
+    fig.add_trace(go.Scatter(x=x_area, y=y_area, fill='tozeroy', mode='none', name=f'Accumulation (Area/Integral)',
+                             fillcolor='rgba(0, 173, 181, 0.3)'))
+    # 路径
+    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Path (Function)', line=dict(color='yellow', width=3)))
+    # 微分
+    x_tan = np.linspace(max(0, t_val - 1), min(4.5, t_val + 1), 20)
+    y_tan = slope * (x_tan - t_val) + (t_val ** 2 / 4)
+    fig.add_trace(go.Scatter(x=x_tan, y=y_tan, mode='lines', name=f'Velocity (Slope/Derivative)',
+                             line=dict(color='#FF2E63', width=4)))
+    # 点
+    fig.add_trace(go.Scatter(x=[t_val], y=[t_val ** 2 / 4], mode='markers', marker=dict(size=15, color='#FDB827')))
+    fig.update_layout(template="plotly_dark", height=350, margin=dict(t=20, b=20))
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # --- 历史长卷：七大篇章 (完全对应文章结构) ---
+    st.markdown("### 🎬 The Chronicles")
+
+    tabs = st.tabs([
+        "I. The Ancient Fog",
+        "II. The Four Needs",
+        "III. The Giants",
+        "IV. The Birth",
+        "V. The Crisis",
+        "VI. The Rigor",
+        "VII. Modern Horizons"
+    ])
+
+    # ==========================================
+    # ERA I: 古希腊 (芝诺与阿基米德)
+    # ==========================================
+    # ==========================================
+    # ERA I: 古希腊 (芝诺与阿基米德) [深度重制版]
+    # ==========================================
+    with tabs[0]:
+        st.subheader("🏛️ Era I: The Fear of Infinity (450 BC - 250 BC)")
+        st.markdown("""
+            **The Context:**
+            The Ancient Greeks loved geometry because it was static and perfect. But **Motion** and **Infinity** terrified them.
+
+            **Why did Zeno create these paradoxes?**
+            Zeno wasn't trying to say "movement doesn't exist" (he could walk to prove that). 
+            He was a student of **Parmenides**, who believed **"All is One"** and change is an illusion. 
+            Zeno created these 4 paradoxes to prove that if you assume space/time are divisible (many), logic breaks down.
+            """)
+
+        st.divider()
+
+        # --- 芝诺的四大悖论 (使用子标签页详细展示) ---
+        st.markdown("### 🐢 Zeno's Four Paradoxes")
+        z_tab1, z_tab2, z_tab3, z_tab4 = st.tabs([
+            "1. The Dichotomy (Space)",
+            "2. Achilles (Motion)",
+            "3. The Arrow (Time)",
+            "4. The Stadium (Relativity)"
+        ])
+
+        # 1. 二分法悖论
+        with z_tab1:
+            col_d1, col_d2 = st.columns([1.5, 1])
+            with col_d1:
+                st.markdown("**The Paradox of Infinite Divisibility**")
+                st.write("""
+                    **The Argument:**
+                    To reach the wall, you must first walk halfway ($1/2$).
+                    To walk the remaining half, you must walk half of that ($1/4$).
+                    Then $1/8$, then $1/16$...
+
+                    **The Trap:**
+                    You have to complete an **Infinite** number of tasks in a **Finite** amount of time. 
+                    Zeno argued this is logically impossible. Therefore, you can never even start moving.
+                    """)
+                st.latex(r"Distance = \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \dots = 1")
+
+            with col_d2:
+                # 可视化：无穷级数逼近
+                steps = st.slider("Steps taken", 1, 10, 4)
+                d_vals = [1 / (2 ** i) for i in range(1, steps + 1)]
+                cum_sum = np.cumsum(d_vals)
+
+                fig_d = go.Figure()
+                fig_d.add_trace(go.Bar(x=list(range(1, steps + 1)), y=d_vals, name="Step Size"))
+                fig_d.add_trace(
+                    go.Scatter(x=list(range(1, steps + 1)), y=cum_sum, name="Total Distance", line=dict(color='red')))
+                fig_d.update_layout(height=250, title="Approaching 1", margin=dict(t=30, b=10), showlegend=False)
+                st.plotly_chart(fig_d, use_container_width=True)
+
+        # 2. 阿基里斯追乌龟
+        with z_tab2:
+            col_a1, col_a2 = st.columns([1.5, 1])
+            with col_a1:
+                st.markdown("**The Paradox of the Race**")
+                st.write("""
+                    **The Argument:**
+                    Achilles (fastest runner) races a Tortoise (slowest). Tortoise gets a head start (e.g., 100m).
+
+                    1. By the time Achilles reaches the 100m mark, the Tortoise has moved a little (say, 10m).
+                    2. By the time Achilles runs that 10m, the Tortoise moves a bit more (1m).
+                    3. By the time Achilles runs that 1m, the Tortoise moves 0.1m...
+
+                    **The Trap:**
+                    Whenever Achilles reaches where the Tortoise *was*, the Tortoise has moved further.
+                    Achilles gets infinitely close, but logically **never passes** it.
+                    """)
+            with col_a2:
+                # 可视化：追及问题
+                t = np.linspace(0, 15, 100)
+                y_achilles = 10 * t
+                y_tortoise = 50 + 2 * t  # 50m head start, slow speed
+
+                fig_race = go.Figure()
+                fig_race.add_trace(go.Scatter(x=t, y=y_achilles, name="Achilles"))
+                fig_race.add_trace(go.Scatter(x=t, y=y_tortoise, name="Tortoise"))
+                fig_race.update_layout(title="When do they intersect?", xaxis_title="Time", yaxis_title="Distance",
+                                       height=250, margin=dict(t=30, b=10))
+                st.plotly_chart(fig_race, use_container_width=True)
+                st.caption("Calculus solves this by finding the intersection point of two functions.")
+
+        # 3. 飞矢不动
+        with z_tab3:
+            col_ar1, col_ar2 = st.columns([1.5, 1])
+            with col_ar1:
+                st.markdown("**The Paradox of the Instant**")
+                st.write("""
+                    **The Argument:**
+                    Consider an arrow flying through the air.
+                    1. Look at any single **Instant** (snapshot of time, $t=0$).
+                    2. At that exact instant, the arrow is not moving (it occupies a space equal to itself).
+                    3. Time is made of instants.
+                    4. If it's motionless at *every* instant, it is motionless for the *whole* time.
+
+                    **The Trap:**
+                    This challenged the concept of **Velocity**. How can you move if you are frozen in every frame?
+                    """)
+            with col_ar2:
+                # 可视化：时间切片
+                fig_arrow = go.Figure()
+                fig_arrow.add_trace(go.Scatter(x=[2], y=[1], mode='markers+text',
+                                               marker=dict(size=20, symbol="arrow-right", color="red"),
+                                               text=["Frozen?"], textposition="top center"))
+                fig_arrow.update_xaxes(range=[0, 4], title="Position")
+                fig_arrow.update_yaxes(showticklabels=False)
+                fig_arrow.update_layout(title="Snapshot at t=2.0s", height=250, margin=dict(t=30, b=10))
+                st.plotly_chart(fig_arrow, use_container_width=True)
+                st.caption("Calculus definition: $v = dx/dt$. It's a ratio of limits, not a state at a point.")
+
+        # 4. 游行队伍 (游标悖论)
+        with z_tab4:
+            st.markdown("**The Paradox of Relativity & Discrete Time**")
+            st.write("""
+                **The Argument:**
+                Imagine three rows of soldiers:
+                * Row A: Standing still.
+                * Row B: Moving Right (Speed 1).
+                * Row C: Moving Left (Speed 1).
+
+                Relative to A, B moves 1 unit.
+                Relative to C, B moves **2 units**.
+
+                **The Trap:**
+                Zeno argued: If time has a "smallest unit" (an atom of time), then B passed two units of C in one unit of time. 
+                This implies "Half the time is equal to Double the time".
+                It proves that **Motion is Relative** and challenges the idea of "Absolute Time".
+                """)
+
+        st.info("""
+            **What happened next?**
+            These paradoxes froze Greek math. They decided to banish "Infinity" to avoid these logical traps.
+            It wasn't until **Newton (Calculus)** and **Cauchy (Limits)** that we could mathematically solve Zeno.
+            * We proved: Infinite sums can equal a finite number (Convergent Series).
+            * We proved: Instantaneous velocity is a limit, not a static state.
+            """)
+
+        st.divider()
+
+        # --- 阿基米德部分 ---
+        st.markdown("### 📐 Archimedes: The First 'Hacker'")
+
+        c_arch1, c_arch2 = st.columns([1.5, 1])
+        with c_arch1:
+            st.write("""
+                **Archimedes (287 BC)** didn't solve Zeno's philosophy. He just found a way to work around it.
+
+                **The Method of Exhaustion:**
+                He wanted to find the area of a circle (to calculate Pi). He didn't have integration.
+                So he sandwiched the circle between two polygons:
+                1. An **Inner Polygon** (Area < Circle).
+                2. An **Outer Polygon** (Area > Circle).
+
+                He doubled the sides: 6, 12, 24, 48, 96...
+
+                **The Logic:**
+                He proved that the difference between the polygon and the circle could be made **"smaller than any given magnitude"**. 
+                He didn't use the word "Limit", but he used the logic of limits.
+                """)
+            st.success(
+                "**Impact:** This was the direct ancestor of **Integration**. 2000 years later, Newton would use this same idea but with algebra instead of geometry.")
+
+        with c_arch2:
+            # 阿基米德可视化 (保留并优化)
+            n = st.slider("Polygon Sides (Approximation)", 3, 96, 6)
+            th = np.linspace(0, 2 * np.pi, n + 1)
+
+            fig_arch = go.Figure()
+            # 圆
+            fig_arch.add_trace(
+                go.Scatter(x=np.cos(np.linspace(0, 2 * np.pi, 100)), y=np.sin(np.linspace(0, 2 * np.pi, 100)),
+                           line=dict(color='white'), name="True Circle"))
+            # 内接多边形
+            fig_arch.add_trace(
+                go.Scatter(x=np.cos(th), y=np.sin(th), fill="toself", name="Inner Polygon", line=dict(color='#00ADB5')))
+
+            fig_arch.update_layout(height=280, margin=dict(t=20, b=20), title=f"Approximating Pi with {n} sides",
+                                   template="plotly_dark", showlegend=False)
+            st.plotly_chart(fig_arch, use_container_width=True)
+
+    # ==========================================
+    # ERA II: 四大现实需求
+    # ==========================================
+    with tabs[1]:
+        st.subheader("🔥 Era II: The Four Impossible Problems (1600s)")
+        st.write(
+            "By the 17th Century, the scientific revolution hit a wall. Four problems could not be solved by old math.")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("#### 1. The Velocity Problem (Motion)")
+            st.write("Galileo studied gravity. But how do you calculate speed at an exact instant?")
+            st.code("Speed = Distance / Time")
+            st.write("If Time is 0, you get $0/0$. Meaningless.")
+
+            st.markdown("#### 2. The Tangent Problem (Optics)")
+            st.write(
+                "Telescopes were key to Astronomy. To grind perfect lenses, you need to know the **Normal and Tangent** angles at every point of a curve.")
+
+        with col2:
+            st.markdown("#### 3. The Maxima Problem (Warfare)")
+            st.write(
+                "Cannons dominated Europe. To hit the furthest target, you need to find the **Maximum** of the parabolic trajectory.")
+            st.write("This means finding where the slope is zero.")
+
+            st.markdown("#### 4. The Area Problem (Astronomy)")
+            st.write("Kepler's 2nd Law: *Planets sweep equal areas in equal time.*")
+            st.image(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kepler-second-law.svg/300px-Kepler-second-law.svg.png",
+                caption="Kepler's Area Law")
+            st.caption("Calculating the area of an irregular elliptical slice was impossible.")
+
+    # ==========================================
+    # ERA III: 前夜的巨人
+    # ==========================================
+    with tabs[2]:
+        st.subheader("🔦 Era III: The Shoulders of Giants")
+        st.write("Before Newton, these men hacked the system.")
+
+        st.markdown("#### 1. Kepler & The Wine Barrels (Integration)")
+        st.write(
+            "To calculate the volume of wine barrels for his wedding, Kepler treated the barrel as a sum of **infinite thin discs**.")
+        st.caption("This was primitive Integration.")
+
+        st.markdown("#### 2. Cavalieri (Indivisibles)")
+        st.write("Bonaventura Cavalieri proposed that a volume is made of infinite 'pages' (planes).")
+        st.info(
+            "**Cavalieri's Principle:** If two solids have equal cross-sections at every height, they have equal volume. (Still used today!).")
+
+        st.divider()
+
+        st.markdown("#### 3. Fermat's 'Illegal' Derivative (Differentiation)")
+        st.write("Pierre de Fermat (a lawyer) found a way to find Maxima. **Here is his exact algorithm:**")
+
+        cols = st.columns([1.2, 1])
+        with cols[0]:
+            st.markdown("**Fermat's Steps (Pseudo-Equality):**")
+            st.latex(r"1. \quad f(x) \approx f(x+E)")
+            st.write("Expand the equation ($y=x^2$ example):")
+            st.latex(r"2. \quad x^2 \approx x^2 + 2xE + E^2")
+            st.write("Subtract $x^2$ and Divide by $E$:")
+            st.latex(r"3. \quad 0 \approx 2x + E")
+            st.write("Set $E=0$:")
+            st.latex(r"4. \quad 0 = 2x \implies Slope = 2x")
+        with cols[1]:
+            st.error("**The Logical Crime:**")
+            st.write("In Step 3, he divides by $E$, so **$E \\neq 0$**.")
+            st.write("In Step 4, he sets **$E = 0$**.")
+            st.warning(
+                "You cannot be something and nothing at the same time! This contradiction haunted math for 200 years.")
+
+    # ==========================================
+    # ERA IV: 诞生 (牛顿与莱布尼茨)
+    # ==========================================
+    with tabs[3]:
+        st.subheader("🍎 Era IV: The Birth (1660s)")
+        st.write("The separate problems (Tangents vs Areas) were unified into one system.")
+
+        col_n, col_l = st.columns(2)
+
+        with col_n:
+            st.image("https://upload.wikimedia.org/wikipedia/commons/3/39/GodfreyKneller-IsaacNewton-1689.jpg",
+                     width=150)
+            st.markdown("**Isaac Newton (The Physicist)**")
+            st.write("**Year:** 1665-1666 (The Plague Years).")
+            st.write("**Concept:** **Fluxions** ($\dot{x}$).")
+            st.write("**View:** Variables are flowing quantities (Motion).")
+            st.write("**Publication:** Delayed until 1736 (he hated criticism).")
+            st.info("He used this to prove Gravity and explain Kepler's Laws.")
+
+        with col_l:
+            st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/Gottfried_Wilhelm_von_Leibniz.jpg", width=150)
+            st.markdown("**G.W. Leibniz (The Logician)**")
+            st.write("**Year:** 1684 (Published First).")
+            st.write("**Concept:** **Differentials** ($dx$).")
+            st.write("**View:** Curves are infinite tiny polygons (Geometry).")
+            st.write("**Legacy:** He gave us the symbols $\int$ and $d$.")
+            st.success("He discovered the Product Rule and Chain Rule.")
+
+        st.divider()
+        st.success(
+            "🏆 **The Fundamental Theorem of Calculus:** They both proved that Differentiation (Slope) and Integration (Area) are **INVERSE** operations.")
+
+    # ==========================================
+    # ERA V: 危机 (贝克莱与贝叶斯)
+    # ==========================================
+    with tabs[4]:
+        st.subheader("👻 Era V: The Crisis of Logic (1734)")
+        st.write("Calculus worked, but its foundation was rotten. How can you divide by zero?")
+
+        st.error("**The Attack: Bishop Berkeley**")
+        st.write("Bishop Berkeley published *The Analyst* to attack the 'Infidel Mathematicians'.")
+        st.markdown(
+            "> *\"He divides by $dx$, so it is not zero. Then he throws it away, so it is zero. These are the **Ghosts of departed quantities**!\"*")
+        st.write("He argued: If math rests on a 'Double Error', it is no better than religious mysticism.")
+
+        st.info("**The Defense: d'Alembert & Bayes**")
+        st.write("**d'Alembert (1754):** Suggested we need a theory of **Limits**, not tiny numbers.")
+        st.write("**Thomas Bayes:** Argued that the logic of the *Ratio* holds true, even if the tiny numbers vanish.")
+        st.write(
+            "**Lagrange:** Tried to use Algebra (Taylor Series) to avoid Limits, but failed to handle convergence.")
+
+    # ==========================================
+    # ERA VI: 严谨化 (柯西、魏尔斯特拉斯、黎曼)
+    # ==========================================
+    with tabs[5]:
+        st.subheader("🏁 Era VI: The Reign of Rigor (19th Century)")
+        st.write("It took 150 years to banish the ghosts.")
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown("**1. Cauchy (The Limit)**")
+            st.write("1821. He defined the Limit strictly. We don't reach zero, we analyze the **Trend**.")
+            st.latex(r"\lim_{x \to c} f(x) = L")
+        with c2:
+            st.markdown("**2. Weierstrass (The Logic)**")
+            st.write("1874. He removed all 'motion' intuition. He created the **Epsilon-Delta** definition.")
+            st.latex(r"\forall \epsilon > 0, \exists \delta > 0...")
+        with c3:
+            st.markdown("**3. Riemann (The Integral)**")
+            st.write("1854. He formalized Integration as the limit of sums of rectangles (**Riemann Sums**).")
+
+        st.write("This ended the Second Math Crisis. Calculus was now solid rock.")
+
+    # ==========================================
+    # ERA VII: 现代视界 (实变与勒贝格)
+    # ==========================================
+    with tabs[6]:
+        st.subheader("🚀 Era VII: Modern Horizons (20th Century)")
+        st.write("Just when we thought we were done, **Pathological Functions** appeared.")
+
+        st.markdown("**The Problem:**")
+        st.write(
+            "Functions like the Dirichlet Function (1 if rational, 0 if irrational) are impossible to integrate with Riemann's method (too many jumps).")
+
+        st.markdown("**The Solution: Henri Lebesgue (1902)**")
+        st.write("Lebesgue reinvented Integration. Instead of slicing the Domain ($x$), he sliced the Range ($y$).")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Riemann Integration**")
+            st.caption("Vertical Slicing")
+            st.write("Summing vertical bars.")
+            st.progress(80)
+        with col2:
+            st.markdown("**Lebesgue Integration**")
+            st.caption("Horizontal Layering (Measure)")
+            st.write("Summing horizontal layers (Measure Theory).")
+            st.progress(100)
+
+        # 勒贝格可视化
+        fig_leb = go.Figure()
+        x_vals = np.linspace(0, 10, 50)
+        y_vals = np.sin(x_vals) + 2
+        # 黎曼 (竖条)
+        fig_leb.add_trace(go.Bar(x=x_vals, y=y_vals, name="Riemann (Vertical)", marker_color='rgba(0, 173, 181, 0.5)'))
+        # 勒贝格 (横线示意)
+        fig_leb.add_trace(go.Scatter(x=[0, 10], y=[2.5, 2.5], mode='lines', name="Lebesgue (Horizontal Layer)",
+                                     line=dict(color='red', dash='dash')))
+        fig_leb.update_layout(height=300, margin=dict(t=30, b=10), title="Riemann vs Lebesgue Concept")
+        st.plotly_chart(fig_leb, use_container_width=True)
+
+        st.success(
+            "This led to **Real Analysis** and **Functional Analysis**, the math that powers Quantum Mechanics today.")
+
+    # --- 终章 ---
+    st.divider()
+    st.markdown("### 🎬 Epilogue: The Torch is Passed")
+    st.write(
+        "You now possess the machinery built by Archimedes, Newton, and Lebesgue. It took 2000 years to forge these tools.")
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.info("👉 **Chapter I: Limits**\n(The Logic of Cauchy)")
+    with col_b:
+        st.info("👉 **Chapter II: Differentiation**\n(The Fluxions of Newton)")
 # ==========================================
 # Chapter I: Limits (The Paradox) - 第一章：极限
 # ==========================================
@@ -1639,6 +1919,9 @@ def main():
     # === 路由逻辑 (Routing) ===
 
     # 1. 微积分总览
+    # 1. 如果用户选到了那个带横线的“主题标题”，自动帮他跳转到 Grand Tale
+    if topic_selection == "--- 📜 THE CALCULUS SAGA ---":
+        render_calculus_grand_story()
     if topic_selection == "0. The Grand Tale (Overview)":
         render_calculus_grand_story()
 
@@ -1662,11 +1945,6 @@ def main():
 
     elif topic_selection == "Chapter III: Integration (The Area)":
         render_coming_soon("Integration (The Area)")
-
-    # 处理分割线
-    elif "---" in topic_selection:
-        st.info("👇 Please select a Chapter from the Calculus Saga below.")
-
 
 if __name__ == "__main__":
     main()
