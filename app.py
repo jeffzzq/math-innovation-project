@@ -1532,77 +1532,387 @@ def render_calculus_grand_story():
                                    template="plotly_dark", showlegend=False)
             st.plotly_chart(fig_arch, use_container_width=True)
 
-    # ==========================================
-    # ERA II: 四大现实需求
-    # ==========================================
-    with tabs[1]:
-        st.subheader("🔥 Era II: The Four Impossible Problems (1600s)")
-        st.write(
-            "By the 17th Century, the scientific revolution hit a wall. Four problems could not be solved by old math.")
+        # ==========================================
+        # ERA II: 四大需求 (深度交互版)
+        # ==========================================
+        with tabs[1]:
+            st.subheader("🔥 Era II: The Four Impossible Problems (1600s)")
+            st.write("""
+            By the 17th Century, the Scientific Revolution was stalling. 
+            Old mathematics (Geometry & Algebra) hit a wall against four specific problems from the real world.
+            """)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("#### 1. The Velocity Problem (Motion)")
-            st.write("Galileo studied gravity. But how do you calculate speed at an exact instant?")
-            st.code("Speed = Distance / Time")
-            st.write("If Time is 0, you get $0/0$. Meaningless.")
+            # 使用子标签页详细展开
+            p_tab1, p_tab2, p_tab3, p_tab4 = st.tabs([
+                "1. Velocity (Motion)",
+                "2. Tangents (Optics)",
+                "3. Maxima (Warfare)",
+                "4. Area (Cosmos)"
+            ])
 
-            st.markdown("#### 2. The Tangent Problem (Optics)")
-            st.write(
-                "Telescopes were key to Astronomy. To grind perfect lenses, you need to know the **Normal and Tangent** angles at every point of a curve.")
+            # --- 问题 1: 瞬时速度 (The Velocity Problem) ---
+            with p_tab1:
+                c1, c2 = st.columns([1.5, 1])
+                with c1:
+                    st.markdown("#### 🚀 The Motion Crisis")
+                    st.info("**Challenge:** How to find speed at a specific *instant*?")
+                    st.write("""
+                    Galileo proved that falling objects accelerate ($d = t^2$). 
+                    * **Average Speed** is easy: $Distance / Time$.
+                    * **Instantaneous Speed** is impossible for old math.
 
-        with col2:
-            st.markdown("#### 3. The Maxima Problem (Warfare)")
-            st.write(
-                "Cannons dominated Europe. To hit the furthest target, you need to find the **Maximum** of the parabolic trajectory.")
-            st.write("This means finding where the slope is zero.")
+                    **The Trap:**
+                    To find the speed at exactly $t=1$, you need to measure distance in **0 seconds**.
+                    $$ v = \frac{\Delta d}{\Delta t} = \frac{0}{0} $$
+                    **Result:** Meaningless. This required the invention of the **Limit**.
+                    """)
+                with c2:
+                    # 可视化：割线逼近切线 (Secant approaching Tangent)
+                    st.caption("Visualizing the 'Crash' of 0/0")
+                    delta_t = st.slider("Time Interval (Δt)", 0.01, 2.0, 1.0, key="vel_dt")
+                    t_fixed = 1.0
 
-            st.markdown("#### 4. The Area Problem (Astronomy)")
-            st.write("Kepler's 2nd Law: *Planets sweep equal areas in equal time.*")
-            st.image(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kepler-second-law.svg/300px-Kepler-second-law.svg.png",
-                caption="Kepler's Area Law")
-            st.caption("Calculating the area of an irregular elliptical slice was impossible.")
+                    # 绘制曲线 d = t^2
+                    t_plot = np.linspace(0, 3, 100)
+                    d_plot = t_plot ** 2
 
-    # ==========================================
-    # ERA III: 前夜的巨人
-    # ==========================================
-    with tabs[2]:
-        st.subheader("🔦 Era III: The Shoulders of Giants")
-        st.write("Before Newton, these men hacked the system.")
+                    # 绘制割线
+                    t2 = t_fixed + delta_t
+                    d1, d2 = t_fixed ** 2, t2 ** 2
+                    slope = (d2 - d1) / (t2 - t_fixed)
 
-        st.markdown("#### 1. Kepler & The Wine Barrels (Integration)")
-        st.write(
-            "To calculate the volume of wine barrels for his wedding, Kepler treated the barrel as a sum of **infinite thin discs**.")
-        st.caption("This was primitive Integration.")
+                    fig_vel = go.Figure()
+                    fig_vel.add_trace(go.Scatter(x=t_plot, y=d_plot, name="Distance Curve"))
+                    # 割线
+                    x_sec = [t_fixed, t2]
+                    y_sec = [d1, d2]
+                    fig_vel.add_trace(
+                        go.Scatter(x=x_sec, y=y_sec, mode="lines+markers", name=f"Avg Speed: {slope:.2f}"))
 
-        st.markdown("#### 2. Cavalieri (Indivisibles)")
-        st.write("Bonaventura Cavalieri proposed that a volume is made of infinite 'pages' (planes).")
-        st.info(
-            "**Cavalieri's Principle:** If two solids have equal cross-sections at every height, they have equal volume. (Still used today!).")
+                    fig_vel.update_layout(height=250, margin=dict(t=20, b=20), title="Shrinking Δt -> Instant Speed")
+                    st.plotly_chart(fig_vel, use_container_width=True)
 
-        st.divider()
+            # --- 问题 2: 切线问题 (The Tangent Problem) ---
+            with p_tab2:
+                c1, c2 = st.columns([1.5, 1])
+                with c1:
+                    st.markdown("#### 🔭 The Optics Crisis")
+                    st.info("**Challenge:** Find the angle of a curve at any single point.")
+                    st.write("""
+                    **Why it mattered:**
+                    The 17th century was the age of the **Telescope** (Galileo, Kepler). 
+                    To build powerful telescopes, you need to grind lenses into perfect curves.
 
-        st.markdown("#### 3. Fermat's 'Illegal' Derivative (Differentiation)")
-        st.write("Pierre de Fermat (a lawyer) found a way to find Maxima. **Here is his exact algorithm:**")
+                    **The Physics:**
+                    Light refracts based on the angle it hits the glass. To calculate this angle, you need the **Normal Line** (perpendicular to the Tangent).
+                    Euclid only knew tangents for circles, not complex lens shapes.
+                    """)
+                with c2:
+                    # 简单示意图：透镜与光线
+                    x_lens = np.linspace(-2, 2, 100)
+                    y_lens = -0.2 * x_lens ** 2  # 简单的透镜形状
 
-        cols = st.columns([1.2, 1])
-        with cols[0]:
-            st.markdown("**Fermat's Steps (Pseudo-Equality):**")
-            st.latex(r"1. \quad f(x) \approx f(x+E)")
-            st.write("Expand the equation ($y=x^2$ example):")
-            st.latex(r"2. \quad x^2 \approx x^2 + 2xE + E^2")
-            st.write("Subtract $x^2$ and Divide by $E$:")
-            st.latex(r"3. \quad 0 \approx 2x + E")
-            st.write("Set $E=0$:")
-            st.latex(r"4. \quad 0 = 2x \implies Slope = 2x")
-        with cols[1]:
-            st.error("**The Logical Crime:**")
-            st.write("In Step 3, he divides by $E$, so **$E \\neq 0$**.")
-            st.write("In Step 4, he sets **$E = 0$**.")
-            st.warning(
-                "You cannot be something and nothing at the same time! This contradiction haunted math for 200 years.")
+                    fig_tan = go.Figure()
+                    fig_tan.add_trace(go.Scatter(x=x_lens, y=y_lens, name="Lens Surface", fill='tozeroy'))
+                    # 光线
+                    fig_tan.add_trace(
+                        go.Scatter(x=[-1, 1], y=[2, 2], mode="lines", line=dict(dash='dash'), name="Incoming Light"))
+                    fig_tan.add_trace(
+                        go.Scatter(x=[-1, 0, 1], y=[2, -0.8, 2], mode="lines", name="Refraction Needs Angles"))
 
+                    fig_tan.update_layout(height=250, margin=dict(t=30, b=20), showlegend=False,
+                                          title="Refraction Geometry")
+                    st.plotly_chart(fig_tan, use_container_width=True)
+
+            # --- 问题 3: 极值问题 (The Maxima Problem) ---
+            with p_tab3:
+                c1, c2 = st.columns([1.5, 1])
+                with c1:
+                    st.markdown("#### 💣 The Warfare Crisis")
+                    st.info("**Challenge:** When does a variable stop increasing and start decreasing?")
+                    st.write("""
+                    **Why it mattered:**
+                    Cannons were the ultimate weapon. Generals asked: 
+                    *At what angle should we fire to hit the **Maximum** distance?*
+
+                    **The Math Insight:**
+                    Fermat realized that at the peak of a trajectory, the object is momentarily **flat**.
+                    This means the **Slope = 0**. This was the birth of Optimization.
+                    """)
+
+            # --- 问题 4: 面积问题 (The Area Problem) ---
+            with p_tab4:
+                c1, c2 = st.columns([1.5, 1])
+                with c1:
+                    st.markdown("#### 🪐 The Cosmology Crisis")
+                    st.info("**Challenge:** Calculate the area inside a curve that isn't a circle.")
+                    st.write("""
+                    **Why it mattered:**
+                    **Kepler's Second Law**: *Planets sweep out equal areas in equal times.*
+                    But planetary orbits are **Ellipses** (irregular curves).
+
+                    **The Failure:**
+                    Ancient geometry had formulas for Squares ($l^2$) and Circles ($\pi r^2$). 
+                    They had **NO** formula for an elliptical slice.
+                    Kepler had to approximate it by summing infinite thin lines. This demanded **Integration**.
+                    """)
+                with c2:
+                    # 克卜勒第二定律示意图
+                    t = np.linspace(0, 2 * np.pi, 100)
+                    x_el = 2 * np.cos(t)
+                    y_el = 1.5 * np.sin(t)
+
+                    fig_kep = go.Figure()
+                    fig_kep.add_trace(go.Scatter(x=x_el, y=y_el, name="Orbit"))
+                    # 扫过的面积 (简单的扇形示意)
+                    fig_kep.add_trace(go.Scatter(x=[0, 2, 1.8, 0], y=[0, 0, 0.6, 0], fill="toself", name="Swept Area"))
+
+                    fig_kep.update_layout(height=250, margin=dict(t=20, b=20), showlegend=False,
+                                          title="Kepler's Area Law")
+                    st.plotly_chart(fig_kep, use_container_width=True)
+        # ==========================================
+        # ERA III: 巨人的肩膀 (终极人物志版)
+        # ==========================================
+        with tabs[2]:
+            st.subheader("🔦 Era III: The Shoulders of Giants (Pre-1660s)")
+            st.write("""
+            Before Newton and Leibniz, the "Calculus Puzzle" was 90% solved. 
+            Meet the titans who built the foundation across Europe.
+            """)
+
+            # 按国家/学派分类
+            giant_t1, giant_t2, giant_t3, giant_t4 = st.tabs([
+                "🇮🇹 The Italian School",
+                "🇫🇷 The French School",
+                "🇩🇪 The German School",
+                "🇬🇧 The British School"
+            ])
+
+            # --- 1. 意大利学派 (卡瓦列里) ---
+            with giant_t1:
+                st.markdown("#### Bonaventura Cavalieri (The Indivisibles)")
+                c1, c2 = st.columns([1, 3])
+                with c1:
+                    st.image("cavalieri.jpg",
+                             caption="Cavalieri (1598-1647)", use_container_width=True)
+                with c2:
+                    st.info("**Contribution: The Theory of Indivisibles**")
+                    st.write(
+                        "He viewed a volume as a stack of **infinite pages** (planes). This was the precursor to Integration.")
+                    st.write(
+                        "**Cavalieri's Principle:** If two solids have equal cross-sectional areas at every height, they must have equal volume.")
+                    st.write(
+                        "**Guldin's Theorem:** He proved that the volume of a solid of revolution = Area $\\times$ Distance traveled by the Centroid.")
+
+                # 可视化：卡瓦列里原理
+                st.caption("Visualization: Shearing a shape doesn't change its Area (Cavalieri's Principle)")
+                fig_cav = go.Figure()
+                # 原始正方形
+                fig_cav.add_trace(go.Scatter(x=[0, 1, 1, 0, 0], y=[0, 0, 1, 1, 0], fill="toself", name="Static Square",
+                                             line=dict(color="cyan")))
+                # 剪切后的平行四边形
+                fig_cav.add_trace(go.Scatter(x=[2, 3, 4, 3, 2], y=[0, 0, 1, 1, 0], fill="toself", name="Sheared Shape",
+                                             line=dict(color="magenta")))
+                fig_cav.update_layout(height=200, margin=dict(t=10, b=10), showlegend=False)
+                st.plotly_chart(fig_cav, use_container_width=True)
+
+            # --- 2. 法国学派 (分析三杰) ---
+                # --- 2. 法国学派 (法兰西三杰：哲学家、业余大神与角斗士) ---
+                with giant_t2:
+                    st.markdown("#### 🇫🇷 The French Analytic Revolution")
+                    st.caption("They merged Algebra and Geometry, creating the language of Calculus.")
+
+                    # --- 笛卡尔 (睡懒觉的哲学家) ---
+                    c_d1, c_d2 = st.columns([1, 3])
+                    with c_d1:
+                        st.image(
+                            "https://upload.wikimedia.org/wikipedia/commons/7/73/Frans_Hals_-_Portret_van_Ren%C3%A9_Descartes.jpg",
+                            caption="Descartes (1596-1650)", use_container_width=True)
+                    with c_d2:
+                        st.markdown("**René Descartes (The Dreamer)**")
+                        st.write(
+                            "He invented the **Coordinate System** ($x, y$). Before him, Geometry was shapes; after him, it was Algebra.")
+
+                        # 趣闻：苍蝇与早起
+                        with st.expander("The Fly & The Queen"):
+                            st.write("""
+                                * **The Fly on the Ceiling:** Legend has it he invented the coordinate system while lying in bed (his favorite hobby), watching a fly crawl on the ceiling and realizing he could describe its position with two numbers.
+                                * **Death by Alarm Clock:** He loved sleeping until noon. Tragically, Queen Christina of Sweden hired him as a tutor but demanded lessons at **5:00 AM**. The cold early mornings caused him to catch pneumonia and die.
+                                """)
+                        st.info("*\"I think, therefore I am.\"* (He was a philosopher first, mathematician second!)")
+
+                    st.divider()
+
+                    # --- 费马 (喜欢恶作剧的律师) ---
+                    c_f1, c_f2 = st.columns([1, 3])
+                    with c_f1:
+                        st.image("fermat.jpg",
+                                 caption="Fermat (1601-1665)", use_container_width=True)
+                    with c_f2:
+                        st.markdown("**Pierre de Fermat (The Amateur Genius)**")
+                        st.write(
+                            "By day, a lawyer. By night, the 'Prince of Amateurs'. He found Maxima/Tangents using **Adequality**.")
+
+                        # 趣闻
+                        with st.expander("😈 The Troll of Mathematics"):
+                            st.write("""
+                                                * **The Margins:** He famously wrote a theorem in a book margin and added: *"I have a truly marvelous proof of this, which this margin is too narrow to contain."* It took humanity **358 years** to solve it (Fermat's Last Theorem).
+                                                * **Feud with Descartes:** Fermat loved to challenge other mathematicians with impossible problems. He and Descartes hated each other. Descartes called Fermat's tangent method "rubbish" (it turned out to be correct).
+                                                """)
+                        # --- 硬核算式升级版 ---
+                        with st.popover("📝 Deep Dive: Watch Fermat break the laws of logic"):
+                            st.write("Let's find the slope (derivative) of $y = x^2$.")
+
+                            st.markdown("**Step 1: The Shift (Adequality)**")
+                            st.write("Compare $f(x)$ with a tiny shifted point $f(x+E)$.")
+                            st.latex(r"(x+E)^2 \approx x^2")
+
+                            st.markdown("**Step 2: Expand & Cancel**")
+                            st.latex(r"x^2 + 2xE + E^2 \approx x^2")
+                            st.write("Subtract $x^2$ from both sides:")
+                            st.latex(r"2xE + E^2 \approx 0")
+
+                            st.markdown("**Step 3: The 'Crime' (Divide by E)**")
+                            st.warning("To divide by $E$, we must assume $E \\neq 0$.")
+                            st.latex(r"\frac{2xE + E^2}{E} \implies 2x + E \approx 0")
+
+                            st.markdown("**Step 4: The 'Magic' (Set E to 0)**")
+                            st.warning("Now, we assume $E = 0$ to get rid of it.")
+                            st.latex(r"2x + 0 = 2x")
+
+                            st.success("Result: The slope is $2x$. (It's correct, but the logic contradicts itself!)")
+                    st.divider()
+
+                    # --- 罗伯瓦 (必须保密的角斗士) ---
+                    c_r1, c_r2 = st.columns([1, 3])
+                    with c_r1:
+                        st.image("roberval.jpg",
+                                 caption="Roberval (1602-1675)", use_container_width=True)
+                    with c_r2:
+                        st.markdown("**Gilles de Roberval (The Secretive Fighter)**")
+                        st.write(
+                            "He viewed curves as **Motion** (Kinematics) and found tangents using Velocity Vectors.")
+
+                        # 趣闻：数学角斗士
+                        with st.expander("⚔️ Why did he keep his math secret?"):
+                            st.write("""
+                                * **The Math Gladiator:** Roberval held the Chair of Math at the Collège Royal. The rule was: **Every 3 years, anyone could challenge him.** If he lost a math contest, he lost his job.
+                                * **Secret Weapon:** Because of this, he **never published** his calculus methods! He kept them as "secret weapons" to defeat challengers during exams. This is why he is less famous than Newton today.
+                                """)
+            # --- 3. 德国学派 (开普勒) ---
+            with giant_t3:
+                st.markdown("#### Johannes Kepler (The Summation)")
+                c_k1, c_k2 = st.columns([1, 3])
+                with c_k1:
+                    st.image("https://upload.wikimedia.org/wikipedia/commons/d/d4/Johannes_Kepler_1610.jpg",
+                             caption="Kepler (1571-1630)", use_container_width=True)
+                with c_k2:
+                    st.info("**Contribution: Integration before Calculus**")
+                    st.write(
+                        "**The Wine Barrels:** To find the volume of barrels for his wedding, he treated them as sums of **infinite thin discs**.")
+                    st.write(
+                        "**Planetary Laws:** His 3 Laws of Motion provided the physics data that Newton later used to prove Calculus worked.")
+
+                    # --- 3D 可视化升级：旋转体生成 ---
+                    st.divider()
+                    st.caption("🎨 Interactive Demo: Drag slider to create a Solid of Revolution (Guldin's Theorem)")
+
+                    # 1. 交互滑块：控制旋转角度
+                    sweep_angle = st.slider("Rotation Angle (Sweep)", 0, 360, 240, key="rev_slider")
+
+                    # 2. 数学计算：生成环面 (Torus) 数据
+                    # R = 旋转半径 (距离轴的距离), r = 圆本身的半径
+                    R, r = 3, 1
+                    theta = np.linspace(0, 2 * np.pi, 50)  # 圆的切片
+                    phi = np.linspace(0, np.radians(sweep_angle), 60)  # 旋转的角度范围
+
+                    # 生成网格
+                    THETA, PHI = np.meshgrid(theta, phi)
+
+                    # 环面参数方程
+                    X = (R + r * np.cos(THETA)) * np.cos(PHI)
+                    Y = (R + r * np.cos(THETA)) * np.sin(PHI)
+                    Z = r * np.sin(THETA)
+
+                    # 3. 绘图
+                    fig_rev = go.Figure()
+
+                    # A. 绘制生成的 3D 曲面
+                    fig_rev.add_trace(go.Surface(
+                        x=X, y=Y, z=Z,
+                        colorscale='Viridis',  # 酷炫的渐变色
+                        opacity=0.9,
+                        showscale=False,
+                        name="Solid Volume"
+                    ))
+
+                    # B. 绘制旋转轴 (Z轴)
+                    fig_rev.add_trace(go.Scatter3d(
+                        x=[0, 0], y=[0, 0], z=[-2, 2],
+                        mode='lines',
+                        line=dict(color='white', width=5, dash='dash'),
+                        name="Axis of Rotation"
+                    ))
+
+                    # C. 绘制初始截面 (为了让人看清是由一个圆转出来的)
+                    # 在 phi=0 处的圆
+                    circle_x = (R + r * np.cos(theta))
+                    circle_y = np.zeros_like(theta)
+                    circle_z = r * np.sin(theta)
+                    fig_rev.add_trace(go.Scatter3d(
+                        x=circle_x, y=circle_y, z=circle_z,
+                        mode='lines',
+                        line=dict(color='red', width=4),
+                        name="Generating Shape (2D)"
+                    ))
+
+                    # 4. 美化布局
+                    fig_rev.update_layout(
+                        height=400,  # 稍微高一点，展示细节
+                        margin=dict(t=0, b=0, l=0, r=0),
+                        scene=dict(
+                            xaxis=dict(visible=False),
+                            yaxis=dict(visible=False),
+                            zaxis=dict(visible=False),  # 隐藏坐标轴，看起来像悬浮在太空
+                            camera=dict(eye=dict(x=1.5, y=1.5, z=1.2))  # 默认视角
+                        ),
+                        template="plotly_dark",
+                        showlegend=False
+                    )
+
+                    st.plotly_chart(fig_rev, use_container_width=True)
+                    st.info(
+                        "💡 **Guldin's Insight:** The volume is simply the **Area of the Red Circle** × **Distance traveled by its center**.")
+
+            # --- 4. 英国学派 (前驱) ---
+            with giant_t4:
+                st.markdown("#### The Direct Predecessors")
+
+                # --- 巴罗 ---
+                c_b1, c_b2 = st.columns([1, 3])
+                with c_b1:
+                    st.image("https://upload.wikimedia.org/wikipedia/commons/2/23/Isaac_Barrow.jpg",
+                             caption="Barrow (1630-1677)", use_container_width=True)
+                with c_b2:
+                    st.markdown("**Isaac Barrow (The Mentor)**")
+                    st.write("Newton's teacher at Cambridge.")
+                    st.write(
+                        "He discovered the **Fundamental Theorem of Calculus** geometrically using the **'Differential Triangle'**.")
+                    st.write("He famously resigned his professorship so the young Newton could take his place.")
+
+                st.divider()
+
+                # --- 沃利斯 ---
+                c_w1, c_w2 = st.columns([1, 3])
+                with c_w1:
+                    st.image("https://upload.wikimedia.org/wikipedia/commons/6/69/John_Wallis.jpg",
+                             caption="Wallis (1616-1703)", use_container_width=True)
+                with c_w2:
+                    st.markdown("**John Wallis (The Arithmetician)**")
+                    st.write("He shifted Calculus from Geometry (shapes) to **Algebra** (formulas).")
+                    st.write("He introduced the symbol for infinity: $\infty$.")
+                    st.write(
+                        "He calculated integrals of powers like $x^{-1}$ and $x^{1/2}$ purely by arithmetic patterns.")
     # ==========================================
     # ERA IV: 诞生 (牛顿与莱布尼茨)
     # ==========================================
