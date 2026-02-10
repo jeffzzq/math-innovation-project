@@ -1804,7 +1804,7 @@ def render_calculus_grand_story():
                 st.markdown("#### Johannes Kepler (The Summation)")
                 c_k1, c_k2 = st.columns([1, 3])
                 with c_k1:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/d/d4/Johannes_Kepler_1610.jpg",
+                    st.image("kepler.jpg",
                              caption="Kepler (1571-1630)", use_container_width=True)
                 with c_k2:
                     st.info("**Contribution: Integration before Calculus**")
@@ -1884,67 +1884,127 @@ def render_calculus_grand_story():
                     st.info(
                         "💡 **Guldin's Insight:** The volume is simply the **Area of the Red Circle** × **Distance traveled by its center**.")
 
-            # --- 4. 英国学派 (前驱) ---
-            with giant_t4:
-                st.markdown("#### The Direct Predecessors")
+                    # --- 4. 英国学派 (前驱：导师与密码专家) ---
+                with giant_t4:
+                    st.markdown("#### 🇬🇧 The British Predecessors")
+                    st.caption("They set the stage for Newton's 'Annus Mirabilis' (Year of Wonders).")
 
-                # --- 巴罗 ---
-                c_b1, c_b2 = st.columns([1, 3])
-                with c_b1:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/2/23/Isaac_Barrow.jpg",
-                             caption="Barrow (1630-1677)", use_container_width=True)
-                with c_b2:
-                    st.markdown("**Isaac Barrow (The Mentor)**")
-                    st.write("Newton's teacher at Cambridge.")
-                    st.write(
-                        "He discovered the **Fundamental Theorem of Calculus** geometrically using the **'Differential Triangle'**.")
-                    st.write("He famously resigned his professorship so the young Newton could take his place.")
+                    # --- 伊萨克·巴罗 (Isaac Barrow) ---
+                    c_b1, c_b2 = st.columns([1, 3])
+                    with c_b1:
+                        st.image("barrow.jpg",
+                                 caption="Isaac Barrow (1630-1677)", use_container_width=True)
+                    with c_b2:
+                        st.markdown("**Isaac Barrow (The Master Geometer)**")
+                        st.write("""
+                           Newton's mentor and the first Lucasian Professor of Mathematics at Cambridge. 
+                           He was perhaps the last great mathematician to believe that **Geometry was the only true language of math**.
+                           """)
 
-                st.divider()
+                        with st.expander("🔍 Deep Dive: The Differential Triangle"):
+                            st.write("""
+                               Barrow discovered the **Fundamental Theorem of Calculus** purely through geometry. 
+                               He realized that if you draw a 'Differential Triangle' (a tiny triangle on the curve), 
+                               the ratio of its sides is exactly the slope of the tangent.
+                               """)
+                            # 简单展示微分三角形逻辑
+                            st.latex(r"\text{Slope} = \frac{\Delta y}{\Delta x} \approx \frac{dy}{dx}")
+                            st.write(
+                                "This insight linked the problem of **Tangents** directly to the problem of **Area**.")
 
-                # --- 沃利斯 ---
-                c_w1, c_w2 = st.columns([1, 3])
-                with c_w1:
-                    st.image("https://upload.wikimedia.org/wikipedia/commons/6/69/John_Wallis.jpg",
-                             caption="Wallis (1616-1703)", use_container_width=True)
-                with c_w2:
-                    st.markdown("**John Wallis (The Arithmetician)**")
-                    st.write("He shifted Calculus from Geometry (shapes) to **Algebra** (formulas).")
-                    st.write("He introduced the symbol for infinity: $\infty$.")
-                    st.write(
-                        "He calculated integrals of powers like $x^{-1}$ and $x^{1/2}$ purely by arithmetic patterns.")
+                        with st.popover("⚔️ Fun Fact: The Strongest Professor"):
+                            st.write("""
+                               * **The Gladiator:** Barrow was famously strong. Legend has it he once fought off a massive guard dog with his bare hands while traveling in the East.
+                               * **The Resignation:** He was so impressed by young Newton's genius that he **willingly resigned** his prestigious professor chair so Newton (only 26 then) could take over. Talk about the world's best teacher!
+                               """)
+
+                    st.divider()
+
+                    # --- 约翰·沃利斯 (John Wallis) ---
+                    c_w1, c_w2 = st.columns([1, 3])
+                    with c_w1:
+                        st.image("wallis.jpg",
+                                 caption="John Wallis (1616-1703)", use_container_width=True)
+                    with c_w2:
+                        st.markdown("**John Wallis (The Algebraic Pioneer)**")
+                        st.write("""
+                           If Barrow was the last of the Greeks, Wallis was the first of the Moderns. 
+                           He famously declared: **'Let's stop drawing pictures and start using equations!'**
+                           """)
+
+                        with st.expander("♾️ Contribution: Algebraizing the Infinite"):
+                            st.write("""
+                               * **Infinity Symbol:** He was the first to use the $\infty$ symbol in his book *Arithmetica Infinitorum*.
+                               * **Defining the Inverse & Fractional Powers:** He was the first to formalize the definitions of negative and fractional exponents, such as $x^{-n} = 1/x^n$ and $x^{1/n} = \sqrt[n]{x}$.
+                               * **The "Standardized" Bullet:** By treating all curves as simple powers ($x^n$), he unified the "ammunition" of Calculus, allowing Newton to apply the Binomial Theorem to any function.
+                               * **The Product of Pi:** He created a famous infinite product to calculate $\pi$.
+                               """)
+                            st.latex(
+                                r"\frac{\pi}{2} = \frac{2}{1} \cdot \frac{2}{3} \cdot \frac{4}{3} \cdot \frac{4}{5} \cdot \frac{6}{5} \cdot \frac{6}{7} \dots")
+
+                        with st.popover("🕵️ Fun Fact: The Math Spy"):
+                            st.write("""
+                               * **Codebreaker:** During the English Civil War, Wallis was a master **cryptographer**. He could break complex coded messages for the government in his head while lying in bed at night.
+                               * **Mental Calculator:** He once calculated the square root of a 53-digit number to 27 decimal places in his head just because he couldn't sleep!
+                               """)
     # ==========================================
     # ERA IV: 诞生 (牛顿与莱布尼茨)
     # ==========================================
-    with tabs[3]:
-        st.subheader("🍎 Era IV: The Birth (1660s)")
-        st.write("The separate problems (Tangents vs Areas) were unified into one system.")
+    with tabs[3]:  # Era IV: The Systematizers
+        st.header("👑 Era IV: The Systematizers (1665 - 1684)")
+        st.write("Before them, Calculus was a bag of tricks. They turned it into a **System**.")
+        st.caption("Although they hated each other, they independently discovered the same truth.")
 
-        col_n, col_l = st.columns(2)
+        col_newton, col_leibniz = st.columns(2)
 
-        with col_n:
+        # --- 🔴 Isaac Newton ---
+        with col_newton:
+            st.container(border=True)
+            # [Fix]: 加上 width=250 让图片变小，不再撑满屏幕
             st.image("https://upload.wikimedia.org/wikipedia/commons/3/39/GodfreyKneller-IsaacNewton-1689.jpg",
-                     width=150)
-            st.markdown("**Isaac Newton (The Physicist)**")
-            st.write("**Year:** 1665-1666 (The Plague Years).")
-            st.write("**Concept:** **Fluxions** ($\dot{x}$).")
-            st.write("**View:** Variables are flowing quantities (Motion).")
-            st.write("**Publication:** Delayed until 1736 (he hated criticism).")
-            st.info("He used this to prove Gravity and explain Kepler's Laws.")
+                     caption="Isaac Newton (1642-1727)",
+                     width=250)
 
-        with col_l:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/Gottfried_Wilhelm_von_Leibniz.jpg", width=150)
-            st.markdown("**G.W. Leibniz (The Logician)**")
-            st.write("**Year:** 1684 (Published First).")
-            st.write("**Concept:** **Differentials** ($dx$).")
-            st.write("**View:** Curves are infinite tiny polygons (Geometry).")
-            st.write("**Legacy:** He gave us the symbols $\int$ and $d$.")
-            st.success("He discovered the Product Rule and Chain Rule.")
+            st.subheader("🍎 The Physicist")
+            st.write("**Idea:** Variables are flowing quantities (Fluxions).")
+            st.latex(r"\text{Notation: } \dot{x}, \ddot{x} \text{ (The Prick)}")
+
+            # --- 牛顿手稿展示 ---
+            with st.expander("📜 See Newton's Handwriting"):
+                st.write("From his 'Waste Book' (1665), written during the Plague.")
+                # 牛顿手稿：充满了复杂的几何绘图和计算
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Newton_Principia_manuscript.jpg/600px-Newton_Principia_manuscript.jpg",
+                    caption="Newton's Manuscript: Calculations mixed with geometry.", use_container_width=True)
+                st.caption("Notice how he relies heavily on diagrams to verify his algebra.")
+
+        # --- 🔵 G.W. Leibniz ---
+        with col_leibniz:
+            st.container(border=True)
+            # [Fix]: 同样限制宽度
+            st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/Gottfried_Wilhelm_von_Leibniz.jpg",
+                     caption="G.W. Leibniz (1646-1716)",
+                     width=250)
+
+            st.subheader("🦁 The Logician")
+            st.write("**Idea:** Sums of infinite slices (Integrals).")
+            st.latex(r"\text{Notation: } \int y dx \text{ (The Long S)}")
+
+            # --- 莱布尼茨手稿展示 ---
+            with st.expander("📜 See the First Integral Symbol"):
+                st.write("The exact page (Oct 29, 1675) where the symbol $\int$ was born.")
+                # 莱布尼茨手稿：第一次出现积分符号
+                st.image("https://upload.wikimedia.org/wikipedia/commons/9/93/Leibniz_integral_symbol.png",
+                         caption="Leibniz's Note: 'It will be useful to write f for omn.'", use_container_width=True)
+                st.caption(
+                    "He wrote: 'It will be useful to write $\int$ instead of *omn*.' This decision changed math forever.")
 
         st.divider()
-        st.success(
-            "🏆 **The Fundamental Theorem of Calculus:** They both proved that Differentiation (Slope) and Integration (Area) are **INVERSE** operations.")
 
+        # --- ⚖️ The Connecting Link ---
+        st.markdown("#### 🤝 The Miracle: They found the same thing")
+        st.write("Both discovered that **Area** and **Slope** are inverse operations.")
+        st.latex(r"\frac{d}{dx} \int f(x) dx = f(x)")
     # ==========================================
     # ERA V: 危机 (贝克莱与贝叶斯)
     # ==========================================
