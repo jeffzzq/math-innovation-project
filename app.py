@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 import scipy.stats as stats  # <--- 新增：用于二项分布计算
+import matplotlib.pyplot as plt
 import math
 
 # ==========================================
@@ -1031,95 +1032,173 @@ def render_topic_3_sequence():
 
 # --- TAB 4: 杨辉三角 (保持之前修复好的版本) ---
 
+    # -----------------------------------------------------------
+    # TAB 4: The Architecture of Chance (Fixed Layout)
+    # -----------------------------------------------------------
     with tab4:
-        st.subheader("The Architecture of Chance")
+        st.header("🧱 The Binomial Engine: Logic & Derivation")
 
-        col_ctrl, col_vis = st.columns([1.2, 2.5])
+        # ==================================================
+        # PART 1: TOP SECTION (Split Layout)
+        # Left: Basic Setup & Logic | Right: Visuals
+        # ==================================================
+        col_top_left, col_top_right = st.columns([1.3, 2.0])
 
-        with col_ctrl:
-            st.markdown("### 1. Build the Triangle")
-            n_rows = st.slider("Number of Rows (n)", 0, 15, 5)
-            p_val = st.slider("Probability of Right Turn (p)", 0.0, 1.0, 0.5, 0.1)
+        # --- LEFT: CONTROLS & LOGIC ---
+        with col_top_left:
+            st.subheader("1. The Logic of $(a+b)^n$")
 
-            st.markdown("---")
-            st.markdown("### 2. Live Calculation")
+            n_rows = st.slider("Power (n)", 0, 12, 5, key='n_slider_final_fix')
+            p_val = st.slider("Probability (p)", 0.0, 1.0, 0.5, 0.05, key='p_slider_final_fix')
 
-            # 动态计算演示
-            k_demo = n_rows // 2
-            coeff_demo = math.comb(n_rows, k_demo)
-            prob_demo = stats.binom.pmf(k_demo, n_rows, p_val)
+            # [保留] Deep Dive 解释
+            with st.expander("📖 DEEP DIVE: Where does the formula come from?", expanded=True):
+                st.markdown("""
+                **Don't just memorize the formula. Visualize the brackets.**
 
-            st.info(f"**Focus on Term k={k_demo}**")
-            st.write("1️⃣ **Path Count:**")
-            st.latex(rf"\binom{{{n_rows}}}{{{k_demo}}} = {coeff_demo}")
-            st.write("2️⃣ **Probability:**")
-            st.latex(rf"P = {prob_demo:.4f}")
+                Imagine calculating $(a+b)^3$:
+                $$(a+b)(a+b)(a+b)$$
 
-        with col_vis:
-            st.markdown("#### The Expanding Pyramid")
+                To get $a^2b$, you need to choose **'b'** from exactly **1** bracket, and **'a'** from the other **2**.
 
+                **The Question is:** How many ways can we choose 1 'b' from 3 brackets?
+                **The Answer is:** Combinations! $\\binom{3}{1} = 3$.
+                """)
+
+        # --- RIGHT: VISUALIZATIONS ---
+        with col_top_right:
+            st.subheader("The Visual Architecture")
+
+            # 1. Triangle Plot
             fig_tri = go.Figure()
-
-            # 🔥 这里的循环逻辑确保了每一行都被画出来
             for r in range(n_rows + 1):
                 row_coeffs = [math.comb(r, k) for k in range(r + 1)]
+                xs = np.linspace(-r / 2, r / 2, r + 1)
                 ys = [-r] * (r + 1)
-                xs = np.linspace(-r, r, r + 1) if r > 0 else [0]
 
-                is_current = (r == n_rows)
-
-                # 颜色逻辑：适配浅色背景
-                if is_current:
-                    color = '#00ADB5'
-                    text_color = 'white'
-                    opacity = 1.0
+                # 样式
+                if r < n_rows:
+                    base_color = 'rgba(0, 173, 181, 0.3)'
+                    text_col = 'rgba(0, 0, 0, 0.3)'
+                    size = 20
                 else:
-                    color = 'rgba(100, 100, 100, 0.3)'  # 更深的灰色，确保白底能看见
-                    text_color = 'rgba(0, 0, 0, 0.5)'  # 黑色字
-                    opacity = 0.8
+                    base_color = '#FDB827'
+                    text_col = 'white'
+                    size = 35
 
                 fig_tri.add_trace(go.Scatter(
-                    x=xs, y=ys,
-                    mode='markers+text',
+                    x=xs, y=ys, mode='markers+text',
                     text=[str(c) for c in row_coeffs],
-                    textfont=dict(color=text_color, size=12),
-                    marker=dict(size=30, color=color, symbol='circle', opacity=opacity),
-                    hoverinfo='text',
-                    hovertext=[f"Row {r}, k={k}: {c} paths" for k, c in enumerate(row_coeffs)],
-                    showlegend=False
+                    textfont=dict(color=text_col, size=12 if r < n_rows else 16, family="Arial Black"),
+                    marker=dict(size=size, color=base_color, symbol='hexagon', line=dict(width=1, color='white')),
+                    showlegend=False, hoverinfo='text',
+                    hovertext=[f"Row {r}, Term {k + 1}<br>Value: {c}" for k, c in enumerate(row_coeffs)]
                 ))
 
-            fig_tri.update_layout(
-                height=400,
-                xaxis=dict(visible=False, range=[-(n_rows + 1), (n_rows + 1)]),
-                yaxis=dict(visible=False, range=[-(n_rows + 0.5), 0.5]),
-                plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=0, r=0, t=20, b=0),
-                title=f"Pascal's Triangle (Rows 0-{n_rows})"
-            )
+            fig_tri.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False),
+                                  plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=0, r=0, t=10, b=0),
+                                  title=f"Pascal's Triangle (Row 0 to {n_rows})")
             st.plotly_chart(fig_tri, use_container_width=True)
 
-            # 柱状图 + Normal Curve 修复
-            st.markdown(f"#### Probability Distribution")
+            # 2. Hidden Patterns
+            c1, c2 = st.columns(2)
+            c1.metric(label=f"Sum of Row {n_rows}", value=f"{2 ** n_rows}", help="(1+1)^n")
+            c2.metric(label="Shallow Diagonals", value="Fibonacci", help="1, 1, 2, 3, 5...")
+
+            # 3. Normal Curve (保留!)
+            st.markdown("---")
+            st.caption("Visualizing the Limit (Normal Curve)")
             x_k = np.arange(0, n_rows + 1)
             probs = stats.binom.pmf(x_k, n_rows, p_val)
-
-            fig_bar = go.Figure()
-            # 1. Bar Chart
-            fig_bar.add_trace(go.Bar(x=x_k, y=probs, name='Binomial', marker_color='#FDB827'))
-
-            # 2. Normal Curve Overlay
+            fig_dist = go.Figure()
+            fig_dist.add_trace(go.Bar(x=x_k, y=probs, name='Binomial', marker_color='#FDB827'))
             mu = n_rows * p_val
             sigma = math.sqrt(n_rows * p_val * (1 - p_val))
             if sigma > 0:
-                x_norm = np.linspace(0, n_rows, 200)
-                y_norm = stats.norm.pdf(x_norm, mu, sigma)
-                fig_bar.add_trace(go.Scatter(x=x_norm, y=y_norm, mode='lines', name='Normal Curve',
-                                             line=dict(color='#00ADB5', width=3)))
+                x_smooth = np.linspace(0, n_rows, 200)
+                y_smooth = stats.norm.pdf(x_smooth, mu, sigma)
+                fig_dist.add_trace(go.Scatter(x=x_smooth, y=y_smooth, mode='lines', name='Normal',
+                                              line=dict(color='#00ADB5', width=3)))
+            fig_dist.update_layout(height=250, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig_dist, use_container_width=True)
 
-            fig_bar.update_layout(height=250, margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig_bar, use_container_width=True)
+        st.divider()
 
+        # ==================================================
+        # PART 2: TERM FINDER (Full Width / Expanded)
+        # ==================================================
+        st.subheader("2. Term Finder & General Term")
+
+        # 使用较宽的布局
+        tf_col1, tf_col2 = st.columns([1, 2])
+
+        with tf_col1:
+            k_term = st.number_input(f"Find the k-th term (1 to {n_rows + 1})", min_value=1, max_value=n_rows + 1,
+                                     value=1, key='k_term_final')
+            r_idx = k_term - 1
+            coeff = math.comb(n_rows, r_idx)
+
+        with tf_col2:
+            # [保留] 详细解释
+            st.markdown(f"**Target:** The **{k_term}-th** term (so $r={r_idx}$).")
+            st.latex(rf"T_{{r+1}} = \binom{{n}}{{r}} a^{{n-r}} b^r")
+            st.caption("We use $r+1$ because we start counting from $r=0$ (the 1st term).")
+            st.latex(rf"\binom{{{n_rows}}}{{{r_idx}}} = \frac{{{n_rows}!}}{{{r_idx}!({n_rows}-{r_idx})!}} = {coeff}")
+
+        st.divider()
+        # ==================================================
+        # ==================================================
+        # PART 3: NEWTON'S INFINITE EXPANSION (Fixed Layout & Logic)
+        # ==================================================
+        st.subheader("3. Newton's Infinite Series (The Logic)")
+
+        # --- Step 1: 牛顿的发现 (The Discovery) ---
+        # 直接全宽显示，防止重叠，并解释来源
+        st.markdown("#### Step 1: Newton's Generalization")
+        st.write(
+            "Newton discovered that the Combinations formula $\\binom{n}{r}$ works for **any number** (fractions/negatives) if written in this specific form:")
+
+        # 展示核心公式：组合数是如何计算的
+        st.latex(r"\binom{n}{r} = \frac{n(n-1)(n-2)\dots(n-r+1)}{r!}")
+
+        st.caption("""
+            * **Term 0 ($r=0$):** Value is **1**.
+            * **Term 1 ($r=1$):** Value is $\\frac{n}{1!} = n$.
+            * **Term 2 ($r=2$):** Value is $\\frac{n(n-1)}{2!}$.
+            """)
+
+        st.divider()
+
+        # --- Step 2: 套用到 (1+ax) (The Expansion) ---
+        st.markdown("#### Step 2: Expanding $(1+ax)^n$")
+        st.write(
+            "Now, we substitute these coefficients into the Binomial structure. We replace $x$ with the term **$(ax)$**:")
+
+        # 【关键修复】把长公式拿出来独占一行，解决重叠问题
+        st.latex(r"""
+            (1+ax)^n = \underbrace{1}_{\binom{n}{0}} + \underbrace{n}_{\binom{n}{1}}(ax) + \underbrace{\frac{n(n-1)}{2!}}_{\binom{n}{2}}(ax)^2 + \underbrace{\frac{n(n-1)(n-2)}{3!}}_{\binom{n}{3}}(ax)^3 + \dots
+            """)
+
+        st.info(
+            "Notice how the factorials ($2!, 3!$) and the falling powers ($n(n-1)$) match the General Combinations formula above.")
+
+        st.divider()
+
+        # --- Step 3: 收敛性 (Convergence) ---
+        # 这里内容短，可以用分栏
+        st.markdown("#### Step 3: Does it work? (Convergence)")
+
+        conv_c1, conv_c2 = st.columns([1, 1])
+
+        with conv_c1:
+            st.warning("⚠️ **The Golden Rule**")
+            st.markdown("Since the series goes on forever, it is only valid if the terms shrink to zero.")
+            st.latex(r"|ax| < 1")
+
+        with conv_c2:
+            st.markdown("**What happens?**")
+            st.write("✅ **Converges:** If $|ax| < 1$, the sum is real.")
+            st.write("💥 **Diverges:** If $|ax| \ge 1$, the sum explodes to infinity.")
     # --- TAB 5: Taylor Series (通项 + 详细展开) ---
     with tab5:
         st.subheader("Taylor Series: From Formula to Polynomial")
@@ -1952,142 +2031,492 @@ def render_calculus_grand_story():
     # ==========================================
     with tabs[3]:  # Era IV: The Systematizers
         st.header("👑 Era IV: The Systematizers (1665 - 1684)")
-        st.write("Before them, Calculus was a bag of tricks. They turned it into a **System**.")
-        st.caption("Although they hated each other, they independently discovered the same truth.")
+        st.markdown("""
+        Before them, Calculus was a bag of tricks. They turned it into a **System**.
+
+        * **Newton** turned it into a physical engine using **Series**.
+        * **Leibniz** turned it into a logical machine using **Symbols**.
+        """)
 
         col_newton, col_leibniz = st.columns(2)
 
-        # --- 🔴 Isaac Newton ---
+        # --- 🔴 Isaac Newton Column ---
         with col_newton:
             st.container(border=True)
-            # [Fix]: 加上 width=250 让图片变小，不再撑满屏幕
             st.image("https://upload.wikimedia.org/wikipedia/commons/3/39/GodfreyKneller-IsaacNewton-1689.jpg",
-                     caption="Isaac Newton (1642-1727)",
-                     width=250)
+                     caption="Isaac Newton: The Pragmatist", width=250)
 
-            st.subheader("🍎 The Physicist")
-            st.write("**Idea:** Variables are flowing quantities (Fluxions).")
-            st.latex(r"\text{Notation: } \dot{x}, \ddot{x} \text{ (The Prick)}")
+            # --- 1. The Engine: 广义二项式定理 ---
+            st.subheader("🍎 1. The Engine: Infinite Series")
+            st.markdown("Newton viewed functions as **Infinite Polynomials**.")
+            st.write("He discovered that $(1+x)^n$ works even for fractions ($n=1/2$). This was his 'Nuclear Weapon'.")
 
-            # --- 牛顿手稿展示 ---
-            with st.expander("📜 See Newton's Handwriting"):
-                st.write("From his 'Waste Book' (1665), written during the Plague.")
-                # 牛顿手稿：充满了复杂的几何绘图和计算
-                st.image(
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Newton_Principia_manuscript.jpg/600px-Newton_Principia_manuscript.jpg",
-                    caption="Newton's Manuscript: Calculations mixed with geometry.", use_container_width=True)
-                st.caption("Notice how he relies heavily on diagrams to verify his algebra.")
+            # 核心公式
+            st.latex(r"(1-x^2)^{\frac{1}{2}} = 1 - \frac{1}{2}x^2 - \frac{1}{8}x^4 - \frac{1}{16}x^6 - \dots")
 
-        # --- 🔵 G.W. Leibniz ---
+            # === 🎮 交互演示：从直线变圆 ===
+            st.markdown("---")
+            st.caption("🎮 **Interactive Lab:** Watch Newton turns Algebra into Geometry")
+
+            # 滑块：选择多项式的项数
+            n_terms = st.slider("Approximation Terms", 1, 5, 2, key="newton_circle_slider")
+
+            # 数据准备
+            x = np.linspace(-1, 1, 400)
+            y_true = np.sqrt(1 - x ** 2)  # 真实的圆
+
+            # 计算级数逼近 (手动列出前几项以保证速度和清晰度)
+            # y = 1 - 0.5x^2 - 0.125x^4 - 0.0625x^6 - 0.039x^8
+            y_est = np.ones_like(x)  # Term 1: 1
+            if n_terms >= 2: y_est -= 0.5 * x ** 2
+            if n_terms >= 3: y_est -= 0.125 * x ** 4
+            if n_terms >= 4: y_est -= 0.0625 * x ** 6
+            if n_terms >= 5: y_est -= 0.0390625 * x ** 8
+
+            # 绘图
+            fig, ax = plt.subplots(figsize=(5, 3))
+            ax.plot(x, y_true, label="True Circle", color="black", linewidth=2)
+            ax.plot(x, y_est, label=f"Newton's Series (n={n_terms})", color="red", linestyle="--", linewidth=2)
+
+            # 图表美化
+            ax.set_ylim(0, 1.1)
+            ax.set_xlim(-1.1, 1.1)
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+            ax.set_title(f"Approximating a Circle with {n_terms} Terms")
+
+            # 在 Streamlit 展示
+            st.pyplot(fig)
+
+            st.success(
+                f"With just {n_terms} terms, the polynomial (Red) is already hugging the circle (Black). Newton used this to calculate $\pi$!")
+            # ==========================================
+
+            st.divider()
+
+            # --- 2. The Motion: 流数术 ---
+            st.subheader("🌊 2. The Motion: Fluxions")
+            st.markdown("He didn't care about static curves; he cared about **Moving Points**.")
+
+            c_flux_1, c_flux_2 = st.columns([1, 2])
+            with c_flux_1:
+                st.latex(r"\text{Velocity} = \dot{x}")
+                st.latex(r"\text{Accel} = \ddot{x}")
+            with c_flux_2:
+                st.caption(
+                    "The **Dot** ($\dot{x}$) represents speed (derivative w.r.t Time). This notation created Modern Physics ($F=ma$).")
+
+            # --- 3. 历史背景 (折叠区) ---
+            st.divider()
+
+            with st.expander("🤬 The Feud with Hooke (Drama)"):
+                st.write("""
+                **The Beef:** Hooke claimed *he* gave Newton the Inverse Square Law idea.
+                **The Reaction:** Newton deleted every reference to Hooke from *Principia*.
+                """)
+                st.info("💬 'Standing on the shoulders of **Giants**' — Likely a sarcasm, as Hooke was short!")
+
+            with st.expander("📐 Why Euclidean Geometry?"):
+                st.write("""
+                The "Smatterer" Shield: He deliberately made the Principia "abstruse" to deter "little Smatterers" (shallow critics) from pestering him with annoying arguments.
+
+The Irrefutable Weapon: In the 1600s, Euclidean Geometry was the ultimate standard of truth. While Calculus was still controversial, a geometric proof was impossible to argue against.
+
+Anti-Descartes: He despised René Descartes’ algebraic methods, viewing the reduction of physical reality to abstract symbols as "lazy" and less rigorous than geometric intuition.
+
+Key Insight: Newton used Calculus to discover the truth, but used Geometry to build a fortress around it.
+                """)
+        # --- 🔵 G.W. Leibniz (符号 + 逻辑 + 二进制) ---
         with col_leibniz:
             st.container(border=True)
-            # [Fix]: 同样限制宽度
             st.image("https://upload.wikimedia.org/wikipedia/commons/6/6a/Gottfried_Wilhelm_von_Leibniz.jpg",
-                     caption="G.W. Leibniz (1646-1716)",
-                     width=250)
+                     caption="G.W. Leibniz: The Systematizer", width=250)
 
-            st.subheader("🦁 The Logician")
-            st.write("**Idea:** Sums of infinite slices (Integrals).")
-            st.latex(r"\text{Notation: } \int y dx \text{ (The Long S)}")
+            st.subheader("🦁 The Machine: The Rules")
+            st.write("Leibniz wanted to make Calculus **automatic**. He invented the 'Cheat Codes' we memorize today:")
 
-            # --- 莱布尼茨手稿展示 ---
-            with st.expander("📜 See the First Integral Symbol"):
-                st.write("The exact page (Oct 29, 1675) where the symbol $\int$ was born.")
-                # 莱布尼茨手稿：第一次出现积分符号
-                st.image("https://upload.wikimedia.org/wikipedia/commons/9/93/Leibniz_integral_symbol.png",
-                         caption="Leibniz's Note: 'It will be useful to write f for omn.'", use_container_width=True)
-                st.caption(
-                    "He wrote: 'It will be useful to write $\int$ instead of *omn*.' This decision changed math forever.")
+            # --- 🌟 新增：莱布尼茨的三大原本 ---
+            st.markdown("**1. The Product Rule (1675)**")
+            st.latex(r"d(uv) = u \, dv + v \, du")
+
+            st.markdown("**2. The Quotient Rule (1677)**")
+            st.latex(r"d\left(\frac{u}{v}\right) = \frac{v \, du - u \, dv}{v^2}")
+
+            st.markdown("**3. The Chain Rule (1676)**")
+            st.latex(r"\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}")
+
+            st.caption(
+                "While Newton had to expand series to solve these, Leibniz gave us **formulas** that work instantly.")
+
+            st.divider()
+
+            # --- 🤖 哲学区：二进制 ---
+            with st.expander("🤖 The Code of God: Binary"):
+                st.write("""
+                Leibniz was obsessed with a 'Universal Language'.
+
+                He invented the **Binary System (0 and 1)** used by computers today.
+                * **1 (God)** represents existence.
+                * **0 (Void)** represents nothingness.
+                """)
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Leibniz_binary_system_1703.png/440px-Leibniz_binary_system_1703.png",
+                    caption="Leibniz's Binary Manuscript (1703)")
 
         st.divider()
 
-        # --- ⚖️ The Connecting Link ---
-        st.markdown("#### 🤝 The Miracle: They found the same thing")
-        st.write("Both discovered that **Area** and **Slope** are inverse operations.")
-        st.latex(r"\frac{d}{dx} \int f(x) dx = f(x)")
-    # ==========================================
-    # ERA V: 危机 (贝克莱与贝叶斯)
-    # ==========================================
-    with tabs[4]:
-        st.subheader("👻 Era V: The Crisis of Logic (1734)")
-        st.write("Calculus worked, but its foundation was rotten. How can you divide by zero?")
+        # --- 🤝 The Grand Synthesis: FTC ---
+        st.markdown("### 🏆 The Shared Discovery: Fundamental Theorem of Calculus")
+        st.write("Despite their hate for each other, they both uncovered the same truth that connected Slope and Area.")
 
-        st.error("**The Attack: Bishop Berkeley**")
-        st.write("Bishop Berkeley published *The Analyst* to attack the 'Infidel Mathematicians'.")
-        st.markdown(
-            "> *\"He divides by $dx$, so it is not zero. Then he throws it away, so it is zero. These are the **Ghosts of departed quantities**!\"*")
-        st.write("He argued: If math rests on a 'Double Error', it is no better than religious mysticism.")
+        c1, c2, c3 = st.columns([1, 3, 1])
+        with c2:
+            st.container(border=True)
+            st.latex(r"\int_a^b f'(x) \, dx = f(b) - f(a)")
 
-        st.info("**The Defense: d'Alembert & Bayes**")
-        st.write("**d'Alembert (1754):** Suggested we need a theory of **Limits**, not tiny numbers.")
-        st.write("**Thomas Bayes:** Argued that the logic of the *Ratio* holds true, even if the tiny numbers vanish.")
-        st.write(
-            "**Lagrange:** Tried to use Algebra (Taylor Series) to avoid Limits, but failed to handle convergence.")
+        # ==========================================
+        # Era V: The Crisis of Logic (1734) - REFACTORED
+        # ==========================================
+        # 确保这里使用的是正确的 Tab 变量名 (如果你用的是列表则是 tabs[4]，如果是解包则是 tab5)
+        with tabs[4]:
+            st.subheader("👻 Era V: The Crisis of Logic (1734)")
+            st.markdown(
+                "Calculus worked perfectly for physics, but logically it was a disaster. Mathematicians were dividing by zero and getting away with it."
+            )
+
+            # 1. The Attack (Berkeley)
+            with st.container():
+                st.error("⚔️ The Attack: Bishop Berkeley (1734)")
+                col_berk_1, col_berk_2 = st.columns([2, 1])
+
+                with col_berk_1:
+                    st.markdown("""
+                    Bishop Berkeley published *The Analyst*, a savage attack on Newton and Leibniz. He wasn't saying the *results* were wrong, but that the *method* was inconsistent.
+
+                    **His famous insult:**
+                    > *"He divides by $dx$, so it is not zero. Then he throws it away, so it is zero. These are the **Ghosts of departed quantities**!"*
+                    """)
+
+                with col_berk_2:
+                    st.caption("Berkeley's Point: logical fallacy.")
+                    st.latex(r"\frac{(x+dx)^2 - x^2}{dx} = 2x + dx \xrightarrow{dx=0} 2x")
+                    st.caption("If $dx$ is 0, you can't divide. If $dx$ isn't 0, you can't throw it away.")
+
+            st.divider()
+
+            # 2. The Defense (Bayes & d'Alembert)
+            st.info("🛡️ The Defense: Trying to Fix the Foundation")
+
+            col_def_1, col_def_2 = st.columns(2)
+
+            with col_def_1:
+                st.markdown("#### 1. Thomas Bayes (1736)")
+                st.caption("**The Logic of the Ratio**")
+                st.write("""
+                Long before he became famous for Probability, Bayes wrote an anonymous defense of Newton.
+
+                **His Argument:**
+                He argued that even if the quantities (distance and time) vanish to zero, **their ratio (speed) remains real**.
+
+                *Analogy:* If a car takes a photo at 60mph, in that frozen instant ($t=0$), it moves distance ($d=0$). But the **Velocity** (the potential to move) is still real and calculable.
+                """)
+
+            with col_def_2:
+                st.markdown("#### 2. d'Alembert (1754)")
+                st.caption("**The Concept of 'Limit'**")
+                st.write("""
+                d'Alembert finally hit the nail on the head in the *Encyclopédie*. He rejected "tiny numbers."
+
+                **His Contribution:**
+                He introduced the word **"Limit" (Limite)**.
+                > *"The magnitude is not the ratio of two zeros, but the **Limit** that the ratio approaches."*
+
+                **Note:** He created the *concept*, but the symbol $\lim$ was invented later by L'Huilier (1786).
+                """)
+
+            # 3. Conclusion
+            st.markdown("---")
+            st.success("""
+            **The Resolution:** It took another 100 years for Cauchy and Weierstrass to turn d'Alembert's idea into the rigorous $\epsilon-\delta$ definition we use today. But the ghost was finally exorcised.
+            """)
+
 
     # ==========================================
-    # ERA VI: 严谨化 (柯西、魏尔斯特拉斯、黎曼)
+    # Era VI: The Reign of Rigor (19th Century)
     # ==========================================
     with tabs[5]:
-        st.subheader("🏁 Era VI: The Reign of Rigor (19th Century)")
-        st.write("It took 150 years to banish the ghosts.")
+        st.header("🏁 Era VI: The Reign of Rigor (The 19th Century)")
+        st.markdown("""
+        For 150 years, Calculus was built on "intuition" and "ghosts." 
+        In the 19th century, three giants decided to rebuild the foundation with **cold, hard logic**.
+        """)
 
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown("**1. Cauchy (The Limit)**")
-            st.write("1821. He defined the Limit strictly. We don't reach zero, we analyze the **Trend**.")
-            st.latex(r"\lim_{x \to c} f(x) = L")
-        with c2:
-            st.markdown("**2. Weierstrass (The Logic)**")
-            st.write("1874. He removed all 'motion' intuition. He created the **Epsilon-Delta** definition.")
-            st.latex(r"\forall \epsilon > 0, \exists \delta > 0...")
-        with c3:
-            st.markdown("**3. Riemann (The Integral)**")
-            st.write("1854. He formalized Integration as the limit of sums of rectangles (**Riemann Sums**).")
+        # --- 1. AUGUSTIN-LOUIS CAUCHY (The Limit Concept) ---
+        st.subheader("1. Augustin-Louis Cauchy (1789-1857)")
+        c_col1, c_col2 = st.columns([1, 3])
+        with c_col1:
+            # 这里替换为柯西的照片路径
+            st.image(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Augustin_Louis_Cauchy.jpg/480px-Augustin_Louis_Cauchy.jpg",
+                caption="Cauchy")
+        with c_col2:
+            st.markdown("""
+            **The Problem:** Before Cauchy, mathematicians said derivatives were ratios of "tiny zeros" ($0/0$). This was illogical.
 
-        st.write("This ended the Second Math Crisis. Calculus was now solid rock.")
+            **The Solution (The Limit):** Cauchy redefined $dy/dx$ not as a division, but as a **Limit**.
+            * He said: "We don't need the value *at* zero. We only care about the **trend** as we get closer to zero."
+            * He formalized the definition of **Continuity**: A function is continuous if small changes in $x$ produce small changes in $y$.
+            """)
+            st.info(
+                "💡 **Impact:** He banished the 'Ghosts of departed quantities.' Calculus became the study of **Limits**, not infinitesimals.")
+
+        st.divider()
+
+        # --- 2. KARL WEIERSTRASS (The Static Logic / Epsilon-Delta) ---
+        st.subheader("2. Karl Weierstrass (1815-1897)")
+        st.markdown(
+            "**The Father of Modern Rigor.** He hated 'motion' in math. He turned Calculus into static inequalities.")
+
+        w_col1, w_col2 = st.columns([2, 1])
+
+        with w_col2:
+            # 这里替换为魏尔斯特拉斯的照片路径
+            st.image("https://upload.wikimedia.org/wikipedia/commons/6/6c/Karl_Weierstrass_2.jpg",
+                     caption="Weierstrass")
+            st.caption("The man who formalized the $\epsilon-\delta$ definition.")
+
+            # ... (之前的代码) ...
+
+            with w_col1:
+                st.markdown("#### 🏭 The Factory Challenge")
+                st.write(
+                    "Imagine you run a machine. The Limit exists only if you can satisfy the world's strictest boss.")
+
+                # --- Interactive Visual (No Greek Letters) ---
+                target_L = 4  # Perfect Output
+                target_c = 2  # Perfect Knob Setting
+
+                # 1. 客户的要求 (The Boss's Demand)
+                st.markdown("**Step 1: The Boss sets the Quality Standard**")
+                error_margin = st.slider("Allowed Error Margin (Green Zone)", 0.1, 2.0, 1.0, 0.1)
+
+                # 2. 你的应对 (Your Solution)
+                # 为了保证 x^2 在 4±error 范围内，x 必须在 sqrt(4-error) 和 sqrt(4+error) 之间
+                # 我们计算出需要的 safe_range (delta)
+                # 这是一个简化的演示计算
+                safe_knob_range = error_margin / 4.5
+
+                st.markdown(f"**Step 2: Your Response**")
+                st.caption(
+                    f"To satisfy an error of **{error_margin}**, you must keep the knob within **±{safe_knob_range:.3f}** (Orange Zone).")
+
+                # Generate Graph
+                x_vals = np.linspace(0, 4, 100)
+                y_vals = x_vals ** 2
+
+                fig_ed = go.Figure()
+
+                # Green Zone (Quality Control)
+                fig_ed.add_shape(type="rect",
+                                 x0=0, y0=target_L - error_margin, x1=4, y1=target_L + error_margin,
+                                 fillcolor="rgba(0, 255, 0, 0.2)", line=dict(width=0), layer="below"
+                                 )
+                fig_ed.add_annotation(x=0.5, y=target_L + error_margin, text="Acceptable Quality", showarrow=False,
+                                      font=dict(color="green"))
+
+                # Orange Zone (Knob Setting)
+                fig_ed.add_shape(type="rect",
+                                 x0=target_c - safe_knob_range, y0=0, x1=target_c + safe_knob_range, y1=16,
+                                 fillcolor="rgba(255, 165, 0, 0.3)", line=dict(width=0), layer="below"
+                                 )
+                fig_ed.add_annotation(x=target_c, y=1, text="Your Knob Setting", showarrow=False,
+                                      font=dict(color="orange"))
+
+                # Function Curve
+                fig_ed.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name='Machine Output',
+                                            line=dict(color='white', width=3)))
+
+                # Target Point
+                fig_ed.add_trace(go.Scatter(x=[target_c], y=[target_L], mode='markers', name='Perfection',
+                                            marker=dict(size=12, color='red')))
+
+                fig_ed.update_layout(
+                    title="Can you stay in the Green Zone?",
+                    xaxis_title="Knob Setting (Input)", yaxis_title="Product Quality (Output)",
+                    height=350, margin=dict(l=0, r=0, t=40, b=0),
+                    showlegend=False
+                )
+                st.plotly_chart(fig_ed, use_container_width=True)
+
+                if error_margin < 0.3:
+                    st.success("🏆 Even with strict demands, you found a setting that works! The Limit exists.")
+                else:
+                    st.info("Try making the Allowed Error smaller to see if you can still handle it.")
+        st.divider()
+
+        # --- 3. BERNHARD RIEMANN (The Integral) ---
+        st.subheader("3. Bernhard Riemann (1826-1866)")
+
+        r_col1, r_col2 = st.columns([1, 2])
+
+        with r_col1:
+            # 这里替换为黎曼的照片路径
+            st.image("https://upload.wikimedia.org/wikipedia/commons/8/82/Bernhard_Riemann.jpg", caption="Riemann")
+
+        with r_col2:
+            st.markdown("""
+            **The Problem:** Newton defined Integration as just "Anti-Differentiation." But what if the function is jagged, broken, or weird? You can't differentiate it, so Newton's method fails.
+
+            **The Solution (Riemann Sums):** Riemann went back to the Greeks. He defined Area as the **Limit of Sums of Rectangles**.
+            * It doesn't matter if the function is smooth.
+            * As long as you can draw rectangles under it, you can integrate it.
+            """)
+
+        # --- Interactive Riemann Sum Visual ---
+        st.markdown("#### 📊 Interactive: Riemann Sums")
+        n_rects = st.slider("Number of Rectangles (n)", 4, 100, 10)
+
+        # Data for Riemann
+        x_r = np.linspace(0, np.pi, 200)
+        y_r = np.sin(x_r)
+
+        # Rectangles
+        x_bar = np.linspace(0, np.pi, n_rects + 1)
+        y_bar = np.sin(x_bar)  # Left Riemann sum
+        width_bar = x_bar[1] - x_bar[0]
+
+        fig_riemann = go.Figure()
+
+        # Curve
+        fig_riemann.add_trace(go.Scatter(x=x_r, y=y_r, mode='lines', name='f(x)=sin(x)', line=dict(color='#00ADB5')))
+
+        # Rectangles
+        fig_riemann.add_trace(go.Bar(
+            x=x_bar[:-1], y=y_bar[:-1], width=[width_bar] * n_rects,
+            offset=0, marker=dict(color='rgba(255, 255, 255, 0.3)', line=dict(color='pink', width=1)),
+            name='Rectangles'
+        ))
+
+        fig_riemann.update_layout(
+            title=f"Approximating Area with {n_rects} Rectangles",
+            xaxis_title="x", yaxis_title="sin(x)",
+            height=300, showlegend=False
+        )
+        st.plotly_chart(fig_riemann, use_container_width=True)
+
+        st.caption(
+            "**Legacy:** This method (Integration as Summation) is what allows computers to calculate areas today. They don't use formulas; they use millions of tiny Riemann rectangles.")
+
 
     # ==========================================
-    # ERA VII: 现代视界 (实变与勒贝格)
+    # Era VII: The Modern Horizon (The Lebesgue Mastery)
     # ==========================================
     with tabs[6]:
-        st.subheader("🚀 Era VII: Modern Horizons (20th Century)")
-        st.write("Just when we thought we were done, **Pathological Functions** appeared.")
+        st.header("🌌 Era VII: The Modern Horizon")
+        st.markdown("### 🧩 Taming the Dirichlet 'Monster'")
 
-        st.markdown("**The Problem:**")
-        st.write(
-            "Functions like the Dirichlet Function (1 if rational, 0 if irrational) are impossible to integrate with Riemann's method (too many jumps).")
+        st.write("""
+        In the 20th century, math encountered a crisis: functions so 'broken' that traditional area-calculating methods simply died. 
+        Let's break down the logic of how **Henri Lebesgue** solved this.
+        """)
 
-        st.markdown("**The Solution: Henri Lebesgue (1902)**")
-        st.write("Lebesgue reinvented Integration. Instead of slicing the Domain ($x$), he sliced the Range ($y$).")
+        # ---------------------------------------------------------
+        # STEP 1: The Function Definition
+        # ---------------------------------------------------------
+        st.subheader("Step 1: Meet the Dirichlet Function $D(x)$")
+        st.latex(
+            r"D(x) = \begin{cases} 1, & x \in \mathbb{Q} \text{ (Rationals)} \\ 0, & x \in \mathbb{I} \text{ (Irrationals)} \end{cases}")
+        st.info("Imagine a function that jumps between 0 and 1 infinitely fast, in every tiny interval.")
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**Riemann Integration**")
-            st.caption("Vertical Slicing")
-            st.write("Summing vertical bars.")
-            st.progress(80)
-        with col2:
-            st.markdown("**Lebesgue Integration**")
-            st.caption("Horizontal Layering (Measure)")
-            st.write("Summing horizontal layers (Measure Theory).")
-            st.progress(100)
+        # ---------------------------------------------------------
+        # STEP 2: Why Riemann Fails (The Visual Proof)
+        # ---------------------------------------------------------
+        st.subheader("Step 2: Why Riemann Integration Fails")
+        st.markdown("""
+        Riemann tries to draw **vertical rectangles**. But because rationals and irrationals are both 'dense', 
+        any rectangle—no matter how thin—contains points at both height 0 and height 1.
+        """)
 
-        # 勒贝格可视化
-        fig_leb = go.Figure()
-        x_vals = np.linspace(0, 10, 50)
-        y_vals = np.sin(x_vals) + 2
-        # 黎曼 (竖条)
-        fig_leb.add_trace(go.Bar(x=x_vals, y=y_vals, name="Riemann (Vertical)", marker_color='rgba(0, 173, 181, 0.5)'))
-        # 勒贝格 (横线示意)
-        fig_leb.add_trace(go.Scatter(x=[0, 10], y=[2.5, 2.5], mode='lines', name="Lebesgue (Horizontal Layer)",
-                                     line=dict(color='red', dash='dash')))
-        fig_leb.update_layout(height=300, margin=dict(t=30, b=10), title="Riemann vs Lebesgue Concept")
-        st.plotly_chart(fig_leb, use_container_width=True)
+        col_r1, col_r2 = st.columns([2, 1])
+        with col_r1:
+            # 可视化：黎曼上下和的冲突
+            n_r = 500
+            x_r = np.linspace(0, 1, n_r)
+            y_r = np.random.choice([0, 1], size=n_r, p=[0.7, 0.3])
 
-        st.success(
-            "This led to **Real Analysis** and **Functional Analysis**, the math that powers Quantum Mechanics today.")
+            fig_r = go.Figure()
+            # 绘制背景：灰色代表无法确定的“震荡区”
+            fig_r.add_shape(type="rect", x0=0, y0=0, x1=1, y1=1, fillcolor="rgba(255,255,255,0.1)", line=dict(width=0))
+            fig_r.add_trace(go.Scatter(x=x_r, y=y_r, mode='markers', marker=dict(size=2, color='white'), name="Chaos"))
+            fig_r.update_layout(title="Riemann's Nightmare: No stable height.", height=300, showlegend=False,
+                                template="plotly_dark")
+            st.plotly_chart(fig_r, use_container_width=True)
 
-    # --- 终章 ---
+        with col_r2:
+            st.error("**The Logical Loop:**")
+            st.markdown("""
+            * **Upper Sum:** Always 1 (picks height 1).
+            * **Lower Sum:** Always 0 (picks height 0).
+            * Since $1 \neq 0$, the area is **undefined**.
+            """)
+
+        st.divider()
+
+        # ---------------------------------------------------------
+        # STEP 3: The Secret of "Measure" (Weight of Infinity)
+        # ---------------------------------------------------------
+        st.subheader("Step 3: The Secret of 'Measure' (Weight of Infinity)")
+        st.markdown("""
+        Lebesgue realized that not all infinities are equal. We measure the **'Size' (Measure $\mu$)** of sets instead of just counting points.
+        """)
+
+        # 交互式对比：有理数 vs 无理数
+        m_col1, m_col2 = st.columns(2)
+        with m_col1:
+            st.write("**The Rationals ($\mathbb{Q}$)**")
+            st.caption("Countable Infinity")
+            st.write(
+                "They are like tiny 'dust' particles. You can cover all of them with 'caps' of total length $\epsilon$.")
+            st.success("📐 **Measure $\mu(\mathbb{Q}) = 0$**")
+
+        with m_col2:
+            st.write("**The Irrationals ($\mathbb{I}$)**")
+            st.caption("Uncountable Infinity")
+            st.write("They are the 'solid ocean' that fills the space between the dust.")
+            st.success("📐 **Measure $\mu(\mathbb{I}) = 1$** (in the [0,1] range)")
+
+        # ---------------------------------------------------------
+        # STEP 4: The Lebesgue Solution (The Final Calculation)
+        # ---------------------------------------------------------
+        st.subheader("Step 4: The Lebesgue Solution")
+        st.markdown(
+            "Lebesgue groups the points by their **Height (Value)**, then multiplies by their **Measure (Weight)**.")
+
+        # 优美的横向可视化
+        fig_l = go.Figure()
+        # 绘制无理数层 (y=0, Weight=1)
+        fig_l.add_trace(
+            go.Scatter(x=[0, 1], y=[0, 0], mode='lines', line=dict(color='#1C83E1', width=8), name="Irrationals"))
+        # 绘制有理数层 (y=1, Weight=0)
+        fig_l.add_trace(go.Scatter(x=[0, 1], y=[1, 1], mode='lines', line=dict(color='#FF4B4B', width=2, dash='dash'),
+                                   name="Rationals"))
+
+        fig_l.update_layout(
+            title="Horizontal Partitioning: Value × Weight",
+            yaxis=dict(tickvals=[0, 1], ticktext=["Value: 0", "Value: 1"], range=[-0.5, 1.5]),
+            height=350, template="plotly_dark"
+        )
+        st.plotly_chart(fig_l, use_container_width=True)
+
+        # 最终计算
+        st.latex(r"\text{Integral} = (1 \times \mu(\mathbb{Q})) + (0 \times \mu(\mathbb{I}))")
+        st.latex(r"\text{Integral} = (1 \times 0) + (0 \times 1) = \mathbf{0}")
+
+        st.success("""
+        **Conclusion:** The integral is **0**. Even though there are infinitely many points at height 1, 
+        they are 'weightless' in the eyes of Measure Theory. The 'solid' part of the function is all at height 0.
+        """)
+            # --- 终章 ---
     st.divider()
     st.markdown("### 🎬 Epilogue: The Torch is Passed")
     st.write(
