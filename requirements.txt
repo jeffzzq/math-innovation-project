@@ -3,4 +3,3 @@ plotly
 numpy
 matplotlib
 scipy
-math
