@@ -1,9 +1,10 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import scipy.stats as stats  # <--- 新增：用于二项分布计算
 import matplotlib.pyplot as plt
-import math
+
 
 # ==========================================
 # 1. 配置与全局设置
@@ -1357,7 +1358,7 @@ def render_calculus_grand_story():
         c1, c2 = st.columns([2, 1])
         with c1:
             st.write("""
-            **Why was Calculus invented? Not for homework, but for Faith.**
+            **Why was Calculus invented? Calculus wasn't just born for calculation; it was born from a pursuit of the Divine Order.**
 
             In the 17th Century, science was not separate from religion. The "Heavens" (Stars) were literally believed to be the realm of God. 
             Scientists believed the universe was a machine designed by a perfect Creator. To discover the mathematical laws of the universe was to **read the mind of God**.
@@ -1373,7 +1374,7 @@ def render_calculus_grand_story():
             To prove the Sun was the center, they needed to predict planetary motion with **perfect accuracy**. Old geometry failed. They needed a new math.
             """)
         with c2:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/d/d4/Johannes_Kepler_1610.jpg",
+            st.image("kepler.jpg",
                      caption="Kepler: 'I am thinking God's thoughts after Him.'")
 
     st.divider()
@@ -1642,7 +1643,7 @@ def render_calculus_grand_story():
 
                     **The Trap:**
                     To find the speed at exactly $t=1$, you need to measure distance in **0 seconds**.
-                    $$ v = \frac{\Delta d}{\Delta t} = \frac{0}{0} $$
+                    $$ v = \\frac{\Delta d}{\Delta t} = \\frac{0}{0} $$
                     **Result:** Meaningless. This required the invention of the **Limit**.
                     """)
                 with c2:
@@ -2053,6 +2054,7 @@ def render_calculus_grand_story():
 
             # 核心公式
             st.latex(r"(1-x^2)^{\frac{1}{2}} = 1 - \frac{1}{2}x^2 - \frac{1}{8}x^4 - \frac{1}{16}x^6 - \dots")
+            st.write("This was a game-changer because polynomials are incredibly easy to manipulate. By turning complex curves into infinite polynomials, Newton could differentiate and integrate them term-by-term with simple power rules. It turned impossible calculus problems into basic algebra.")
 
             # === 🎮 交互演示：从直线变圆 ===
             st.markdown("---")
@@ -2094,6 +2096,28 @@ def render_calculus_grand_story():
 
             st.divider()
 
+            # --- 1. The Masterpiece: 巨著问世 ---
+            st.markdown("### 📜 1. The Masterpiece: *Principia* (1687)")
+
+            col_bk1, col_bk2 = st.columns([1, 2])
+            with col_bk1:
+                # 建议加入书的封面图
+                st.image(
+                    "principia.jpg",
+                    caption="Philosophiæ Naturalis Principia Mathematica(1687)")
+
+            with col_bk2:
+                st.write("""
+                            Newton's *Philosophiae Naturalis Principia Mathematica* is arguably the most influential book in science. 
+
+                            It wasn't just a physics textbook; it was his attempt to decode the **'Divine Order'** of the universe. Inside, he laid down the laws of motion and universal gravitation using his secret weapon: **Calculus** (which he called the 'Method of Fluxions').
+                            """)
+                st.info(
+                    "💡 **Fun Fact:** Newton didn't actually use the word 'Calculus' in the book. He hid the math inside geometric proofs!")
+
+            st.divider()
+
+            # ... 后面接你原来的代码
             # --- 2. The Motion: 流数术 ---
             st.subheader("🌊 2. The Motion: Fluxions")
             st.markdown("He didn't care about static curves; he cared about **Moving Points**.")
@@ -2133,9 +2157,15 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
                      caption="G.W. Leibniz: The Systematizer", width=250)
 
             st.subheader("🦁 The Machine: The Rules")
-            st.write("Leibniz wanted to make Calculus **automatic**. He invented the 'Cheat Codes' we memorize today:")
 
-            # --- 🌟 新增：莱布尼茨的三大原本 ---
+            # --- 修改 1: 在规则上方加入肖像与宏观愿景，与 Newton 风格统一 ---
+            st.write("""
+                Leibniz wanted to make Calculus **automatic**. He dreamed of a *Mathesis Universalis*—a universal language where every logical error would be a simple calculation error.
+
+                He invented the 'Cheat Codes' we memorize today:
+                """)
+
+            # --- 修改 2: 保持你原本的规则排版完全不动 ---
             st.markdown("**1. The Product Rule (1675)**")
             st.latex(r"d(uv) = u \, dv + v \, du")
 
@@ -2148,8 +2178,17 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
             st.caption(
                 "While Newton had to expand series to solve these, Leibniz gave us **formulas** that work instantly.")
 
-            st.divider()
-
+            # --- 修改 3: 加入一个低调的折叠区，介绍他除了符号以外的伟大发现 ---
+            with st.expander("🧠 Leibniz's Legacy: Beyond the Symbols"):
+                st.write("""
+                * **The Integral Sign ($\int$):** He chose the elongated 'S' for *Summa* (Sum) because he realized integration is just the infinite sum of infinitesimal differences.
+                * **Binary Logic:** He is the father of the **0 and 1** system, which he viewed as a mathematical representation of creation out of nothing.""")
+                st.image(
+                    "binary.jpg",
+                    caption="Leibniz's Binary Manuscript (1703)")
+                st.write(""""* **Optimization:** He believed God designed the world using the 'Calculus of Variations' to find the **Best of all possible worlds**—maximizing variety while minimizing waste.
+                """)
+                st.info("💬 'Let us calculate!' — His famous response to any intellectual dispute.")
             # --- 🤖 哲学区：二进制 ---
             with st.expander("🤖 The Code of God: Binary"):
                 st.write("""
@@ -2191,13 +2230,21 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
 
                 with col_berk_1:
                     st.markdown("""
-                    Bishop Berkeley published *The Analyst*, a savage attack on Newton and Leibniz. He wasn't saying the *results* were wrong, but that the *method* was inconsistent.
+                    Bishop Berkeley published *The Analyst*, subtitled **"A Discourse Addressed to an Infidel Mathematician"**. 
+
+                    **The Religious Motive:**
+                    Berkeley wasn't just nitpicking math; he was fighting a **Holy War**. Scientists (the "Freethinkers") of his day mocked religious "mysteries" like the Trinity for being irrational. Berkeley struck back by proving that Calculus—the crown jewel of science—was built on even weirder "mysteries" that required pure faith to accept.
 
                     **His famous insult:**
                     > *"He divides by $dx$, so it is not zero. Then he throws it away, so it is zero. These are the **Ghosts of departed quantities**!"*
                     """)
 
                 with col_berk_2:
+                    # --- 保持原有肖像 ---
+                    st.image(
+                        "berkeley.jpg",
+                        caption="George Berkeley")
+
                     st.caption("Berkeley's Point: logical fallacy.")
                     st.latex(r"\frac{(x+dx)^2 - x^2}{dx} = 2x + dx \xrightarrow{dx=0} 2x")
                     st.caption("If $dx$ is 0, you can't divide. If $dx$ isn't 0, you can't throw it away.")
@@ -2210,6 +2257,11 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
             col_def_1, col_def_2 = st.columns(2)
 
             with col_def_1:
+                # --- 加入贝叶斯肖像 ---
+                # 注意：历史上没有确切的贝叶斯画像，这是最常被引用的画像
+                st.image("https://upload.wikimedia.org/wikipedia/commons/d/d4/Thomas_Bayes.gif", width=150,
+                         caption="Thomas Bayes")
+
                 st.markdown("#### 1. Thomas Bayes (1736)")
                 st.caption("**The Logic of the Ratio**")
                 st.write("""
@@ -2222,6 +2274,11 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
                 """)
 
             with col_def_2:
+                # --- 加入达朗贝尔肖像 ---
+                st.image(
+                    "alembert.jpg",
+                    width=150, caption="Jean le Rond d'Alembert")
+
                 st.markdown("#### 2. d'Alembert (1754)")
                 st.caption("**The Concept of 'Limit'**")
                 st.write("""
@@ -2240,7 +2297,6 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
             **The Resolution:** It took another 100 years for Cauchy and Weierstrass to turn d'Alembert's idea into the rigorous $\epsilon-\delta$ definition we use today. But the ghost was finally exorcised.
             """)
 
-
     # ==========================================
     # Era VI: The Reign of Rigor (19th Century)
     # ==========================================
@@ -2257,7 +2313,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
         with c_col1:
             # 这里替换为柯西的照片路径
             st.image(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Augustin_Louis_Cauchy.jpg/480px-Augustin_Louis_Cauchy.jpg",
+                "cauchy.jpg",
                 caption="Cauchy")
         with c_col2:
             st.markdown("""
@@ -2281,7 +2337,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
 
         with w_col2:
             # 这里替换为魏尔斯特拉斯的照片路径
-            st.image("https://upload.wikimedia.org/wikipedia/commons/6/6c/Karl_Weierstrass_2.jpg",
+            st.image("weierstrass.jpg",
                      caption="Weierstrass")
             st.caption("The man who formalized the $\epsilon-\delta$ definition.")
 
@@ -2361,7 +2417,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
 
         with r_col1:
             # 这里替换为黎曼的照片路径
-            st.image("https://upload.wikimedia.org/wikipedia/commons/8/82/Bernhard_Riemann.jpg", caption="Riemann")
+            st.image("riemann.jpg", caption="Riemann")
 
         with r_col2:
             st.markdown("""
@@ -2413,15 +2469,25 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
     # ==========================================
     with tabs[6]:
         st.header("🌌 Era VII: The Modern Horizon")
-        st.markdown("### 🧩 Taming the Dirichlet 'Monster'")
 
-        st.write("""
-        In the 20th century, math encountered a crisis: functions so 'broken' that traditional area-calculating methods simply died. 
-        Let's break down the logic of how **Henri Lebesgue** solved this.
-        """)
+        # --- 修改开始：使用列布局来放置文字和肖像 ---
+        col_intro, col_img = st.columns([3, 1])  # 3:1 的比例让文字占主体
+
+        with col_intro:
+            st.markdown("### 🧩 Taming the Dirichlet 'Monster'")
+            st.write("""
+            In the 20th century, math encountered a crisis: functions so 'broken' that traditional area-calculating methods simply died. 
+            Let's break down the logic of how **Henri Lebesgue** solved this.
+            """)
+
+        with col_img:
+            # 勒贝格的经典肖像
+            st.image("lebesgue.jpg",
+                     caption="Henri Lebesgue")
+        # --- 修改结束 ---
 
         # ---------------------------------------------------------
-        # STEP 1: The Function Definition
+        # STEP 1: The Function Definition (以下代码保持完全不变)
         # ---------------------------------------------------------
         st.subheader("Step 1: Meet the Dirichlet Function $D(x)$")
         st.latex(
@@ -2447,7 +2513,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
             fig_r = go.Figure()
             # 绘制背景：灰色代表无法确定的“震荡区”
             fig_r.add_shape(type="rect", x0=0, y0=0, x1=1, y1=1, fillcolor="rgba(255,255,255,0.1)", line=dict(width=0))
-            fig_r.add_trace(go.Scatter(x=x_r, y=y_r, mode='markers', marker=dict(size=2, color='white'), name="Chaos"))
+            fig_r.add_trace(go.Scatter(x=x_r, y=y_r, mode='markers', marker=dict(size=2, color='black'), name="Chaos"))
             fig_r.update_layout(title="Riemann's Nightmare: No stable height.", height=300, showlegend=False,
                                 template="plotly_dark")
             st.plotly_chart(fig_r, use_container_width=True)
@@ -2457,7 +2523,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
             st.markdown("""
             * **Upper Sum:** Always 1 (picks height 1).
             * **Lower Sum:** Always 0 (picks height 0).
-            * Since $1 \neq 0$, the area is **undefined**.
+            * Since $1 \\neq 0$, the area is **undefined**.
             """)
 
         st.divider()
@@ -2530,63 +2596,110 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
 # ==========================================
 # Chapter I: Limits (The Paradox) - 第一章：极限
 # ==========================================
+
 def render_topic_8_limits():
     st.header("🌉 Chapter I: Limits & Continuity")
+    st.markdown("""
+    **"Calculus is the art of getting arbitrarily close."**
 
-    # 剧情回顾：连接 Grand Tale
-    with st.expander("🔙 Recap: Banish the Ghosts", expanded=False):
-        st.write(
-            "In the Grand Tale, we saw Berkeley's attack on $0/0$. **Limits** are the surgical tools that fix this logical contradiction.")
+    In the Era of Newton, $dx$ was a "Ghost". In this chapter, we turn that Ghost into a rigorous tool called the **Limit**.
+    """)
 
-    t1, t2, t3 = st.tabs(["The Toolkit (Calculation)", "The Handshake (Existence)", "Repair Game (Continuity)"])
+    # --- 定义 6 个进阶 Tab ---
+    limit_tabs = st.tabs([
+        "1. Intuition",
+        "2. Toolkit (0/0)",
+        "3. Existence",
+        "4. Infinity",
+        "5. Continuity",
+        "6. The Abyss (Analysis)"
+    ])
 
-    # --- Tab 1: 计算工具箱 ---
-    with t1:
-        st.subheader("🧰 The Surgical Tools for 0/0")
-        choice = st.radio("Choose your tool:", ["Factorization", "Conjugate"], horizontal=True)
-        if "Factorization" in choice:
-            st.latex(r"\lim_{x \to 2} \frac{x^2 - 4}{x - 2} = \lim_{x \to 2} \frac{(x-2)(x+2)}{(x-2)} = 4")
-            st.caption("We surgically remove the 'problem term' $(x-2)$ that causes the error.")
-        else:
-            st.latex(r"\lim_{x \to 0} \frac{\sqrt{x+9}-3}{x} = \frac{1}{6}")
-            st.caption("Using the 'Conjugate Mirror' to clear the square root.")
+    # ==============================================================================
+    # TAB 1: INTUITION
+    # ==============================================================================
+    with limit_tabs[0]:
+        st.subheader("🧐 What is a Limit?")
+        st.info("A Limit asks: **Where is the function GOING?** (Not necessarily where it IS).")
 
-    # --- Tab 2: 存在性 (左右极限) ---
-    with t2:
-        st.subheader("🤝 The Handshake Rule")
-        st.write(
-            "A limit exists only if the traveler from the Left and the traveler from the Right meet at the same point.")
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            st.latex(r"\lim_{x \to c} f(x) = L")
+            st.write("We care about the *approach*, not the *arrival*.")
+        with col_c2:
+            st.write(
+                "Imagine walking along a curve. The Limit is the **height** you expect to find when you get there.")
 
-        # 交互：断桥实验
-        broken = st.toggle("Break the Bridge")
-        x = np.linspace(0, 4, 100)
-        # 如果 broken 为真，右半部分向上平移
-        y = np.where(x < 2, x ** 2, (x + 2 if broken else x ** 2))
+        # 可视化 x^2 + 1 逼近 0
+        st.divider()
+        x_val = st.slider("Move x towards 0:", -2.0, 2.0, -1.5, 0.01)
+        y_val = x_val ** 2 + 1
 
-        fig = go.Figure(go.Scatter(x=x, y=y, line=dict(color='#00ADB5', width=3)))
-        st.plotly_chart(fig, use_container_width=True)
-        st.write("Result: " + ("❌ Limit DNE (L ≠ R)" if broken else "✅ Limit Exists (L = R)"))
+        fig_concept = go.Figure()
+        x_range = np.linspace(-2, 2, 200)
+        fig_concept.add_trace(go.Scatter(x=x_range, y=x_range ** 2 + 1, mode='lines', name='f(x)'))
+        fig_concept.add_trace(go.Scatter(x=[0], y=[1], mode='markers', name='Limit L=1',
+                                         marker=dict(symbol='circle-open', size=12, color='red', line=dict(width=2))))
+        fig_concept.add_trace(
+            go.Scatter(x=[x_val], y=[y_val], mode='markers', name='You', marker=dict(size=10, color='#00CC96')))
+        fig_concept.update_layout(template="plotly_dark", height=350, title=f"As x → 0, f(x) → {y_val:.4f}")
+        st.plotly_chart(fig_concept, use_container_width=True)
 
-    # --- Tab 3: 连续性修复游戏 ---
-    with t3:
-        st.subheader("🔧 The Continuity Repair")
-        st.info("Remember the 'Removable Discontinuity'? You can fix the function by moving this point.")
+    # ==============================================================================
+    # TAB 2: TOOLKIT (修复了可视化报错)
+    # ==============================================================================
+    with limit_tabs[1]:
+        st.subheader("🧰 Handling the Indeterminate 0/0")
+        method = st.radio("Technique:", ["Factorisation", "Conjugate", "L'Hôpital's Rule"], horizontal=True)
 
-        # 滑块：移动点的高度
-        target_y = st.slider("Adjust f(2) height", 0.0, 8.0, 1.0)
+        if method == "Factorisation":
+            st.latex(r"\lim_{x \to 3} \frac{x^2 - 9}{x - 3} = 6")
+            with st.expander("👀 See the Repair (Before vs After)"):
+                # 这里使用导入的 make_subplots
+                fig_comp = make_subplots(rows=1, cols=2, subplot_titles=("Broken (Hole)", "Repaired (Line)"))
+                x_v = np.linspace(0, 6, 100);
+                y_v = x_v + 3
+                fig_comp.add_trace(go.Scatter(x=x_v, y=y_v, line=dict(color='red')), row=1, col=1)
+                fig_comp.add_trace(
+                    go.Scatter(x=[3], y=[6], mode='markers', marker=dict(symbol='circle-open', size=12, color='white')),
+                    row=1, col=1)
+                fig_comp.add_trace(go.Scatter(x=x_v, y=y_v, line=dict(color='green')), row=1, col=2)
+                fig_comp.add_trace(go.Scatter(x=[3], y=[6], mode='markers', marker=dict(color='green')), row=1, col=2)
+                fig_comp.update_layout(showlegend=False, template="plotly_dark", height=300)
+                st.plotly_chart(fig_comp, use_container_width=True)
 
-        x_line = np.linspace(0, 4, 100)
-        y_line = x_line + 2
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x_line, y=y_line, name='Function Path', line=dict(color='gray')))
-        fig.add_trace(
-            go.Scatter(x=[2], y=[target_y], mode='markers', marker=dict(size=15, color='#FDB827'), name='Your Point'))
-        st.plotly_chart(fig, use_container_width=True)
+        elif method == "L'Hôpital's Rule":
+            st.markdown("#### The Nuclear Option")
+            st.write("When algebra fails, use derivatives (if you know them):")
+            st.latex(r"\lim_{x \to c} \frac{f(x)}{g(x)} = \lim_{x \to c} \frac{f'(x)}{g'(x)}")
+            st.info("Named after the Marquis de l'Hôpital, but likely bought from Johann Bernoulli!")
 
-        # 判定是否修复成功
-        if abs(target_y - 4.0) < 0.1:
-            st.success("🎉 Repair Successful! The function is now continuous.")
+    # ==============================================================================
+    # TAB 6: THE ABYSS (上强度：实分析)
+    # ==============================================================================
+    with limit_tabs[5]:
+        st.header("💀 The Abyss: Formal Analysis")
+        st.markdown("Weierstrass's **$\epsilon - \delta$** definition turned calculus into an iron-clad logic.")
 
+        st.latex(
+            r"\forall \epsilon > 0, \exists \delta > 0 \text{ s.t. } 0 < |x - c| < \delta \implies |f(x) - L| < \epsilon")
+
+        # 夹逼定理可视化
+        st.subheader("The Squeeze Theorem")
+        st.latex(r"\lim_{x \to 0} x^2 \sin(1/x) = 0")
+
+        x_sq = np.linspace(-0.2, 0.2, 1000)
+        # 避免除以0
+        x_sq = x_sq[x_sq != 0]
+        y_sq = (x_sq ** 2) * np.sin(1 / x_sq)
+
+        fig_sq = go.Figure()
+        fig_sq.add_trace(go.Scatter(x=x_sq, y=y_sq, name='Oscillation', line=dict(color='yellow')))
+        fig_sq.add_trace(go.Scatter(x=x_sq, y=x_sq ** 2, name='Upper x²', line=dict(color='gray', dash='dash')))
+        fig_sq.add_trace(go.Scatter(x=x_sq, y=-x_sq ** 2, name='Lower -x²', line=dict(color='gray', dash='dash')))
+        fig_sq.update_layout(title="Trapped by the Squeeze Theorem", template="plotly_dark", height=400)
+        st.plotly_chart(fig_sq, use_container_width=True)
+        st.success("The 'Police' functions (x² and -x²) force the 'Thief' to 0.")
 
 # ==========================================
 # Chapter II: Differentiation (The Motion) - 第二章：微分
