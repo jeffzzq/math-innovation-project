@@ -3351,7 +3351,7 @@ def render_topic_8_limits():
 
                     with col_c2:
                         st.image(
-                            "https://www.google.com/imgres?q=Britain-fractal-coastline-combined.jpg&imgurl=https%3A%2F%2Ffractalfoundation.org%2FOFCA%2Fuks4.jpg&imgrefurl=https%3A%2F%2Ffractalfoundation.org%2FOFC%2FOFC-10-4.html&docid=MgRf0Ul02P39XM&tbnid=zDoh5ZRXCuxyZM&vet=12ahUKEwjkp_3a8tuSAxUqj68BHf5bMAIQM3oECBsQAA..i&w=700&h=261&hcb=2&ved=2ahUKEwjkp_3a8tuSAxUqj68BHf5bMAIQM3oECBsQAA",
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Britain-fractal-coastline-combined.jpg/600px-Britain-fractal-coastline-combined.jpg",
                             caption="The Coastline Paradox in action")
 
                 st.divider()
