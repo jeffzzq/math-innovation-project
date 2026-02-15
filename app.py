@@ -2611,7 +2611,9 @@ def render_topic_8_limits():
         "3. Algebraic Techniques",
         "4. L'Hôpital & Linearization",
         "5. The Squeeze Theorem: The Sandwich Strategy",
-        "6. Asymptotes: The Unreachable Horizons"
+        "6. Asymptotes: The Unreachable Horizons",
+        "7. Continuity of a Function",
+        "8. The Fractal Frontier: Monsters of Continuity"
     ])
 
     # ==============================================================================
@@ -2631,7 +2633,7 @@ def render_topic_8_limits():
             st.write("At $x=1$, this yields the indeterminate form $0/0$. Let's observe the trend as $x \to 1$.")
 
             # 控制精度的交互滑块
-            precision = st.slider("Decimal Precision ($x \to 1$):", 1, 6, 3)
+            precision = st.slider("Decimal Precision ($x \\to 1$):", 1, 6, 3)
             delta = 10 ** (-precision)
 
             left_x, right_x = 1 - delta, 1 + delta
@@ -2939,7 +2941,7 @@ def render_topic_8_limits():
         The logic of "squeezing" dates back to **Archimedes** (250 BC), who calculated $\pi$ by trapping a circle between an inner and outer polygon. In modern calculus, we use this exact strategy to solve limits that defeat both algebraic tricks and L'Hôpital's Rule.
 
         ### 🎯 Why do we need it?
-        Consider evaluating $\lim_{x \to 0} x^2 \sin(1/x)$.
+        Consider evaluating $\lim_{x \\to 0} x^2 \sin(1/x)$.
         You cannot plug in 0. You cannot factor it. And **L'Hôpital's Rule completely fails** because the derivative involves $\cos(1/x)$, which oscillates infinitely and has no limit. When the function acts like a maniac, we don't calculate its exact path—we trap it with "bodyguards."
         """)
 
@@ -3109,6 +3111,276 @@ def render_topic_8_limits():
                 fig_oa.update_layout(template="plotly_dark", height=350, yaxis=dict(range=[-10, 10]),
                                      title="Riding the Slant to Infinity")
                 st.plotly_chart(fig_oa, use_container_width=True)
+    # ==============================================================================
+    # TAB 7: CONTINUITY & DISCONTINUITIES (连续性与间断点)
+    # ==============================================================================
+    with limit_tabs[6]:  # 请根据你的 tabs 列表修改这里的索引号
+        st.subheader("Continuity of a Function")
+        st.write(
+            "Before a function can be continuous, its limit must exist. Let's see how limits build the foundation of a 'smooth' curve.")
+
+        col_c1, col_c2 = st.columns(2)
+
+        with col_c1:
+            st.markdown("### Step 1: When does a Limit Exist?")
+            st.write(
+                "For a limit to exist at $x=c$, the 'left path' and the 'right path' must meet at the exact same destination.")
+            st.latex(r"\lim_{x \to c^-} f(x) = \lim_{x \to c^+} f(x) = L")
+            st.info("If they don't meet, the limit **does not exist (DNE)**.")
+
+        with col_c2:
+            st.markdown("### Step 2: The 3 Pillars of Continuity")
+            st.write("A function is continuous at $x=c$ if and only if it passes all three strict checks:")
+            st.markdown("""
+            1. $f(c)$ is **defined** (The point exists).
+            2. $\lim_{x \to c} f(x)$ **exists** (The left and right paths meet).
+            3. $\lim_{x \to c} f(x) = f(c)$ (The paths meet exactly at the point).
+            """)
+
+        st.divider()
+
+        # ---------------- 间断点探测器 ----------------
+        st.markdown("### The Discontinuity Explorer (When the Bridge Breaks)")
+        st.write("Select a type of discontinuity to see which 'pillar' of continuity failed.")
+
+        disc_type = st.radio(
+            "Select Discontinuity Type:",
+            ["1. Removable (Hole)", "2. Jump (Step)", "3. Infinite (Asymptote)"],
+            horizontal=True
+        )
+
+        col_plot, col_text = st.columns([1.5, 1])
+
+        with col_plot:
+            fig_disc = go.Figure()
+
+            if "Removable" in disc_type:
+                # 制造一个可去间断点 (x=2 处有个洞，但被错误地填在了别处)
+                x_val = np.linspace(0, 4, 100)
+                y_val = -(x_val - 2) ** 2 + 4
+
+                # 画正常的曲线
+                fig_disc.add_trace(
+                    go.Scatter(x=x_val, y=y_val, mode='lines', line=dict(color='#00CC96', width=3), name="Curve"))
+                # 画出空心洞 (Limit exists)
+                fig_disc.add_trace(go.Scatter(x=[2], y=[4], mode='markers',
+                                              marker=dict(symbol='circle-open', size=12, color='white', line_width=2),
+                                              name="Hole"))
+                # 画出孤立的实心点 (f(c) is defined elsewhere)
+                fig_disc.add_trace(
+                    go.Scatter(x=[2], y=[2], mode='markers', marker=dict(size=10, color='#EF553B'), name="f(2) = 2"))
+
+                fig_disc.update_layout(title="Removable Discontinuity (The Misplaced Brick)", yaxis=dict(range=[0, 5]))
+
+            elif "Jump" in disc_type:
+                # 制造一个跳跃间断点 (左极限 != 右极限)
+                x_left = np.linspace(0, 2, 50)
+                y_left = x_left + 1
+
+                x_right = np.linspace(2, 4, 50)
+                y_right = -x_right + 2
+
+                fig_disc.add_trace(
+                    go.Scatter(x=x_left, y=y_left, mode='lines', line=dict(color='#AB63FA', width=3), name="Left Path"))
+                fig_disc.add_trace(
+                    go.Scatter(x=[2], y=[3], mode='markers', marker=dict(symbol='circle', size=10, color='#AB63FA'),
+                               name="f(2) = 3"))
+
+                fig_disc.add_trace(go.Scatter(x=x_right, y=y_right, mode='lines', line=dict(color='#FFA15A', width=3),
+                                              name="Right Path"))
+                fig_disc.add_trace(go.Scatter(x=[2], y=[0], mode='markers',
+                                              marker=dict(symbol='circle-open', size=12, color='white',
+                                                          line=dict(color='#FFA15A', width=2)), name="Open Hole"))
+
+                fig_disc.update_layout(title="Jump Discontinuity (The Broken Bridge)", yaxis=dict(range=[-3, 4]))
+
+            elif "Infinite" in disc_type:
+                # 制造无穷间断点 (极限奔向无穷)
+                x_inf = np.linspace(0, 4, 200)
+                y_inf = 1 / (x_inf - 2) ** 2
+                y_inf[np.abs(x_inf - 2) < 0.05] = np.nan  # 在 x=2 处切断，防止连线
+
+                fig_disc.add_trace(go.Scatter(x=x_inf, y=y_inf, mode='lines', line=dict(color='#EF553B', width=3),
+                                              name="f(x) = 1/(x-2)²"))
+                fig_disc.add_vline(x=2, line_dash="dash", line_color="white", annotation_text="x = 2")
+
+                fig_disc.update_layout(title="Infinite Discontinuity (The Volcano)", yaxis=dict(range=[-1, 20]))
+
+            fig_disc.update_layout(template="plotly_dark", height=400, xaxis_title="x", yaxis_title="f(x)")
+            st.plotly_chart(fig_disc, use_container_width=True)
+
+        with col_text:
+            if "Removable" in disc_type:
+                st.error("❌ Fails Condition 3")
+                st.markdown("""
+                **What happened?**
+                The limit exists (both sides approach $y=4$). The function is defined ($f(2) = 2$). 
+                But **they don't match**. 
+
+                It's like building a bridge perfectly, but dropping the final brick in the river. 
+                *You can 'remove' this discontinuity simply by redefining $f(2) = 4$.*
+                """)
+            elif "Jump" in disc_type:
+                st.error("❌ Fails Condition 2")
+                st.markdown("""
+                **What happened?**
+                The left limit approaches $y=3$, but the right limit approaches $y=0$. 
+                Because Left $\\neq$ Right, **the overall limit DOES NOT EXIST**.
+
+                This often happens in piecewise functions or absolute value fractions like $\\frac{|x|}{x}$.
+                """)
+            elif "Infinite" in disc_type:
+                st.error("❌ Fails Conditions 1 & 2")
+                st.markdown("""
+                **What happened?**
+                The function shoots to infinity. $f(2)$ is a division by zero (undefined), and the limit is infinity (which technically means it doesn't exist as a real number).
+
+                This forms a **Vertical Asymptote**.
+                """)
+            # ==============================================================================
+            # TAB 8: THE FRACTAL FRONTIER (The Ultimate Monsters)
+            # ==============================================================================
+            with limit_tabs[7]:  # Adjust the index based on your actual tabs array
+                st.subheader("8. The Fractal Frontier: Monsters of Continuity")
+
+                st.markdown("""
+                ### 🕵️‍♂️ The Great Mathematical Illusion
+                Up until the late 1800s, almost all mathematicians believed in a simple intuition: 
+                **"If a curve is continuous (unbroken), it must eventually look smooth if you zoom in enough."** Think about a circle or a wave. If you zoom in on the edge, it looks like a flat, straight line. If it looks like a straight line, you can balance a tangent line on it, which means we can find its **Slope (Derivative)**. 
+
+                Sure, a function like $y = |x|$ has *one* sharp corner where a tangent line fails. But surely, a continuous line can't be made of *only* corners, right?
+
+                **Wrong. Prepare to meet the mathematical monsters that broke Calculus.**
+                """)
+
+                st.divider()
+
+                # ------------------- The Monster Gallery -------------------
+                st.markdown("### 👾 The Monster Gallery")
+                st.write(
+                    "Each of these four monsters passes our '3 Pillars of Continuity' test perfectly—they are completely unbroken. Yet, they cruelly reject any attempt to draw a smooth tangent line.")
+                st.warning("""
+                        **Mathematical Note:** While the **Weierstrass Function** is a strict function ($y=f(x)$), 
+                        objects like the **Koch Snowflake** are geometric curves. Both, however, are created 
+                        by the same mechanism: **The Limit of an Infinite Process.**
+                        """)
+                frac_tabs = st.tabs([
+                    "1. Weierstrass (Algebra)",
+                    "2. Koch Snowflake (Geometry)",
+                    "3. Sierpiński (Nothingness)",
+                    "4. Coastline Paradox (Reality)"
+                ])
+
+                with frac_tabs[0]:
+                    col_w1, col_w2 = st.columns([1, 1.2])
+                    with col_w1:
+                        st.markdown("#### The Weierstrass Function (1872)")
+                        st.write(
+                            "Discovered by Karl Weierstrass, this was the first function to prove the illusion wrong using pure algebra.")
+                        st.latex(r"f(x) = \sum_{n=0}^{\infty} a^n \cos(b^n \pi x)")
+                        st.write(
+                            "**Why is it continuous?** It is built by adding infinitely many smooth cosine waves together. The bridge never breaks.")
+                        st.write(
+                            "**Why is it NOT differentiable?** As $n \\to \\infty$, the waves get shorter but vibrate *infinitely faster*. The curve becomes covered in infinitely dense, microscopic spikes. You cannot balance a flat tangent line on infinite vibration.")
+
+                    with col_w2:
+                        iterations = st.slider("Add layers of limits (n):", min_value=1, max_value=20, value=3, step=1)
+
+                        x_weier = np.linspace(-2, 2, 2000)
+                        y_weier = np.zeros_like(x_weier)
+                        a, b = 0.5, 3.0
+
+                        for n in range(iterations):
+                            y_weier += (a ** n) * np.cos((b ** n) * np.pi * x_weier)
+
+                        fig_weier = go.Figure()
+                        fig_weier.add_trace(go.Scatter(x=x_weier, y=y_weier, line=dict(color='#00CC96', width=1.5)))
+
+                        fig_weier.update_layout(
+                            title=f"Weierstrass Function ({iterations} iterations)",
+                            template="plotly_dark", height=350, margin=dict(l=20, r=20, t=40, b=20)
+                        )
+                        st.plotly_chart(fig_weier, use_container_width=True)
+
+                with frac_tabs[1]:
+                    col_k1, col_k2 = st.columns([1, 1])
+                    with col_k1:
+                        st.markdown("#### The Koch Snowflake (1904)")
+                        st.write(
+                            "Take an equilateral triangle. Break every straight line into 3 segments, erase the middle, and build a smaller 'tent' pointing outward. **Repeat infinitely.**")
+                        st.write(
+                            "Every iteration replaces smooth straight lines with sharp 'V' corners. In the limit, **zero straight lines remain**. Every single point is a sharp corner.")
+                        st.error(
+                            "🔥 **The Infinity Paradox:** The snowflake is entirely trapped inside a finite circle (**Finite Area**), but its boundary grows by 4/3 every step. In the limit, its **Perimeter is INFINITE**!")
+                    with col_k2:
+                        st.markdown("*(Visualizing the finite area with an infinite perimeter)*")
+                        st.image(
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/KochFlake.svg/500px-KochFlake.svg.png",
+                            caption="Koch Snowflake Iterations")
+
+                with frac_tabs[2]:
+                    col_s1, col_s2 = st.columns([1, 1])
+                    with col_s1:
+                        st.markdown("#### The Sierpiński Triangle (1915)")
+                        st.write(
+                            "Start with a solid triangle. Cut out the middle upside-down triangle. You now have 3 smaller solid triangles. Cut out their middles. **Repeat infinitely.**")
+                        st.error(
+                            "🌌 **The Paradox of Nothingness:** Unlike the Koch Snowflake that grows outward, this monster destroys itself from the inside. In the limit, you have removed so much that its **Area is strictly ZERO**. Yet, the total length of the web of lines left behind is **INFINITE**. It is a continuous net made of nothing.")
+                    with col_s2:
+                        st.markdown("*(Visualizing the area vanishing to zero while borders go to infinity)*")
+                        st.image(
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Sierpinski_triangle_evolution.svg/600px-Sierpinski_triangle_evolution.svg.png",
+                            caption="Sierpiński Triangle Evolution")
+
+                with frac_tabs[3]:
+                    col_c1, col_c2 = st.columns([1, 1])
+                    with col_c1:
+                        st.markdown("#### The Coastline Paradox (1967)")
+                        st.write(
+                            "You might think these monsters only exist on a mathematician's scratchpad. But in 1967, Benoit Mandelbrot looked at a map and asked: **How long is the coast of Britain?**")
+                        st.write("""
+                        * Measure it with a **100km** ruler: You miss the bays, getting a short length.
+                        * Measure it with a **1km** ruler: You trace more jagged edges, the length increases.
+                        * Measure it with an **atomic** ruler: The length approaches **infinity**.
+                        """)
+                        st.write(
+                            "Nature doesn't build in straight lines. Coastlines, clouds, and blood vessels are all real-world fractals—continuous, but infinitely jagged.")
+
+                        st.info(
+                            "📄 **Want to blow your mind?** Read Benoit Mandelbrot's original, highly readable 1967 paper published in *Science*: [How Long Is the Coast of Britain? Statistical Self-Similarity and Fractional Dimension](https://en.wikipedia.org/wiki/How_Long_Is_the_Coast_of_Britain%3F_Statistical_Self-Similarity_and_Fractional_Dimension)")
+
+                    with col_c2:
+                        st.image(
+                            "https://www.google.com/imgres?q=Britain-fractal-coastline-combined.jpg&imgurl=https%3A%2F%2Ffractalfoundation.org%2FOFCA%2Fuks4.jpg&imgrefurl=https%3A%2F%2Ffractalfoundation.org%2FOFC%2FOFC-10-4.html&docid=MgRf0Ul02P39XM&tbnid=zDoh5ZRXCuxyZM&vet=12ahUKEwjkp_3a8tuSAxUqj68BHf5bMAIQM3oECBsQAA..i&w=700&h=261&hcb=2&ved=2ahUKEwjkp_3a8tuSAxUqj68BHf5bMAIQM3oECBsQAA",
+                            caption="The Coastline Paradox in action")
+
+                st.divider()
+
+                # ------------------- 深层拓展与结语 -------------------
+                st.markdown("### 🍿 Escaping to the Fractional Dimension")
+                st.write(
+                    "Because these monsters are infinitely jagged, they occupy *more* space than a 1D line, but *less* space than a 2D solid shape. They live in the **decimals between dimensions** (1.x D).")
+
+                col_vid, col_text = st.columns([1.5, 1])
+                with col_vid:
+                    # 3B1B 神级视频嵌入
+                    st.video("https://www.youtube.com/watch?v=gB9n2gHsHN4")
+                with col_text:
+                    st.write(
+                        "👉 **Highly Recommended:** Watch this masterpiece by *3Blue1Brown* to visualize how limits create fractional dimensions. It is the absolute perfect visual conclusion to our study of limits.")
+
+                    st.success("""
+                    🌉 **The Final Bridge to Chapter II**
+
+    We have successfully used **Limits** to define **Continuity**. Continuity guarantees that a function has a connected **Position** without any gaps. 
+    
+    But Fractals reveal a critical limitation: **Position $\\neq$ Direction.** A curve can be perfectly continuous, yet have no defined slope at any point.
+
+    In physics and engineering, knowing *where* a particle is located is useless if we cannot calculate *how fast* it is changing. To study motion, we must filter out these jagged functions and study curves that are strictly **'Smooth'**.
+
+    How do we mathematically measure 'Smoothness'? We don't need new math—we just need to apply our ultimate tool, the **Limit**, to a completely new object: **The Rate of Change**.
+    **Welcome to Chapter II: Differentiation.**
+                    """)
 
 # ==========================================
 # Chapter II: Differentiation (The Motion) - 第二章：微分
