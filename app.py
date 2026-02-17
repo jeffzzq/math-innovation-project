@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import scipy.stats as stats  # <--- 新增：用于二项分布计算
 import matplotlib.pyplot as plt
+from fractions import Fraction
+import math
 
 
 # ==========================================
@@ -555,10 +557,6 @@ def render_topic_1_number_system():
 
 #Topic 3: Sequence and Series
 
-import math
-import streamlit as st
-import numpy as np
-import plotly.graph_objects as go
 
 
 def render_topic_3_sequence():
@@ -3361,6 +3359,40 @@ def render_topic_8_limits():
                 st.write(
                     "Because these monsters are infinitely jagged, they occupy *more* space than a 1D line, but *less* space than a 2D solid shape. They live in the **decimals between dimensions** (1.x D).")
 
+                # =====================================================================
+                # 新增模块：用 st.expander 隐藏硬核推导，不破坏原有界面的清爽
+                # =====================================================================
+                with st.expander("🧮 Deep Dive: How do Limits calculate a Dimension? (The Math)", expanded=False):
+                    st.markdown("""
+                    You might be wondering: How can a dimension be a decimal? And more importantly, **where does the Limit come in?**
+
+                    To understand this, we must redefine how we calculate dimensions using the concept of **Scaling**. Let's see what happens when we scale an object up by a factor of $S$ (let's say, scale by 3):
+
+                    * **1D (Line):** Scale its length by 3, and you get exactly **3** copies of the original line. ($3 = 3^1$)
+                    * **2D (Square):** Scale its sides by 3, and you get exactly **9** copies of the original square. ($9 = 3^2$)
+                    * **3D (Cube):** Scale its edges by 3, and you get exactly **27** copies of the original cube. ($27 = 3^3$)
+
+                    Notice the pattern? $\\text{Number of Copies} = \\text{Scale}^{\\text{Dimension}}$. 
+                    Using logarithms, we can flip this to solve for the Dimension ($D$):
+                    $$D = \\frac{\\log(\\text{Copies})}{\\log(\\text{Scale})}$$
+
+                    #### The Koch Snowflake Dimension
+                    Now apply this to the Koch Snowflake. Every time you zoom in (scale) by a factor of **3**, the fractal doesn't give you 3 copies—it produces exactly **4** segments. Plug this into our formula:
+                    $$D = \\frac{\\log(4)}{\\log(3)} \\approx 1.2618$$
+                    It is strictly greater than 1, but less than 2!
+
+                    #### The Ultimate Limit: Box-Counting Dimension
+                    For wild, real-world fractals like coastlines, we can't just count perfectly symmetrical copies. Instead, mathematicians place a grid of tiny boxes (with side length $\\epsilon$) over the shape and count how many boxes ($N$) contain a piece of the curve.
+
+                    To find the *exact*, true dimension, we cannot use finite boxes. We must shrink the boxes until they are infinitely small. This requires our ultimate mathematical tool—**The Limit**:
+
+                    $$D = \\lim_{\\epsilon \\to 0} \\frac{\\log(N(\\epsilon))}{\\log(1/\\epsilon)}$$
+
+                    **Conclusion:** Limits are not just for finding points on a graph. They are the only mathematical tool powerful enough to define the fundamental geometry of nature itself.
+                    """)
+                # =====================================================================
+
+                # 原有的视频与总结代码（完全未改动）
                 col_vid, col_text = st.columns([1.5, 1])
                 with col_vid:
                     # 3B1B 神级视频嵌入
@@ -3372,90 +3404,1604 @@ def render_topic_8_limits():
                     st.success("""
                     🌉 **The Final Bridge to Chapter II**
 
-    We have successfully used **Limits** to define **Continuity**. Continuity guarantees that a function has a connected **Position** without any gaps. 
-    
-    But Fractals reveal a critical limitation: **Position $\\neq$ Direction.** A curve can be perfectly continuous, yet have no defined slope at any point.
+                    We have successfully used **Limits** to define **Continuity**. Continuity guarantees that a function has a connected **Position** without any gaps. 
 
-    In physics and engineering, knowing *where* a particle is located is useless if we cannot calculate *how fast* it is changing. To study motion, we must filter out these jagged functions and study curves that are strictly **'Smooth'**.
+                    But Fractals reveal a critical limitation: **Position $\\neq$ Direction.** A curve can be perfectly continuous, yet have no defined slope at any point.
 
-    How do we mathematically measure 'Smoothness'? We don't need new math—we just need to apply our ultimate tool, the **Limit**, to a completely new object: **The Rate of Change**.
-    **Welcome to Chapter II: Differentiation.**
+                    In physics and engineering, knowing *where* a particle is located is useless if we cannot calculate *how fast* it is changing. To study motion, we must filter out these jagged functions and study curves that are strictly **'Smooth'**.
+
+                    How do we mathematically measure 'Smoothness'? We don't need new math—we just need to apply our ultimate tool, the **Limit**, to a completely new object: **The Rate of Change**.
+                    **Welcome to Chapter II: Differentiation.**
                     """)
 
 # ==========================================
 # Chapter II: Differentiation (The Motion) - 第二章：微分
 # ==========================================
+
+# 假设这是你的第二章渲染函数
 def render_topic_differentiation():
-    st.header("📈 Chapter II: Differentiation (The Knife)")
+    st.header("📈 Chapter II: Differentiation (The Science of Change)")
 
-    # 剧情回顾
-    with st.expander("🔙 Recap: The Snapshot of the Moment", expanded=False):
-        st.write(
-            "Newton invented differentiation to calculate planetary speed. It is essentially finding the ultimate direction of a slope as the gap vanishes.")
+    # 定义第二章的 Tabs
+    diff_tabs = st.tabs([
+        "1. Introduction",
+        "2. Geometric Insights ",  # <--- 你的新 Tab
+        "3. The Rules of Calculus",
+        "4. Calculus: Binomial Theorem to Taylor series",
+        "5. 🌱 The Shapes of Nature: Exponentials, Logs, and Waves",
+        "6. ⚔️ The Training Ground: Applying Your Knowledge"
+    ])
 
-    t1, t2, t3 = st.tabs(["First Principles", "Visual Gallery", "Parametric (God's Eye)"])
+    # ==============================================================================
+    # TAB 1: FIRST PRINCIPLES & THE CONTINUITY RECAP
+    # ==============================================================================
+    with diff_tabs[0]:
+        # --- Part 1: The Recap - Why Chapter I isn't enough ---
+        st.subheader("🧐 Recap: The " + r"$|x|$" + " Warning")
 
-    # --- Tab 1: 第一性原理 (割线变切线) ---
-    with t1:
-        st.subheader("🔍 The Microscopic Definition")
-        st.latex(r"f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}")
+        col_recap_text, col_recap_viz = st.columns([1.2, 1])
+        with col_recap_text:
+            st.write("""
+            In Chapter I, we learned about **Continuity** (being connected). It's a necessary condition for smoothness, but it's not enough.
 
-        # 滑块：h 趋近于 0
-        h = st.slider("Let distance h approach 0", 0.01, 2.0, 1.0)
+            Look at the absolute value function $f(x) = |x|$.
+            * **Is it continuous at x=0?** Yes. You can draw it without lifting your pen.
+            * **Is it "smooth" at x=0?** No. It has a sharp corner.
 
-        x = np.linspace(0, 3, 100)
-        # 计算割线数据
-        x1, x2 = 1.0, 1.0 + h
-        m = (x2 ** 2 - x1 ** 2) / (x2 - x1)  # 斜率
-        y_secant = x1 ** 2 + m * (x - x1)  # 割线方程
+            If you approach $x=0$ from the left, the slope is **-1**. From the right, the slope is **+1**. They don't agree. Therefore, the derivative (slope) does not exist at the corner.
+            """)
+            st.warning(
+                "👉 **Golden Rule:** Differentiability implies Continuity, but Continuity DOES NOT imply Differentiability.")
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x, y=x ** 2, name='Curve'))
-        fig.add_trace(go.Scatter(x=[x1, x2], y=[x1 ** 2, x2 ** 2], mode='markers', marker=dict(color='red')))
-        fig.add_trace(go.Scatter(x=x, y=y_secant, line=dict(dash='dash'), name='Secant to Tangent'))
-        st.plotly_chart(fig, use_container_width=True)
+        with col_recap_viz:
+            # 绘制 y=|x| 的示意图
+            x_abs = np.linspace(-2, 2, 200)
+            fig_abs = go.Figure()
+            fig_abs.add_trace(
+                go.Scatter(x=x_abs, y=np.abs(x_abs), mode='lines', name='y=|x|', line=dict(color='#FF4B4B', width=3)))
+            # 标记尖角
+            fig_abs.add_trace(go.Scatter(x=[0], y=[0], mode='markers',
+                                         marker=dict(color='yellow', size=12, line=dict(width=2, color='red')),
+                                         name='Sharp Corner (Not Differentiable)'))
+            fig_abs.update_layout(template="plotly_dark", height=300, margin=dict(t=30, b=20),
+                                  title="Continuous but NOT Differentiable at x=0")
+            st.plotly_chart(fig_abs, use_container_width=True)
 
-        if h < 0.1:
-            st.success("🌟 Miracle Moment: The Secant line has become the Tangent! The slope is now the derivative.")
+        st.divider()
 
-    # --- Tab 2: 导数画廊 ---
-    with t2:
-        st.subheader("🎨 Derivative Gallery")
-        f_type = st.selectbox("Choose a function:", ["Polynomial (x³)", "Trigonometric (sin x)", "Exponential (eˣ)"])
-        x = np.linspace(-3, 3, 100)
+        # --- Part 2: First Principles - The Solution ---
+        st.subheader("🔬 The " + r"$0/0$" + " Hack: Newton's First Principles")
+        st.write("""
+        If a curve is smooth, how do we find its slope at a single point?
+        Standard slope formula: $m = \\frac{y_2 - y_1}{x_2 - x_1}$.
+        At a single instant, $x_2 = x_1$ and $y_2 = y_1$, so we get $\\frac{0}{0}$. A disaster.
 
-        # 根据选择生成不同的函数数据
-        if "x³" in f_type:
-            y, yp = x ** 3, 3 * x ** 2
-        elif "sin" in f_type:
-            y, yp = np.sin(x), np.cos(x)
-        else:
-            y, yp = np.exp(x), np.exp(x)
+        **Newton's Solution:** Don't calculate at *one* point. Calculate the average slope between *two* points, and use a **Limit** to crush the distance between them to zero.
+        """)
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x, y=y, name='Original f(x)'))
-        fig.add_trace(go.Scatter(x=x, y=yp, name="Derivative f'(x) (Slope)", line=dict(dash='dot')))
-        st.plotly_chart(fig, use_container_width=True)
+        # 核心公式
+        st.latex(r"\text{Derivative } f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}")
 
-    # --- Tab 3: 参数方程 (上帝视角) ---
-    with t3:
-        st.subheader("🌀 Parametric: Beyond x and y")
-        st.write("In physics, $x$ and $y$ are often controlled by Time ($t$).")
+        # --- Part 3: The Interactive Visualization (Secant to Tangent) ---
+        st.info(
+            "🎛️ **Interactive Lab:** We want to find the slope of $y=x^2$ at the point $P(1,1)$. Drag the slider $h$ towards 0 from either side. Watch the red **Secant Line** transform into the green **Tangent Line**.")
 
-        # 滑块：控制时间 t
-        t_val = st.slider("Time (t)", 0.0, 6.28, 0.0)
-        st.latex(r"x = \cos(t), \quad y = \sin(t)")
+        # 滑块：h 是两个点之间的水平距离。允许负值！
+        # 初始值设为 1.0，让用户有操作空间
+        h = st.slider("Distance h (from P to Q):", min_value=-1.5, max_value=1.5, value=1.0, step=0.01)
 
-        t_range = np.linspace(0, 6.28, 100)
-        fig = go.Figure(go.Scatter(x=np.cos(t_range), y=np.sin(t_range), name='Motion Path'))
+        # 为了防止数学除零错误，如果 h 恰好是 0，我们用一个极小值代替用于计算显示
+        h_calc = h if abs(h) > 1e-5 else 1e-5
 
-        # 红色标记点代表粒子位置
-        fig.add_trace(
-            go.Scatter(x=[np.cos(t_val)], y=[np.sin(t_val)], mode='markers', marker=dict(size=15, color='red')))
-        fig.update_layout(width=400, height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        # 定义函数和点
+        def f_main(x): return x ** 2
+
+        x_p, y_p = 1.0, f_main(1.0)  # 固定点 P (1, 1)
+        x_q, y_q = x_p + h_calc, f_main(x_p + h_calc)  # 移动点 Q
+
+        # 计算割线斜率
+        slope_secant = (y_q - y_p) / (x_q - x_p)
+        # 我们知道 x^2 在 x=1 处的真实导数是 2
+        true_derivative = 2.0
+
+        # 绘图准备
+        x_plot = np.linspace(-0.5, 2.5, 200)
+        fig_first = go.Figure()
+
+        # 1. 绘制主曲线 y=x^2
+        fig_first.add_trace(go.Scatter(x=x_plot, y=f_main(x_plot), mode='lines', name='f(x) = x²',
+                                       line=dict(color='royalblue', width=3)))
+
+        # 2. 绘制割线/切线
+        # 根据 h 的大小决定线的颜色和名字，提供视觉反馈
+        is_close = abs(h) < 0.1
+        line_color = '#00CC96' if is_close else '#FF4B4B'  # 绿色代表接近切线，红色代表割线
+        line_name = 'Tangent Line (Approx)' if is_close else 'Secant Line'
+        line_width = 3 if is_close else 2
+        line_dash = 'solid' if is_close else 'dashdot'
+
+        # 割线方程: y - y_p = m * (x - x_p)
+        y_secant_line = slope_secant * (x_plot - x_p) + y_p
+        fig_first.add_trace(go.Scatter(x=x_plot, y=y_secant_line, mode='lines', name=line_name,
+                                       line=dict(color=line_color, width=line_width, dash=line_dash)))
+
+        # 3. 绘制点 P (固定) 和 Q (移动)
+        fig_first.add_trace(
+            go.Scatter(x=[x_p], y=[y_p], mode='markers+text', text=['P (Fixed)'], textposition="bottom right",
+                       marker=dict(size=12, color='white', line=dict(width=2, color='blue')), name='Point P'))
+        fig_first.add_trace(
+            go.Scatter(x=[x_q], y=[y_q], mode='markers+text', text=['Q (Moving)'], textposition="top left",
+                       marker=dict(size=10, color=line_color), name='Point Q'))
+
+        # 锁定坐标轴，防止画面抖动
+        fig_first.update_layout(
+            title=dict(text=f"Secant Slope: {slope_secant:.4f}  →  Target Derivative: {true_derivative}",
+                       font=dict(size=18)),
+            template="plotly_dark", height=500,
+            xaxis=dict(range=[-0.5, 2.5], title="x"),
+            yaxis=dict(range=[-1, 6], title="y"),
+            hovermode="x unified"
+        )
+        st.plotly_chart(fig_first, use_container_width=True)
+
+        # 成功提示
+        if is_close:
+            st.success(
+                f"🎯 **Bulls-eye!** As $h$ becomes tiny, the secant line balances perfectly on point P. The slope settles at exactly **{true_derivative}**. You have just visualized a derivative!")
+
+        st.divider()
+
+        # ==============================================================================
+        # PART 4: THE PHYSICS CONNECTION (s -> v -> a) - NEWLY ADDED
+        # ==============================================================================
+        st.subheader("🏎️ From Math to Physics: Form 4 Linear Motion")
+
+        col_phys_text, col_phys_img = st.columns([1.5, 1])
+        with col_phys_text:
+            st.write("""
+            Let's connect this mathematical slope to something you already know from **Form 4 Physics**.
+            * **Displacement ($s$):** Your position over time.
+            * **Velocity ($v$):** The rate of change of displacement. (The **Derivative** of $s$)
+            * **Acceleration ($a$):** The rate of change of velocity. (The **Derivative** of $v$)
+
+            When you found the slope of the tangent line above, you were actually calculating the **Instantaneous Velocity**.
+            """)
+
+        with col_phys_img:
+            # 🖼️ 【图片占位符】你可以放一张物理学里位移、速度、加速度关系的课本图
+            # 如果你有本地图片，可以改成 st.image("images/your_physics_image.png")
+            st.image(
+                "linearmotiongraph.png",
+                caption="Physics Motion Concepts: s, v, a", use_container_width=True)
+
+        st.info(
+            "🧪 **Interactive Physics Lab:** Drag the time slider below. Watch how the **slope (steepness)** of the top graph perfectly dictates the **height (value)** of the graph directly below it.")
+
+        # 1. 交互滑块：时间 t (为了不和上面的 h 冲突，这里用 t_current)
+        t_current = st.slider("Time (t) in seconds:", min_value=0.0, max_value=4.0, value=2.0, step=0.1)
+
+        # 2. 定义物理量: s(t) = t^2, v(t) = 2t, a(t) = 2
+        t_range = np.linspace(0, 4, 200)
+        s_data = t_range ** 2
+        v_data = 2 * t_range
+        a_data = np.full_like(t_range, 2)
+
+        s_now = t_current ** 2
+        v_now = 2 * t_current
+        a_now = 2.0
+
+        # 3. 创建 1行3列 的并排子图 (形似三个正方形)
+        from plotly.subplots import make_subplots
+        fig_motion = make_subplots(
+            rows=1, cols=3,
+            subplot_titles=(f"1️⃣ s(t)=t² | Pos: {s_now:.1f} m",
+                            f"2️⃣ v(t)=2t | Vel: {v_now:.1f} m/s",
+                            f"3️⃣ a(t)=2 | Acc: {a_now:.1f} m/s²")
+        )
+
+        # Plot 1: Displacement (s-t graph) - 第一列
+        fig_motion.add_trace(go.Scatter(x=t_range, y=s_data, name='s(t)', line=dict(color='#636EFA', width=3)), row=1,
+                             col=1)
+        fig_motion.add_trace(go.Scatter(x=[t_current], y=[s_now], mode='markers',
+                                        marker=dict(color='white', size=10, line=dict(color='#636EFA', width=2)),
+                                        showlegend=False), row=1, col=1)
+
+        # 画切线 (直观展示速度)
+        tangent_x = np.linspace(max(0, t_current - 0.8), min(4, t_current + 0.8), 10)
+        tangent_y = v_now * (tangent_x - t_current) + s_now
+        fig_motion.add_trace(
+            go.Scatter(x=tangent_x, y=tangent_y, mode='lines', line=dict(color='#00CC96', width=3, dash='dot'),
+                       name='Tangent (Velocity)'), row=1, col=1)
+
+        # Plot 2: Velocity (v-t graph) - 第二列
+        fig_motion.add_trace(go.Scatter(x=t_range, y=v_data, name='v(t)', line=dict(color='#EF553B', width=3)), row=1,
+                             col=2)
+        fig_motion.add_trace(
+            go.Scatter(x=[t_current], y=[v_now], mode='markers+text', text=[f"{v_now:.1f}"], textposition="top center",
+                       marker=dict(color='#00CC96', size=12), showlegend=False), row=1, col=2)
+
+        # Plot 3: Acceleration (a-t graph) - 第三列
+        fig_motion.add_trace(go.Scatter(x=t_range, y=a_data, name='a(t)', line=dict(color='#AB63FA', width=3)), row=1,
+                             col=3)
+        fig_motion.add_trace(go.Scatter(x=[t_current], y=[a_now], mode='markers',
+                                        marker=dict(color='white', size=10, line=dict(color='#AB63FA', width=2)),
+                                        showlegend=False), row=1, col=3)
+
+        # 布局美化与防抖动锁定
+        fig_motion.update_layout(
+            height=400,  # 高度从 700 调成 400，配合并排布局形成正方形视觉
+            template="plotly_dark",
+            hovermode="x unified",
+            showlegend=False,
+            margin=dict(t=60, b=20)
+        )
+
+        # 分别锁定三个图表的 X 轴和 Y 轴
+        fig_motion.update_yaxes(title_text="s (m)", range=[-1, 17], row=1, col=1)
+        fig_motion.update_xaxes(title_text="Time (s)", range=[0, 4], row=1, col=1)
+
+        fig_motion.update_yaxes(title_text="v (m/s)", range=[-1, 9], row=1, col=2)
+        fig_motion.update_xaxes(title_text="Time (s)", range=[0, 4], row=1, col=2)
+
+        fig_motion.update_yaxes(title_text="a (m/s²)", range=[0, 4], row=1, col=3)
+        fig_motion.update_xaxes(title_text="Time (s)", range=[0, 4], row=1, col=3)
+
+        st.plotly_chart(fig_motion, use_container_width=True)
+
+        # ==============================================================================
+        # TAB 2: GEOMETRIC INSIGHTS (Visualizing the Proofs)
+        # ==============================================================================
+        with diff_tabs[1]:
+            st.subheader("📐 Algebra is a Tool. Geometry is the Truth.")
+            st.write("""
+            We know how to calculate limits algebraically. But do we really *see* what's happening? 
+            Let's forget the formulas for a moment and rediscover differentiation using pure geometric intuition.
+            """)
+
+            # --- ACT 1: THE SQUARE (x^2) ---
+            st.divider()
+            st.markdown("### 🟩 Act I: The Growing Square ($x^2$)")
+
+            col_sq_text, col_sq_viz = st.columns([1, 1.5])
+
+            with col_sq_text:
+                st.write("""
+                Let's stop thinking of $y=x^2$ as a parabola curve.
+                Instead, think of it literally: **The Area of a Square with side length $x$.**
+
+                What happens if we nudge the side length $x$ by a tiny amount, **$dx$**? How much does the area ($y$) change? Let's call the change **$dy$**.
+
+                Look at the diagram. The added area has three parts:
+                1.  A rectangle on the right ($x \cdot dx$)
+                2.  A rectangle on the top ($x \cdot dx$)
+                3.  A tiny corner piece ($dx \cdot dx$)
+
+                In Calculus, $dx$ is infinitely small. The corner piece $(dx)^2$ is *infinitely* smaller than the strips. So we throw it away.
+                """)
+                st.latex(r"dy \approx x \cdot dx + x \cdot dx = 2x \cdot dx")
+                st.write("""
+                This means the "Exchange Rate" of area for side length is:
+                """)
+                st.latex(r"\frac{dy}{dx} = 2x")
+                st.success(
+                    "👉 **Insight:** The derivative of $x^2$ is $2x$ because a square has **2** sides that grow.")
+
+            with col_sq_viz:
+                # 交互式正方形面积演示
+                x_val = st.slider("Side length (x):", 1.0, 5.0, 3.0, key="sq_x")
+                dx_val = st.slider("Nudge amount (dx):", 0.1, 1.0, 0.5, key="sq_dx")  # dx 故意设大一点以便可视化
+
+                fig_sq = go.Figure()
+
+                # 1. 原始正方形 (蓝色)
+                fig_sq.add_shape(type="rect", x0=0, y0=0, x1=x_val, y1=x_val,
+                                 line=dict(color="royalblue", width=2), fillcolor="rgba(65, 105, 225, 0.3)",
+                                 layer="below")
+                fig_sq.add_trace(
+                    go.Scatter(x=[x_val / 2], y=[x_val / 2], text=[f"Original Area: x² = {x_val ** 2:.2f}"],
+                               mode="text", showlegend=False))
+
+                # 2. 增加的矩形条 (绿色) - dy 的主要部分
+                # 右侧条
+                fig_sq.add_shape(type="rect", x0=x_val, y0=0, x1=x_val + dx_val, y1=x_val,
+                                 line=dict(color="green", width=0), fillcolor="rgba(0, 204, 150, 0.6)", layer="below")
+                # 顶部条
+                fig_sq.add_shape(type="rect", x0=0, y0=x_val, x1=x_val, y1=x_val + dx_val,
+                                 line=dict(color="green", width=0), fillcolor="rgba(0, 204, 150, 0.6)", layer="below")
+
+                # 3. 微小的角块 (红色) - 被忽略的 dx^2
+                fig_sq.add_shape(type="rect", x0=x_val, y0=x_val, x1=x_val + dx_val, y1=x_val + dx_val,
+                                 line=dict(color="red", width=1), fillcolor="rgba(255, 75, 75, 0.8)", layer="below")
+
+                # 4. 标注
+                fig_sq.add_trace(go.Scatter(
+                    x=[x_val / 2, x_val + dx_val / 2, x_val + dx_val / 2],
+                    y=[x_val + dx_val / 2, x_val / 2, x_val + dx_val / 2],
+                    text=["x·dx (Top Strip)", "x·dx (Side Strip)", "(dx)² (Tiny Corner!)"],
+                    mode="text", showlegend=False
+                ))
+
+                fig_sq.update_layout(
+                    template="plotly_dark", height=400, width=400,
+                    xaxis=dict(range=[-0.5, 6.5], title="x", showgrid=False, zeroline=False),
+                    yaxis=dict(range=[-0.5, 6.5], title="y", showgrid=False, zeroline=False),
+                    margin=dict(t=20, b=20, l=20, r=20),
+                    shapes=[]
+                )
+                # 强制设置坐标轴比例一致，保证正方形看起来是正方形
+                fig_sq.update_yaxes(scaleanchor="x", scaleratio=1)
+
+                st.plotly_chart(fig_sq, use_container_width=True)
+
+            # --- ACT 2: THE CUBE & HIGHER POWERS ---
+            st.divider()
+            st.markdown("### 🧊 Act II: Cubes and Beyond ($x^3 \\to x^n$)")
+
+            col_cube, col_nth = st.columns(2)
+
+            with col_cube:
+                st.write("#### The Volume of a Cube ($x^3$)")
+                st.write("""
+                Now imagine a cube with side $x$. Volume $V = x^3$.
+                Imagine painting a thin layer of thickness **$dx$** onto the cube. 
+                Where does the main volume increase come from?
+
+                It comes from the **3 main faces** coating the outside.
+                * Area of one face = $x^2$.
+                * Volume added to one face $\\approx x^2 \\cdot dx$.
+
+                Since there are 3 such faces growing outward:
+                $$dy \\approx 3 \\cdot (x^2 \\cdot dx)$$
+                $$\\frac{dy}{dx} = 3x^2$$
+                *(The paint on the edges ($dx^2$) and corners ($dx^3$) is too thin to count.)*
+                """)
+
+                # --- 新增的 3D 立方体可视化 ---
+                def get_box_pts(x0, y0, z0, dx_len, dy_len, dz_len):
+                    # 辅助函数：生成方块的 8 个顶点用于 Mesh3d
+                    return (
+                        [x0, x0 + dx_len, x0 + dx_len, x0, x0, x0 + dx_len, x0 + dx_len, x0],
+                        [y0, y0, y0 + dy_len, y0 + dy_len, y0, y0, y0 + dy_len, y0 + dy_len],
+                        [z0, z0, z0, z0, z0 + dz_len, z0 + dz_len, z0 + dz_len, z0 + dz_len]
+                    )
+
+                fig_cube = go.Figure()
+
+                x_c = 3.0
+                dx_c = 0.4  # dx 设大一点方便看
+
+                # 1. 核心立方体 (Original x^3) - 蓝色
+                xb, yb, zb = get_box_pts(0, 0, 0, x_c, x_c, x_c)
+                fig_cube.add_trace(
+                    go.Mesh3d(x=xb, y=yb, z=zb, alphahull=0, color='royalblue', opacity=0.15, hoverinfo='skip'))
+
+                # 2. 三个主要增长面 (3 * x^2 * dx) - 绿色
+                # 顶部面
+                xt, yt, zt = get_box_pts(0, 0, x_c, x_c, x_c, dx_c)
+                fig_cube.add_trace(
+                    go.Mesh3d(x=xt, y=yt, z=zt, alphahull=0, color='#00CC96', opacity=0.7, name='Top Face'))
+                # 右侧面
+                xr, yr, zr = get_box_pts(x_c, 0, 0, dx_c, x_c, x_c)
+                fig_cube.add_trace(
+                    go.Mesh3d(x=xr, y=yr, z=zr, alphahull=0, color='#00CC96', opacity=0.7, name='Right Face'))
+                # 前侧面
+                xf, yf, zf = get_box_pts(0, x_c, 0, x_c, dx_c, x_c)
+                fig_cube.add_trace(
+                    go.Mesh3d(x=xf, y=yf, z=zf, alphahull=0, color='#00CC96', opacity=0.7, name='Front Face'))
+
+                # 3. 边缘和角落 (可忽略的高阶微小量 dx^2, dx^3) - 红色
+                # 边缘 1 (上右)
+                xe1, ye1, ze1 = get_box_pts(x_c, 0, x_c, dx_c, x_c, dx_c)
+                fig_cube.add_trace(go.Mesh3d(x=xe1, y=ye1, z=ze1, alphahull=0, color='#FF4B4B', opacity=0.9))
+                # 边缘 2 (上前)
+                xe2, ye2, ze2 = get_box_pts(0, x_c, x_c, x_c, dx_c, dx_c)
+                fig_cube.add_trace(go.Mesh3d(x=xe2, y=ye2, z=ze2, alphahull=0, color='#FF4B4B', opacity=0.9))
+                # 边缘 3 (前右)
+                xe3, ye3, ze3 = get_box_pts(x_c, x_c, 0, dx_c, dx_c, x_c)
+                fig_cube.add_trace(go.Mesh3d(x=xe3, y=ye3, z=ze3, alphahull=0, color='#FF4B4B', opacity=0.9))
+                # 角落 (上前右)
+                xc, yc, zc = get_box_pts(x_c, x_c, x_c, dx_c, dx_c, dx_c)
+                fig_cube.add_trace(go.Mesh3d(x=xc, y=yc, z=zc, alphahull=0, color='#FF4B4B', opacity=1.0))
+
+                fig_cube.update_layout(
+                    scene=dict(
+                        xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
+                        camera=dict(eye=dict(x=1.7, y=1.7, z=1.7))  # 调整初始视角
+                    ),
+                    margin=dict(l=0, r=0, b=0, t=0),
+                    height=350, showlegend=False
+                )
+                st.plotly_chart(fig_cube, use_container_width=True)
+
+            with col_nth:
+                st.write("#### The General Power Rule ($x^n$)")
+                st.write("""
+                We saw $x^2 \\to 2x$ and $x^3 \\to 3x^2$. Don't just guess the pattern. **Prove it.**
+
+                We use Algebra's "atomic weapon": The **Binomial Expansion** of $(x+dx)^n$.
+
+                $$(x+dx)^n = x^n + n \\cdot x^{n-1}(dx) + \\frac{n(n-1)}{2}x^{n-2}(dx)^2 + \\dots$$
+
+                The change $dy = (x+dx)^n - x^n$. When we subtract $x^n$, the first term is gone.
+                $$dy = n x^{n-1}(dx) + \\text{[stuff with } (dx)^2 \\text{]}$$
+
+                When $dx \\to 0$, all the higher powers vanish instantly. Only the survivor remains:
+                """)
+                st.latex(r"\frac{dy}{dx} = n x^{n-1}")
+                st.success("🎉 **Q.E.D.** The Power Rule is proven for all whole numbers.")
+
+            # --- ACT 3: SINE & COSINE (The Jewel of Geometry) ---
+            st.divider()
+            st.markdown("### ➰ Act III: The Trigonometry Miracle ($\\sin x \\to \\cos x$)")
+            st.write("This is one of the most beautiful arguments in all of mathematics.")
+
+            # Step 1: The Guess
+            st.write("#### Step 1: The Suspicious Graph")
+            st.write("Let's look at the graph of $f(x) = \\sin(x)$ and plot its slope at every point.")
+
+            # Sin/Cos 对比图
+            # 1. 扩大范围，从 -2π 到 4π，展示更多波浪起伏
+            x_trig = np.linspace(-2 * np.pi, 4 * np.pi, 400)
+            y_sin = np.sin(x_trig)
+            y_cos = np.cos(x_trig)
+
+            fig_trig_guess = go.Figure()
+            fig_trig_guess.add_trace(
+                go.Scatter(x=x_trig, y=y_sin, name='f(x) = sin(x)', line=dict(color='#636EFA', width=3)))
+            fig_trig_guess.add_trace(
+                go.Scatter(x=x_trig, y=y_cos, name="Slope f'(x)", line=dict(color='#EF553B', width=3, dash='dot')))
+
+            # 2. 定制 X 轴刻度，让它显示 π 的倍数
+            tick_values = [-2 * np.pi, -np.pi, 0, np.pi, 2 * np.pi, 3 * np.pi, 4 * np.pi]
+            tick_labels = ['-2π', '-π', '0', 'π', '2π', '3π', '4π']
+
+            fig_trig_guess.update_layout(
+                template="plotly_dark", height=300,
+                title="The slope of sine looks strangely familiar...",
+                xaxis=dict(
+                    title="x (radians)",
+                    tickmode='array',  # 告诉 Plotly 我们要自定义刻度
+                    tickvals=tick_values,  # 真实的数值位置
+                    ticktext=tick_labels,  # 屏幕上显示的文本
+                    showgrid=True,
+                    gridcolor='rgba(255, 255, 255, 0.1)'
+                ),
+                yaxis=dict(
+                    showgrid=True,
+                    gridcolor='rgba(255, 255, 255, 0.1)'
+                ),
+                hovermode="x unified"  # 加一个统一悬浮窗，体验更好
+            )
+            st.plotly_chart(fig_trig_guess, use_container_width=True)
+
+            st.info(
+                "🤔 It *looks* exactly like $\\cos(x)$. But is it? Or is it just an impostor function that looks similar? We need proof.")
+
+            # Step 2: The Proof (Unit Circle)
+            st.write("#### Step 2: The Unit Circle Truth")
+            st.write("""
+            Let's go back to the definition in the Unit Circle (Radius $R=1$).
+            * $x$ is the angle (and arc length).
+            * **$\\sin(x)$ is the vertical height.**
+
+            Let's nudge the angle $x$ by a tiny amount **$dx$**.
+            Look at the diagram below. We zoom in infinitely close to the point $P$ on the circle.
+            """)
+
+            col_uc_text, col_uc_viz = st.columns([1, 1.8])
+
+            with col_uc_text:
+                st.markdown("""
+                **The Magic of the Tiny Triangle:**
+
+                1.  The tiny arc length is **$dx$**. Because it's infinitely small, it's basically a straight line (the hypotenuse of the tiny triangle).
+                2.  The change in height is **$d(\\sin x)$** (the vertical side of the tiny triangle).
+                3.  **Crucial Geometry:** The tiny triangle is a perfect mini-replica of the big triangle, but **rotated by 90°**.
+
+                In the tiny triangle:
+                $$\\sin(\\text{tiny angle}) = \\frac{\\text{Opposite}}{\\text{Hypotenuse}} = \\frac{d(\\sin x)}{dx}$$
+
+                Because of the 90° rotation, the "Opposite" side of the tiny triangle corresponds to the "Adjacent" side of the big triangle!
+
+                In the big triangle, the Adjacent side is **$\\cos(x)$**.
+
+                Therefore:
+                $$\\frac{d(\\sin x)}{dx} = \\cos(x)$$
+                """)
+                st.success(
+                    "🤯 **Mind Blown:** We found the derivative without a single limit calculation, just by looking at similar triangles!")
+
+            with col_uc_viz:
+                # 单位圆几何证明可视化
+                angle_base = np.pi / 3  # 基础角度 60度
+                d_angle = 0.15  # dx，用于可视化演示
+
+                # 大三角形坐标
+                p_x, p_y = np.cos(angle_base), np.sin(angle_base)
+
+                # 小三角形坐标 (近似)
+                q_x, q_y = np.cos(angle_base + d_angle), np.sin(angle_base + d_angle)
+                # 小三角形的第三个顶点 (用于构成直角)
+                corner_x, corner_y = q_x, p_y
+
+                fig_uc = go.Figure()
+
+                # 1. 画单位圆弧
+                theta = np.linspace(0, np.pi / 2 + 0.2, 100)
+                fig_uc.add_trace(
+                    go.Scatter(x=np.cos(theta), y=np.sin(theta), mode='lines', line=dict(color='gray', dash='dash'),
+                               name='Unit Circle'))
+
+                # 2. 画大三角形 (基准)
+                fig_uc.add_trace(
+                    go.Scatter(x=[0, p_x, p_x, 0], y=[0, 0, p_y, 0], fill='toself', fillcolor='rgba(99, 110, 250, 0.2)',
+                               line=dict(color='#636EFA', width=2), name='Big Triangle'))
+                # 标注 cos(x) 和 sin(x)
+                fig_uc.add_annotation(x=p_x / 2, y=0, text="cos(x)", yshift=-15, showarrow=False,
+                                      font=dict(color='#636EFA'))
+                fig_uc.add_annotation(x=p_x, y=p_y / 2, text="sin(x)", xshift=15, showarrow=False,
+                                      font=dict(color='#636EFA'))
+
+                # 3. 画微小三角形 (关键！)
+                # Hypotenuse (dx)
+                fig_uc.add_trace(
+                    go.Scatter(x=[p_x, q_x], y=[p_y, q_y], mode='lines', line=dict(color='#00CC96', width=4),
+                               name='dx (Arc)'))
+                # Vertical side (d(sin x))
+                fig_uc.add_trace(
+                    go.Scatter(x=[q_x, corner_x], y=[q_y, corner_y], mode='lines', line=dict(color='#EF553B', width=4),
+                               name='d(sin x)'))
+                # Horizontal side (修好了丢失的一边：从 white 改为 gray)
+                fig_uc.add_trace(
+                    go.Scatter(x=[p_x, corner_x], y=[p_y, corner_y], mode='lines', line=dict(color='gray', width=2)))
+
+                # 4. 标注微小量
+                fig_uc.add_annotation(x=(p_x + q_x) / 2, y=(p_y + q_y) / 2, text="dx", xshift=15, yshift=15,
+                                      showarrow=False, font=dict(color='#00CC96', size=14, weight="bold"))
+                fig_uc.add_annotation(x=q_x, y=(p_y + q_y) / 2, text="d(sin x)", xshift=25, showarrow=False,
+                                      font=dict(color='#EF553B', size=14))
+
+                # 5. 画半径线指向 P (从 white 改为 gray)
+                fig_uc.add_trace(go.Scatter(x=[0, p_x], y=[0, p_y], mode='lines', line=dict(color='gray', width=2)))
+
+                # 布局设置，聚焦在第一象限并保持比例
+                fig_uc.update_layout(
+                    template="plotly_dark", height=450,
+                    xaxis=dict(range=[-0.1, 1.2], showgrid=False, zeroline=False, visible=False),
+                    yaxis=dict(range=[-0.1, 1.2], showgrid=False, zeroline=False, visible=False),
+                    margin=dict(t=20, b=20, l=20, r=20),
+                    showlegend=False
+                )
+                fig_uc.update_yaxes(scaleanchor="x", scaleratio=1)
+
+                st.plotly_chart(fig_uc, use_container_width=True)
+                st.caption(
+                    "Diagram: Zooming in on the unit circle. The tiny triangle (green/red/gray) is similar to the big triangle (blue), but rotated 90°.")
+
+    # ==============================================================================
+    # TAB 3: THE RULES OF CALCULUS (Product, Quotient, Chain)
+    # ==============================================================================
+    with diff_tabs[2]:
+        st.subheader("🛠️ The Toolkit: How to Combine Functions")
+        st.write("""
+        We know the basic derivatives ($x^2, \sin x, e^x$). But the real world is messy. 
+        What happens when functions multiply, divide, or nest inside each other? 
+        Let's build our ultimate toolkit.
+        """)
+
+        # ---------------------------------------------------------
+        # 1. THE PRODUCT RULE
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 1️⃣ The Product Rule ($u \cdot v$)")
+
+        col_prod_text, col_prod_viz = st.columns([1, 1.2])
+
+        with col_prod_text:
+            st.write("""
+            What is the derivative of $y = u(x) \cdot v(x)$?
+
+            Remember the square from Act I? Let's use the exact same logic, but for a **Rectangle**.
+            * The width is $u$ and the height is $v$. Area = $u \cdot v$.
+
+            If we nudge $x$ by $dx$, the width grows by $du$, and the height grows by $dv$.
+            The total new area has 3 extra pieces:
+            1. The top strip: $u \cdot dv$
+            2. The side strip: $v \cdot du$
+            3. The tiny corner: $du \cdot dv$ (which vanishes to $0$)
+
+            So the change in area is just the two main strips!
+            """)
+            st.latex(r"d(uv) = u \cdot dv + v \cdot du")
+            st.latex(r"\frac{d}{dx}[u \cdot v] = u \frac{dv}{dx} + v \frac{du}{dx}")
+            st.success("**Rule:** First times derivative of Second, PLUS Second times derivative of First.")
+
+        with col_prod_viz:
+            # 交互式矩形乘积法则可视化
+            u_val = st.slider("Width (u):", 1.0, 5.0, 4.0, key="prod_u")
+            v_val = st.slider("Height (v):", 1.0, 5.0, 2.5, key="prod_v")
+            du_val = 0.8  # 固定增量用于可视化
+            dv_val = 0.6
+
+            fig_prod = go.Figure()
+            # 1. Base Rectangle (u * v)
+            fig_prod.add_shape(type="rect", x0=0, y0=0, x1=u_val, y1=v_val, line=dict(color="royalblue", width=2),
+                               fillcolor="rgba(65, 105, 225, 0.3)")
+            fig_prod.add_annotation(x=u_val / 2, y=v_val / 2, text="Area = u · v", showarrow=False,
+                                    font=dict(color="royalblue", size=16))
+
+            # 2. Side Strip (v * du)
+            fig_prod.add_shape(type="rect", x0=u_val, y0=0, x1=u_val + du_val, y1=v_val,
+                               line=dict(color="#00CC96", width=0), fillcolor="rgba(0, 204, 150, 0.5)")
+            fig_prod.add_annotation(x=u_val + du_val / 2, y=v_val / 2, text="v · du", showarrow=False, textangle=-90,
+                                    font=dict(color="#00CC96"))
+
+            # 3. Top Strip (u * dv)
+            fig_prod.add_shape(type="rect", x0=0, y0=v_val, x1=u_val, y1=v_val + dv_val,
+                               line=dict(color="#FF9900", width=0), fillcolor="rgba(255, 153, 0, 0.5)")
+            fig_prod.add_annotation(x=u_val / 2, y=v_val + dv_val / 2, text="u · dv", showarrow=False,
+                                    font=dict(color="#FF9900"))
+
+            # 4. Tiny Corner (du * dv)
+            fig_prod.add_shape(type="rect", x0=u_val, y0=v_val, x1=u_val + du_val, y1=v_val + dv_val,
+                               line=dict(color="#FF4B4B", width=1), fillcolor="rgba(255, 75, 75, 0.8)")
+            fig_prod.add_annotation(x=u_val + du_val / 2, y=v_val + dv_val / 2, text="Ignore", showarrow=False,
+                                    font=dict(size=10, color="white"))
+
+            fig_prod.update_layout(
+                template="plotly_dark", height=350,
+                xaxis=dict(range=[-0.5, 6.5], title="Width (u)", showgrid=False, zeroline=False),
+                yaxis=dict(range=[-0.5, 6.5], title="Height (v)", showgrid=False, zeroline=False),
+                margin=dict(t=20, b=20, l=20, r=20),
+            )
+            fig_prod.update_yaxes(scaleanchor="x", scaleratio=1)
+            st.plotly_chart(fig_prod, use_container_width=True)
+
+        # ---------------------------------------------------------
+        # 2. THE QUOTIENT RULE
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 2️⃣ The Quotient Rule ($u / v$)")
+        st.write("How do we find the derivative of division? There are two paths to the truth.")
+
+        tab_q1, tab_q2 = st.tabs(
+            ["Path A: The Elegant Hack (Using Product Rule)", "Path B: The Classical Method (Limits)"])
+
+        with tab_q1:
+            st.write(
+                "**The Hack:** We hate division. So let's turn it into multiplication and use the rule we just proved!")
+            st.latex(r"\text{Let } y = \frac{u}{v}")
+            st.write("Multiply both sides by $v$ to get rid of the fraction:")
+            st.latex(r"u = y \cdot v")
+            st.write(
+                "Now, take the derivative of both sides. Since the right side is a multiplication, use the **Product Rule**!")
+            st.latex(r"u' = (y' \cdot v) + (y \cdot v')")
+            st.write("Our goal is to find $y'$ (the derivative of the quotient). Let's isolate $y'$:")
+            st.latex(r"y' \cdot v = u' - y \cdot v'")
+            st.write("But remember, $y$ is originally $u/v$. Plug that back in:")
+            st.latex(r"y' \cdot v = u' - \left(\frac{u}{v}\right) v'")
+            st.write("Multiply the whole equation by $v$ to clear the mini-fraction, then divide by $v^2$:")
+            st.latex(r"y' = \frac{u'v - uv'}{v^2}")
+            st.info(
+                "💡 **Notice:** We derived the Quotient Rule without touching a single complicated limit, just by being clever with the Product Rule!")
+
+        with tab_q2:
+            st.write(
+                "**The Classical Limit:** This is the traditional textbook proof. We add a 'clever zero' to make factoring possible.")
+            st.latex(
+                r"\frac{d}{dx} \left[\frac{u(x)}{v(x)}\right] = \lim_{h \to 0} \frac{\frac{u(x+h)}{v(x+h)} - \frac{u(x)}{v(x)}}{h}")
+            st.write("Find a common denominator for the top fraction:")
+            st.latex(r"= \lim_{h \to 0} \frac{u(x+h)v(x) - u(x)v(x+h)}{h \cdot v(x+h)v(x)}")
+            st.write("Subtract and add $u(x)v(x)$ in the numerator (the clever trick):")
+            st.latex(r"= \lim_{h \to 0} \frac{[u(x+h)v(x) - u(x)v(x)] - [u(x)v(x+h) - u(x)v(x)]}{h \cdot v(x+h)v(x)}")
+            st.write("Factor out $v(x)$ and $u(x)$, apply the limit, and you get the exact same result:")
+            st.latex(r"= \frac{u'v - uv'}{v^2}")
+
+        # ---------------------------------------------------------
+        # 3. THE CHAIN RULE
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 3️⃣ The Chain Rule ($f(g(x))$)")
+        st.write("""
+                What if functions are nested, like Matryoshka dolls? E.g., $y = \sin(x^2)$.
+                A derivative is just a **Scaling Factor **. If the inner function stretches your step by $2\\times$, and the outer function compresses it by $0.5\\times$, the total effect is $2 \\times 0.5 = 1\\times$.
+
+                Let's visualize this using number line for exactly this function:
+                * **Inner Function:** $u = g(x) = x^2$ 
+                * **Outer Function:** $y = f(u) = \sin(u)$
+                """)
+
+        col_chain_text, col_chain_viz = st.columns([1, 1.5])
+
+        with col_chain_text:
+            # 交互式滑动 dx，范围调小一点以保证近似计算的准确度
+            dx_chain = st.slider("Step size (dx):", 0.01, 0.30, 0.10, step=0.01, key="chain_dx")
+
+            # 我们选择 x0 = 0.8 作为起始点，因为这里的伸缩比例都是正的，便于可视化
+            x0 = 0.80
+            x1 = x0 + dx_chain
+
+            # 第一层映射：u = x^2
+            u0 = x0 ** 2
+            u1 = x1 ** 2
+            du_chain = u1 - u0
+            u_prime = 2 * x0  # 导数：2x
+
+            # 第二层映射：y = sin(u)
+            y0 = np.sin(u0)
+            y1 = np.sin(u1)
+            dy_chain = y1 - y0
+            y_prime = np.cos(u0)  # 导数：cos(u)
+
+            st.write(f"Let's start at **$x = {x0}$** and take a small step $dx$:")
+
+            st.markdown(f"**1. The Inner Function ($u=x^2$):**")
+            st.markdown(f"The derivative is $2x$. At $x={x0}$, the stretch factor is **${u_prime:.1f}$**.")
+            st.markdown(
+                f"👉 $du$ ({du_chain:.3f}) is approx **${u_prime:.1f}\\times$** larger than $dx$ ({dx_chain:.3f}).")
+
+            st.markdown(f"**2. The Outer Function ($y=\\sin(u)$):**")
+            st.markdown(
+                f"The derivative is $\\cos(u)$. At $u={u0:.2f}$, the stretch factor is $\\cos({u0:.2f}) \\approx$ **{y_prime:.2f}**.")
+            st.markdown(
+                f"👉 $dy$ ({dy_chain:.3f}) is scaled by approx **${y_prime:.2f}\\times$** from $du$ ({du_chain:.3f}).")
+
+            st.write(f"**Total Chain Reaction:**")
+            st.latex(
+                f"\\frac{{dy}}{{dx}} \\approx \\frac{{{dy_chain:.3f}}}{{{dx_chain:.3f}}} \\approx {dy_chain / dx_chain:.2f}")
+            st.write("Multiply the two theoretical stretch factors together:")
+            st.latex(
+                f"\\frac{{dy}}{{du}} \\cdot \\frac{{du}}{{dx}} = {y_prime:.2f} \\cdot {u_prime:.1f} = {y_prime * u_prime:.2f}")
+
+        with col_chain_viz:
+            # Plotly 三数轴联动图
+            fig_chain = go.Figure()
+
+            y_line_x, y_line_u, y_line_y = 3, 2, 1
+
+            # 画基础数轴 (浅灰色)，为了适应真实数值，将 X 轴范围设为 0.4 到 1.8
+            axis_range = [0.4, 1.8]
+            for y_pos in [y_line_x, y_line_u, y_line_y]:
+                fig_chain.add_trace(
+                    go.Scatter(x=axis_range, y=[y_pos, y_pos], mode='lines', line=dict(color='gray', width=1)))
+
+            # 1. x 轴上的区间 (dx)
+            fig_chain.add_trace(go.Scatter(x=[x0, x1], y=[y_line_x, y_line_x], mode='lines+markers',
+                                           line=dict(color='#636EFA', width=8), marker=dict(size=12), name='dx'))
+            fig_chain.add_annotation(x=(x0 + x1) / 2, y=y_line_x + 0.15, text=f"dx = {dx_chain:.2f}", showarrow=False,
+                                     font=dict(color='#636EFA', size=14))
+
+            # 2. u 轴上的区间 (du)
+            fig_chain.add_trace(go.Scatter(x=[u0, u1], y=[y_line_u, y_line_u], mode='lines+markers',
+                                           line=dict(color='#00CC96', width=8), marker=dict(size=12), name='du'))
+            fig_chain.add_annotation(x=(u0 + u1) / 2, y=y_line_u + 0.15,
+                                     text=f"du = {du_chain:.2f} (≈ {u_prime:.1f}x stretch)",
+                                     showarrow=False, font=dict(color='#00CC96', size=14))
+
+            # 3. y 轴上的区间 (dy)
+            fig_chain.add_trace(go.Scatter(x=[y0, y1], y=[y_line_y, y_line_y], mode='lines+markers',
+                                           line=dict(color='#FF4B4B', width=8), marker=dict(size=12), name='dy'))
+            fig_chain.add_annotation(x=(y0 + y1) / 2, y=y_line_y + 0.15,
+                                     text=f"dy = {dy_chain:.2f} (≈ {y_prime:.2f}x stretch)",
+                                     showarrow=False, font=dict(color='#FF4B4B', size=14))
+
+            # 绘制映射虚线：连接起点与起点，终点与终点
+            fig_chain.add_trace(go.Scatter(x=[x0, u0], y=[y_line_x, y_line_u], mode='lines',
+                                           line=dict(color='white', width=1, dash='dot')))
+            fig_chain.add_trace(go.Scatter(x=[x1, u1], y=[y_line_x, y_line_u], mode='lines',
+                                           line=dict(color='white', width=1, dash='dot')))
+            fig_chain.add_trace(go.Scatter(x=[u0, y0], y=[y_line_u, y_line_y], mode='lines',
+                                           line=dict(color='white', width=1, dash='dot')))
+            fig_chain.add_trace(go.Scatter(x=[u1, y1], y=[y_line_u, y_line_y], mode='lines',
+                                           line=dict(color='white', width=1, dash='dot')))
+
+            # 轴侧边标签
+            fig_chain.add_annotation(x=0.45, y=y_line_x, text="x", showarrow=False, font=dict(size=18, color="white"))
+            fig_chain.add_annotation(x=0.45, y=y_line_u, text="u = x²", showarrow=False,
+                                     font=dict(size=18, color="white"))
+            fig_chain.add_annotation(x=0.45, y=y_line_y, text="y = sin(u)", showarrow=False,
+                                     font=dict(size=18, color="white"))
+
+            fig_chain.update_layout(
+                template="plotly_dark", height=400,
+                xaxis=dict(visible=False, range=axis_range),  # 锁定坐标轴以防止抖动
+                yaxis=dict(visible=False, range=[0.5, 3.5]),
+                margin=dict(t=20, b=20, l=20, r=20),
+                showlegend=False
+            )
+            st.plotly_chart(fig_chain, use_container_width=True)
+
+            st.caption(
+                "Look closely at the lengths of the colored bars. The blue bar ($dx$) gets stretched by a factor of 1.6 to become the green bar ($du$). But then, the green bar gets slightly compressed by a factor of 0.8 to become the red bar ($dy$).")
+
+            # ==============================================================================
+            # TAB 5: THE CALCULUS TIME MACHINE (Newton meets Taylor)
+            # ==============================================================================
+            with diff_tabs[3]:  # 确保这里的索引与你的Tabs数量匹配
+                st.subheader("Calculus: Binomial Theorem to Taylor Series")
+                st.write("""
+                    This page contains one of the most beautiful connections in the history of mathematics. 
+                    We will travel from a quarantine room in 1665 to a formal mathematical proof 50 years later, witnessing how algebra, geometry, and calculus are ultimately the exact same truth.
+                    """)
+
+                st.divider()
 
 
+                # ------------------------------------------------------------------------------
+                # ACT I: NEWTON (1665)
+                # ------------------------------------------------------------------------------
+                st.markdown("### 🍎 Act I: 1665 - The Quarantine Genius & The Pi Hack")
+                st.write("""
+                    During the Great Plague, a 23-year-old Isaac Newton discovered the **General Binomial Theorem**, allowing him to expand fractional powers into infinite series. He immediately used this to perform the greatest mathematical 'hack' of his era: calculating $\pi$.
+                    """)
+
+                col_n_alg, col_n_geo = st.columns([1, 1])
+                with col_n_alg:
+                    st.markdown("#### 🏹 The Algebraic Setup")
+                    st.write(
+                        "Newton started with a circle of radius $1/2$ centered at $(1/2, 0)$. The equation is $(x - 1/2)^2 + y^2 = (1/2)^2$. Solving for $y$ gives:")
+                    st.latex(r"y = \sqrt{x - x^2}")
+
+                    st.write("To use his new Binomial Theorem, he factored out an $x$ inside the root:")
+                    st.latex(r"y = \sqrt{x(1 - x)} = x^{1/2} \cdot (1 - x)^{1/2}")
+
+                    st.write("He then expanded the $(1 - x)^{1/2}$ part using his newly discovered algebraic patterns:")
+                    st.latex(r"(1-x)^{1/2} = 1 - \frac{1}{2}x - \frac{1}{8}x^2 - \frac{1}{16}x^3 - \dots")
+
+                    st.write(
+                        "Multiplying the $x^{1/2}$ back in, he transformed the circle into a series of simple polynomials:")
+                    st.latex(r"y = x^{1/2} - \frac{1}{2}x^{3/2} - \frac{1}{8}x^{5/2} - \frac{1}{16}x^{7/2} - \dots")
+
+                with col_n_geo:
+                    st.markdown("#### 📐 The Geometric Magic (Why integrate to $x=1/4$?)")
+                    st.write("""
+                        Newton decided to integrate this series from $x=0$ to $x=1/4$. 
+                        Why $1/4$? Because of the perfect geometry it creates:
+                        """)
+
+                    st.write("**1. The Triangle:**")
+                    st.write("""
+                        Let the center be $C(1/2, 0)$. The point on the curve at $x=1/4$ is $P$. 
+                        The height at $P$ is $y = \sqrt{1/4 - (1/4)^2} = \\frac{\sqrt{3}}{4}$. 
+                        Dropping a line to $D(1/4, 0)$ forms a right triangle $\Delta CDP$.
+                        * Base ($CD$) = $1/2 - 1/4 = \mathbf{1/4}$
+                        * Height ($DP$) = $\mathbf{\\frac{\sqrt{3}}{4}}$
+                        * **Triangle Area** = $\\frac{1}{2} \cdot \\frac{1}{4} \cdot \\frac{\sqrt{3}}{4} = \mathbf{\\frac{\sqrt{3}}{32}}$
+                        """)
+
+                    st.write("**2. The Sector:**")
+                    st.write("""
+                        Look at the angle $\\theta$ at the center $C$. 
+                        $\cos(\\theta) = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}} = \\frac{1/4}{\\text{Radius}(1/2)} = \\frac{1}{2}$. 
+                        Therefore, $\\theta = \mathbf{60^\circ}$ (or $\pi/3$).
+                        * The area of a $60^\circ$ sector is exactly $\\frac{1}{6}$ of the whole circle.
+                        * **Sector Area** = $\\frac{1}{6} \cdot \pi R^2 = \\frac{1}{6} \pi (1/2)^2 = \mathbf{\\frac{\pi}{24}}$
+                        """)
+
+                    st.write("The algebraic integral from $0$ to $1/4$ equals the Sector Area minus the Triangle Area:")
+                    st.latex(r"\text{Integral Sum} = \frac{\pi}{24} - \frac{\sqrt{3}}{32}")
+
+                    # --- 新增：几何可视化模块 ---
+                    x_circ = np.linspace(0, 0.6, 200)
+                    y_circ = np.sqrt(x_circ - x_circ ** 2)
+                    fig_geo = go.Figure()
+
+                    # 画圆弧 (灰色虚线)
+                    fig_geo.add_trace(go.Scatter(x=x_circ, y=y_circ, mode='lines', line=dict(color='gray', dash='dash'),
+                                                 name='Circle'))
+
+                    # 画积分面积 (绿色填充)
+                    x_int = np.linspace(0, 0.25, 100)
+                    y_int = np.sqrt(x_int - x_int ** 2)
+                    fig_geo.add_trace(
+                        go.Scatter(x=np.concatenate([x_int, [0.25, 0]]), y=np.concatenate([y_int, [0, 0]]),
+                                   fill='toself', fillcolor='rgba(0, 204, 150, 0.4)', line=dict(width=0),
+                                   name='Integral Area'))
+
+                    # 画三角形 CDP (红色填充)
+                    fig_geo.add_trace(go.Scatter(x=[0.5, 0.25, 0.25, 0.5], y=[0, np.sqrt(3) / 4, 0, 0],
+                                                 mode='lines', fill='toself', fillcolor='rgba(239, 85, 59, 0.3)',
+                                                 line=dict(color='#EF553B', width=2), name='Triangle CDP'))
+
+                    # 标注点 C, D, P
+                    fig_geo.add_trace(go.Scatter(x=[0.5, 0.25, 0.25], y=[0, 0, np.sqrt(3) / 4], mode='markers+text',
+                                                 marker=dict(color='white', size=8),
+                                                 text=['C(1/2, 0)', 'D(1/4, 0)', 'P(1/4, √3/4)'],
+                                                 textposition=['bottom right', 'bottom left', 'top right'],
+                                                 showlegend=False))
+
+                    fig_geo.update_layout(template="plotly_dark", height=350, margin=dict(t=20, b=20, l=10, r=10),
+                                          xaxis=dict(range=[-0.1, 0.7], scaleanchor="y", scaleratio=1),
+                                          yaxis=dict(range=[-0.1, 0.6]), showlegend=False)
+                    st.plotly_chart(fig_geo, use_container_width=True)
+
+                # --- THE SIMULATOR ---
+                st.markdown("#### 🧮 Newton's $\pi$ Simulator")
+                st.write(
+                    "By integrating his infinite series and setting it equal to the geometric area, Newton solved for $\pi$. Slide to see how fast it converges due to the $(1/4)^n$ shrinking factor!")
+
+                n_terms_newton = st.slider("Number of Series Terms used:", 1, 12, 3, key="newton_terms_merged")
+
+                def binom_coeff_final(n):
+                    if n == 0: return 1.0
+                    res = 1.0
+                    for i in range(n):
+                        res *= (0.5 - i) / (i + 1)
+                    return res
+
+                x_limit_final = 0.25
+                area_calc_final = 0.0
+
+                # --- 新增：动态公式文本生成 ---
+                latex_terms = []
+
+                for i in range(n_terms_newton):
+                    coeff = binom_coeff_final(i) * ((-1) ** i)
+                    power = i + 1.5
+                    term = (coeff * (x_limit_final ** power)) / power
+                    area_calc_final += term
+
+                    # 将系数转化为完美分数以供显示 (例如 2/3, -1/5, -1/28...)
+                    frac = Fraction(coeff / power).limit_denominator(1000)
+                    num, den = abs(frac.numerator), frac.denominator
+                    sign_str = "+" if frac > 0 else "-"
+                    if i == 0: sign_str = ""  # 第一项前面不加符号
+
+                    # 构造单项的 LaTeX 字符串: (例如: - \frac{1}{5}(\frac{1}{4})^{5/2} )
+                    term_str = f"{sign_str} \\frac{{{num}}}{{{den}}}\\left(\\frac{{1}}{{4}}\\right)^{{{2 * i + 3}/2}}"
+                    latex_terms.append(term_str)
+
+                pi_guess_final = 24 * (area_calc_final + (np.sqrt(3) / 32))
+                error_final = abs(pi_guess_final - np.pi)
+
+                # --- 新增：展示动态算式 ---
+                series_latex_str = " ".join(latex_terms)
+                if n_terms_newton < 12:
+                    series_latex_str += " + \dots"
+
+                st.latex(r"\text{Area} \approx " + series_latex_str)
+                st.latex(r"\pi \approx 24 \times \left( \text{Area} + \frac{\sqrt{3}}{32} \right)")
+
+                col_sim1, col_sim2 = st.columns(2)
+                with col_sim1:
+                    st.metric("Newton's π Estimate", f"{pi_guess_final:.12f}")
+                with col_sim2:
+                    st.metric("Actual π", f"{np.pi:.12f}", delta=f"-{error_final:.12e}", delta_color="inverse")
+
+                st.divider()
+                # ------------------------------------------------------------------------------
+                # ACT II: TAYLOR (1715)
+                # ------------------------------------------------------------------------------
+                st.markdown("### 🧬 Act II: 1715 - Brook Taylor & The Master Formula")
+
+                col_taylor_intro, col_taylor_img = st.columns([2, 1])
+                with col_taylor_intro:
+                    st.write("""
+                        Fifty years after Newton used algebraic patterns to expand $(1-x)^{1/2}$, English mathematician **Brook Taylor** published a generalized method. 
+                        He realized you don't need to guess algebraic patterns. You can perfectly clone *any* function by extracting its "DNA"—its derivatives at a single point!
+                        """)
+                with col_taylor_img:
+                    # 预留给泰勒肖像的位置
+                    st.image("https://zh.wikipedia.org/zh-cn/%E5%B8%83%E9%B2%81%E5%85%8B%C2%B7%E6%B3%B0%E5%8B%92",
+                             caption="Brook Taylor (1685 - 1731)")
+
+                # 调整了这里的列宽比例：从 [1, 1] 改为 [1.3, 1]，给左边的长公式留出足够的显示空间
+                col_taylor_proof, col_taylor_sin = st.columns([1.3, 1])
+
+                # 调整列宽比例，给左边足够的空间
+                col_taylor_proof, col_taylor_sin = st.columns([1.3, 1])
+
+                with col_taylor_proof:
+                    st.markdown("#### 🛠️ The Proof: Finding the Coefficients")
+                    st.write("Suppose we want to build an infinite polynomial $P(x)$ to match a function $f(x)$:")
+                    st.latex(r"P(x) = c_0 + c_1x + c_2x^2 + c_3x^3 + \dots")
+                    st.write("We find the coefficients by matching their derivatives at $x=0$.")
+
+                    st.write("**1. Match Position ($x=0$):**")
+                    st.latex(r"P(0) = c_0 \implies \mathbf{c_0 = f(0)}")
+
+                    st.write("**2. Match 1st Derivative (Slope):**")
+                    # 使用 aligned 将过长的公式折叠成两行，并在等号处对齐
+                    st.latex(r"""
+                        \begin{aligned}
+                        P'(x) &= c_1 + 2c_2x + \dots \\
+                        &\implies P'(0) = c_1 \implies \mathbf{c_1 = f'(0)}
+                        \end{aligned}
+                    """)
+
+                    st.write("**3. Match 2nd Derivative (Curvature):**")
+                    # 修复溢出的关键：将二阶导数折叠换行显示
+                    st.latex(r"""
+                        \begin{aligned}
+                        P''(x) &= 2c_2 + (3 \cdot 2)c_3x + \dots \\
+                        &\implies P''(0) = 2c_2 \implies \mathbf{c_2 = \frac{f''(0)}{2}}
+                        \end{aligned}
+                    """)
+
+                    st.write("**4. Match 3rd Derivative:**")
+                    # 保持排版一致，三阶导数也折叠
+                    st.latex(r"""
+                        \begin{aligned}
+                        P'''(x) &= (3 \cdot 2 \cdot 1)c_3 \\
+                        &\implies \mathbf{c_3 = \frac{f'''(0)}{3!}}
+                        \end{aligned}
+                    """)
+
+                    st.success(
+                        "✨ **The Master Formula:** Taking derivatives creates a factorial ($n!$). To isolate the coefficient, we divide by $n!$.")
+                    st.latex(r"\mathbf{c_n = \frac{f^{(n)}(0)}{n!}}")
+
+                with col_taylor_sin:
+                    st.markdown("#### 🌊 Applying it to $f(x) = \sin(x)$")
+                    st.write("Using Taylor's formula, let's clone $\sin(x)$ by finding its derivatives at $x=0$:")
+
+                    st.markdown("""
+                        * $f(0) = \sin(0) = \mathbf{0} \implies c_0 = 0$
+                        * $f'(0) = \cos(0) = \mathbf{1} \implies c_1 = 1/1! = 1$
+                        * $f''(0) = -\sin(0) = \mathbf{0} \implies c_2 = 0$
+                        * $f'''(0) = -\cos(0) = \mathbf{-1} \implies c_3 = -1/3!$
+                        """)
+                    st.latex(r"\sin(x) = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \dots")
+
+                    terms_val_sin = st.slider("Number of non-zero terms (n):", 1, 6, 2, key="taylor_sin_n_merged")
+
+                    x_plot_sin = np.linspace(-3 * np.pi, 3 * np.pi, 400)
+                    y_target_sin = np.sin(x_plot_sin)
+                    y_taylor_sin = np.zeros_like(x_plot_sin)
+                    latex_str_sin = "P(x) = "
+
+                    for n in range(terms_val_sin):
+                        power = 2 * n + 1
+                        coef = ((-1) ** n) / math.factorial(power)
+                        y_taylor_sin += coef * (x_plot_sin ** power)
+
+                        if n == 0:
+                            latex_str_sin += "x"
+                        else:
+                            sign = "-" if n % 2 != 0 else "+"
+                            # 修复：直接用原生字符串 (r"...") 加上变量拼接，彻底告别 f-string 大括号报错！
+                            latex_str_sin += r" " + sign + r" \frac{x^{" + str(power) + r"}}{" + str(power) + r"!}"
+
+                    fig_taylor_sin = go.Figure()
+                    fig_taylor_sin.add_trace(go.Scatter(x=x_plot_sin, y=y_target_sin, mode='lines',
+                                                        line=dict(color='gray', width=3, dash='dash'),
+                                                        name='Target: sin(x)'))
+                    fig_taylor_sin.add_trace(
+                        go.Scatter(x=x_plot_sin, y=y_taylor_sin, mode='lines', line=dict(color='#00CC96', width=4),
+                                   name='Taylor Clone'))
+
+                    # 修复 2：加入 yaxis=dict(range=[-3, 3]) 锁死 Y 轴范围，防止波浪被拉平
+                    fig_taylor_sin.update_layout(template="plotly_dark", height=250,
+                                                 yaxis=dict(range=[-3, 3]),
+                                                 margin=dict(t=10, b=10, l=10, r=10), showlegend=False)
+                    st.plotly_chart(fig_taylor_sin, use_container_width=True)
+                    st.latex(latex_str_sin)
+
+                st.divider()
+
+                # ------------------------------------------------------------------------------
+                # ACT III: THE GRAND CONNECTION
+                # ------------------------------------------------------------------------------
+                st.markdown("### 🔗 Act III: The Grand Connection (Taylor Proves Newton)")
+                st.write("""
+                    In Act I, you saw Newton guess the coefficients for $(1-x)^{1/2}$ using algebraic patterns: **$1, -1/2, -1/8, -1/16$**. 
+
+                    Now, watch what happens if we apply **Taylor's Calculus Formula** ($c_n = f^{(n)}(0) / n!$) to that exact same function $f(x) = (1-x)^{1/2}$ at $x=0$:
+                    """)
+
+                col_conn1, col_conn2 = st.columns(2)
+                with col_conn1:
+                    st.markdown("""
+                        **1. Take Derivatives at $x=0$:**
+                        * $f(0) = (1-0)^{1/2} = \mathbf{1}$
+                        * $f'(0) = -\\frac{1}{2}(1-0)^{-1/2} = \mathbf{-1/2}$
+                        * $f''(0) = -\\frac{1}{4}(1-0)^{-3/2} = \mathbf{-1/4}$
+                        * $f'''(0) = -\\frac{3}{8}(1-0)^{-5/2} = \mathbf{-3/8}$
+                        """)
+
+                with col_conn2:
+                    st.markdown("""
+                        **2. Divide by $n!$ (Taylor's Rule):**
+                        * $c_0 = 1 / 0! = \mathbf{1}$
+                        * $c_1 = (-1/2) / 1! = \mathbf{-1/2}$
+                        * $c_2 = (-1/4) / 2! = \mathbf{-1/8}$
+                        * $c_3 = (-3/8) / 3! = \mathbf{-1/16}$
+                        """)
+
+                st.success(
+                    "🤯 **History Connects!** The numbers are identical! Newton's 'Binomial Theorem' was actually the Taylor Series all along. Newton discovered the *what* through algebra, and 50 years later, Taylor proved the *why* through calculus.")
+
+    # ==============================================================================
+    # TAB 4: THE NATURAL CONSTANTS (Exp, Log, Trig)
+    # ==============================================================================
+    # 假设这段代码放在 with diff_tabs[3]: 之下
+    with diff_tabs[4]:
+        st.subheader("🌱 The Shapes of Nature: Exponentials, Logs, and Waves")
+        st.write("""
+        We've mastered polynomials ($x^2, x^3$). But nature doesn't grow in polynomials. 
+        Populations multiply, temperatures decay, and pendulums swing. 
+        Let's uncover the derivatives of nature's favorite functions.
+        """)
+
+        # ---------------------------------------------------------
+        # ACT I: EXPONENTIALS (The 3Blue1Brown Approach)
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 🦠 Act I: Exponential Growth ($2^t$ and $e^t$)")
+
+        col_exp_text, col_exp_viz = st.columns([1.2, 1])
+        with col_exp_text:
+            st.write("""
+            Imagine a population of bacteria that doubles every day: $P(t) = 2^t$.
+            Using First Principles, its derivative is:
+            """)
+            st.latex(
+                r"P'(t) = \lim_{h \to 0} \frac{2^{t+h} - 2^t}{h} = 2^t \cdot \left[ \lim_{h \to 0} \frac{2^h - 1}{h} \right]")
+            st.write("""
+            The derivative is just $2^t$ multiplied by a **mystery constant** (which calculates to $\\approx 0.693$).
+            If we used $8^t$, the mystery constant would be $\\approx 2.079$.
+
+            Mathematicians asked: **Is there a base where this constant is exactly 1.000?** Yes, it's Euler's number: $e \\approx 2.71828$. But *why* does its derivative equal itself?
+
+            **The Secret: The Infinite Polynomial**
+            To build a function that is its own derivative, we construct an infinite series where taking the derivative just shifts every term one step to the left:
+            """)
+            st.latex(r"e^t = 1 + t + \frac{t^2}{2!} + \frac{t^3}{3!} + \frac{t^4}{4!} + \dots")
+            st.write("Take the derivative of this entire infinite series:")
+            st.latex(
+                r"\frac{d}{dt}e^t = 0 + 1 + \frac{2t}{2!} + \frac{3t^2}{3!} + \dots = 1 + t + \frac{t^2}{2!} + \dots")
+            st.success(
+                "🤯 **Mind Blown:** The derivative recreates the EXACT same infinite series! Therefore, $\\frac{d}{dt} e^t = e^t$.")
+
+            st.write("""
+            **The Grand Finale: Unlocking 0.693 with the Chain Rule**
+            Now we have our "perfect tool" ($e^t$), we can solve the $2^t$ mystery. 
+            Since $2 = e^{\ln(2)}$, we can rewrite our bacteria population:
+            $$2^t = (e^{\ln 2})^t = e^{(\ln 2) t}$$
+
+            Now, apply the **Chain Rule**. The derivative of the outer function ($e^{\\text{stuff}}$) is itself, multiplied by the derivative of the inner function ($(\\ln 2) t$):
+            $$\\frac{d}{dt} e^{(\ln 2) t} = e^{(\ln 2) t} \cdot \ln(2) = 2^t \cdot \ln(2)$$
+
+            *The circle is complete:* That mystery constant $0.693...$ we calculated at the very beginning? It was exactly **$\ln(2)$** all along!
+            """)
+
+        with col_exp_viz:
+            # 交互式指数函数斜率演示
+            base_val = st.slider("Choose a Base (a):", min_value=1.5, max_value=4.0, value=2.0, step=0.1,
+                                 key="exp_base")
+
+            t_plot = np.linspace(-1, 2, 100)
+            y_plot = base_val ** t_plot
+
+            # 在 t=0 处的切线 (y - 1 = m * (t - 0)) -> y = m*t + 1
+            # 真实的 m 就是 ln(base)
+            slope_m = np.log(base_val)
+            tangent_y = slope_m * t_plot + 1
+
+            fig_exp = go.Figure()
+            # 曲线
+            fig_exp.add_trace(go.Scatter(x=t_plot, y=y_plot, mode='lines', line=dict(color='#636EFA', width=3),
+                                         name=f'y = {base_val}^t'))
+            # 切线
+            fig_exp.add_trace(
+                go.Scatter(x=t_plot, y=tangent_y, mode='lines', line=dict(color='#00CC96', width=2, dash='dot'),
+                           name=f'Tangent at t=0'))
+            # t=0 的点
+            fig_exp.add_trace(go.Scatter(x=[0], y=[1], mode='markers',
+                                         marker=dict(color='white', size=10, line=dict(color='#00CC96', width=2)),
+                                         showlegend=False))
+
+            # 动态标题反馈
+            if abs(base_val - np.e) < 0.15:
+                title_text = f"🎯 Base {base_val:.2f} ≈ e! Slope is exactly 1.00"
+                title_color = "#00CC96"
+            else:
+                title_text = f"Base {base_val:.1f}^t → Slope constant is {slope_m:.3f}"
+                title_color = "white"
+
+            fig_exp.update_layout(
+                template="plotly_dark", height=400,
+                title=dict(text=title_text, font=dict(color=title_color)),
+                xaxis=dict(title="Time (t)", range=[-1, 2]),
+                yaxis=dict(title="Population", range=[0, 5]),
+                margin=dict(t=40, b=20, l=20, r=20),
+                hovermode="x unified"
+            )
+            st.plotly_chart(fig_exp, use_container_width=True)
+
+        # ---------------------------------------------------------
+        # ACT II: LOGARITHMS (The Mirror Reflection)
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 🪞 Act II: The Natural Logarithm ($\ln x$)")
+
+        col_log_text, col_log_viz = st.columns([1, 1.2])
+        with col_log_text:
+            st.write("""
+            What about the inverse of $e^x$? The natural logarithm $y = \ln(x)$.
+
+            We don't need complex limits here. We just need **Geometry**.
+            Geometrically, an inverse function is just a reflection across the diagonal line $y = x$. This reflection simply **swaps the X and Y axes**.
+
+            **Think about it like climbing stairs:**
+            1. Imagine you are on the $e^x$ curve at point $(a, e^a)$. 
+            2. Suppose the slope here is **2**. This means for every **1 step Right (X)**, you go **2 steps Up (Y)**.
+            3. Now, reflect this across $y=x$. The X and Y directions swap!
+            4. Your new instructions are: for every **1 step Up (New Y)**, you go **2 steps Right (New X)**.
+            5. What is the slope of this new line? Rise over Run = **$1/2$**.
+
+            **Conclusion:** When you reflect a curve, its slope perfectly flips to its reciprocal (倒数).
+            * If the slope of $e^x$ at point $(a, b)$ is **$b$**.
+            * The slope of $\ln(x)$ at the reflected point $(b, a)$ must be **$1/b$**.
+
+            Let's call our current x-coordinate $x$. The slope is simply $\\frac{1}{x}$.
+            """)
+            st.latex(r"\frac{d}{dx} \ln(x) = \frac{1}{x}")
+            st.info(
+                "💡 Notice the beauty: The slope of the logarithm gets less and less steep exactly as $1/x$ gets smaller and smaller.")
+
+        with col_log_viz:
+            # 交互式对数反射演示
+            a_val = st.slider("Slide point on e^x (a):", -1.0, 1.5, 0.5, step=0.1, key="log_a")
+
+            x_val_exp = np.linspace(-2, 3, 100)
+            y_val_exp = np.exp(x_val_exp)
+
+            x_val_log = np.linspace(0.01, 5, 100)
+            y_val_log = np.log(x_val_log)
+
+            fig_log = go.Figure()
+
+            # y=x 对称线
+            fig_log.add_trace(
+                go.Scatter(x=[-2, 5], y=[-2, 5], mode='lines', line=dict(color='gray', width=1, dash='dash'),
+                           name='y = x'))
+
+            # e^x 及其切线
+            e_a = np.exp(a_val)
+            slope_exp = e_a
+            tangent_exp_y = slope_exp * (x_val_exp - a_val) + e_a
+            fig_log.add_trace(
+                go.Scatter(x=x_val_exp, y=y_val_exp, mode='lines', line=dict(color='#636EFA', width=3), name='y = e^x'))
+            fig_log.add_trace(
+                go.Scatter(x=x_val_exp, y=tangent_exp_y, mode='lines', line=dict(color='#636EFA', width=1),
+                           showlegend=False))
+            fig_log.add_trace(go.Scatter(x=[a_val], y=[e_a], mode='markers+text', text=[f"Slope = {slope_exp:.2f}"],
+                                         textposition="top left", marker=dict(size=8, color='#636EFA'),
+                                         showlegend=False))
+
+            # ln(x) 及其切线
+            slope_log = 1 / e_a
+            tangent_log_y = slope_log * (x_val_log - e_a) + a_val
+            fig_log.add_trace(go.Scatter(x=x_val_log, y=y_val_log, mode='lines', line=dict(color='#EF553B', width=3),
+                                         name='y = ln(x)'))
+            fig_log.add_trace(
+                go.Scatter(x=x_val_log, y=tangent_log_y, mode='lines', line=dict(color='#EF553B', width=1),
+                           showlegend=False))
+            fig_log.add_trace(go.Scatter(x=[e_a], y=[a_val], mode='markers+text', text=[f"Slope = 1/{slope_exp:.2f}"],
+                                         textposition="bottom right", marker=dict(size=8, color='#EF553B'),
+                                         showlegend=False))
+
+            # 连接两个对称点的虚线
+            fig_log.add_trace(
+                go.Scatter(x=[a_val, e_a], y=[e_a, a_val], mode='lines', line=dict(color='white', width=1, dash='dot'),
+                           showlegend=False))
+
+            fig_log.update_layout(
+                template="plotly_dark", height=450,
+                xaxis=dict(range=[-2, 4], scaleanchor="y", scaleratio=1, title="x"),
+                yaxis=dict(range=[-2, 4], title="y"),
+                margin=dict(t=20, b=20, l=20, r=20),
+            )
+            st.plotly_chart(fig_log, use_container_width=True)
+
+        # ---------------------------------------------------------
+        # ACT III: TRIGONOMETRY (Circular Motion)
+        # ---------------------------------------------------------
+        st.divider()
+        st.markdown("### 🎡 Act III: Trigonometry as Circular Motion")
+
+        col_trig_text, col_trig_viz = st.columns([1, 1.2])
+        with col_trig_text:
+            st.write("""
+            Let's drop the abstract triangles and look at this like a video game. 
+
+            Imagine you are driving a car counter-clockwise on a circular track (Radius = 1) at a constant speed of 1 radian per second.
+            At any time $t$:
+            * **Your Horizontal Position (X)** is $\\cos(t)$
+            * **Your Vertical Position (Y)** is $\\sin(t)$
+
+            Because the car's speed is 1, its **Velocity (Derivative)** is literally just the direction the headlights are pointing!
+
+            **Let's test two specific moments:**
+            1. **At $t=0$ (The far right edge):** You are at coordinate $(1, 0)$. Your car is pointing **straight UP**.
+               This means your vertical speed (Y-derivative) is **1**, and your horizontal speed (X-derivative) is **0**.
+               Check the math: $\\frac{d}{dt}\\sin(0) = \\cos(0) = 1$. It matches!
+
+            2. **At $t=\\frac{\\pi}{2}$ (The very top):** You are at coordinate $(0, 1)$. Your car is pointing **straight LEFT**.
+               This means your horizontal speed (X-derivative) is **-1** (because left is negative), and your vertical speed is **0**.
+               Check the math: $\\frac{d}{dt}\\cos(\\frac{\\pi}{2}) = -\\sin(\\frac{\\pi}{2}) = -1$. It matches perfectly!
+
+            Since the velocity arrow (headlights) is always perfectly tangent to the circle, it is always rotated exactly 90° from your position. 
+            This 90° rotation is geometrically identical to swapping X and Y, and making X negative.
+            """)
+            st.latex(r"\frac{d}{dt} \sin t = \cos t")
+            st.latex(r"\frac{d}{dt} \cos t = -\sin t")
+
+        with col_trig_viz:
+            # 圆周运动速度矢量演示
+            t_angle = st.slider("Time (t) in radians:", 0.0, float(2 * np.pi), 1.0, step=0.1, key="trig_t")
+
+            fig_circ = go.Figure()
+
+            # 画圆
+            theta_circ = np.linspace(0, 2 * np.pi, 100)
+            fig_circ.add_trace(go.Scatter(x=np.cos(theta_circ), y=np.sin(theta_circ), mode='lines',
+                                          line=dict(color='gray', dash='dash'), name='Unit Circle'))
+
+            # Position Vector
+            px, py = np.cos(t_angle), np.sin(t_angle)
+            fig_circ.add_trace(
+                go.Scatter(x=[0, px], y=[0, py], mode='lines+markers', line=dict(color='#636EFA', width=3),
+                           marker=dict(size=8), name='Position (cos t, sin t)'))
+
+            # Velocity Vector (放在原点展示旋转)
+            vx, vy = -np.sin(t_angle), np.cos(t_angle)
+            fig_circ.add_trace(
+                go.Scatter(x=[0, vx], y=[0, vy], mode='lines+markers', line=dict(color='#EF553B', width=3),
+                           marker=dict(size=8), name='Velocity (-sin t, cos t)'))
+
+            # 标注直角符号 (简单示意)
+            fig_circ.add_trace(
+                go.Scatter(x=[px / 5, (px + vx) / 5, vx / 5], y=[py / 5, (py + vy) / 5, vy / 5], mode='lines',
+                           line=dict(color='white', width=1), showlegend=False))
+
+            fig_circ.update_layout(
+                template="plotly_dark", height=400,
+                xaxis=dict(range=[-1.5, 1.5], scaleanchor="y", scaleratio=1, zerolinecolor='gray',
+                           title="X-axis (cos)"),
+                yaxis=dict(range=[-1.5, 1.5], zerolinecolor='gray', title="Y-axis (sin)"),
+                margin=dict(t=20, b=20, l=20, r=20),
+                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+            )
+            st.plotly_chart(fig_circ, use_container_width=True)
+            st.caption(
+                "The red Velocity vector is always the blue Position vector rotated 90° counter-clockwise. This simple rotation explains why sines and cosines swap places (and flip signs) when you take derivatives.")
+
+        # ==============================================================================
+        # NEW SECTION: DERIVING TAN, SEC, CSC, COT
+        # ==============================================================================
+        st.divider()
+        st.markdown("### 🔓 Unlocking the Rest: $\\tan, \\sec, \\csc, \\cot$")
+        st.write("""
+            Now that we have geometrically proven the derivatives of $\\sin(x)$ and $\\cos(x)$, we have the keys to unlock all the other trigonometric functions. We don't need any new circles or graphs—just pure algebra and the **Quotient Rule**:
+            """)
+        st.latex(r"\left(\frac{u}{v}\right)' = \frac{u'v - uv'}{v^2}")
+
+        # 使用 Tabs 来分类展示四个推导，保持页面整洁
+        tab_tan, tab_sec, tab_csc, tab_cot = st.tabs([
+            "Derivative of tan(x)",
+            "Derivative of sec(x)",
+            "Derivative of csc(x)",
+            "Derivative of cot(x)"
+        ])
+
+        with tab_tan:
+            st.markdown("#### The Proof for $\\tan(x)$")
+            st.write("Since $\\tan(x) = \\frac{\\sin(x)}{\\cos(x)}$, we apply the Quotient Rule:")
+            # tan(x) 的推导
+            st.latex(r"""
+                    \begin{aligned}
+                    \frac{d}{dx} \tan(x) &= \frac{d}{dx} \left( \frac{\sin x}{\cos x} \right) \\
+                    &= \frac{(\cos x)(\cos x) - (\sin x)(-\sin x)}{\cos^2 x} \\
+                    &= \frac{\cos^2 x + \sin^2 x}{\cos^2 x} \\
+                    &= \frac{1}{\cos^2 x} \quad \text{(Since } \sin^2 x + \cos^2 x = 1 \text{)} \\
+                    &= \sec^2(x)
+                    \end{aligned}
+                """)
+            st.success("✨ Result: $\\frac{d}{dx} \\tan(x) = \\sec^2(x)$")
+
+        with tab_sec:
+            st.markdown("#### The Proof for $\\sec(x)$")
+            st.write(
+                "Since $\\sec(x) = \\frac{1}{\\cos(x)}$, we apply the Quotient Rule (where $u=1$ and $v=\\cos x$):")
+            # sec(x) 的推导
+            st.latex(r"""
+                    \begin{aligned}
+                    \frac{d}{dx} \sec(x) &= \frac{d}{dx} \left( \frac{1}{\cos x} \right) \\
+                    &= \frac{(0)(\cos x) - (1)(-\sin x)}{\cos^2 x} \\
+                    &= \frac{\sin x}{\cos^2 x} \\
+                    &= \frac{1}{\cos x} \cdot \frac{\sin x}{\cos x} \\
+                    &= \sec(x)\tan(x)
+                    \end{aligned}
+                """)
+            st.success("✨ Result: $\\frac{d}{dx} \\sec(x) = \\sec(x)\\tan(x)$")
+
+        with tab_csc:
+            st.markdown("#### The Proof for $\\csc(x)$")
+            st.write("Since $\\csc(x) = \\frac{1}{\\sin(x)}$, we apply the Quotient Rule:")
+            # csc(x) 的推导
+            st.latex(r"""
+                    \begin{aligned}
+                    \frac{d}{dx} \csc(x) &= \frac{d}{dx} \left( \frac{1}{\sin x} \right) \\
+                    &= \frac{(0)(\sin x) - (1)(\cos x)}{\sin^2 x} \\
+                    &= \frac{-\cos x}{\sin^2 x} \\
+                    &= -\frac{1}{\sin x} \cdot \frac{\cos x}{\sin x} \\
+                    &= -\csc(x)\cot(x)
+                    \end{aligned}
+                """)
+            st.success("✨ Result: $\\frac{d}{dx} \\csc(x) = -\\csc(x)\\cot(x)$")
+
+        with tab_cot:
+            st.markdown("#### The Proof for $\\cot(x)$")
+            st.write("Since $\\cot(x) = \\frac{\\cos(x)}{\\sin(x)}$, we apply the Quotient Rule:")
+            # cot(x) 的推导
+            st.latex(r"""
+                    \begin{aligned}
+                    \frac{d}{dx} \cot(x) &= \frac{d}{dx} \left( \frac{\cos x}{\sin x} \right) \\
+                    &= \frac{(-\sin x)(\sin x) - (\cos x)(\cos x)}{\sin^2 x} \\
+                    &= \frac{-(\sin^2 x + \cos^2 x)}{\sin^2 x} \\
+                    &= -\frac{1}{\sin^2 x} \quad \text{(Factoring out the negative)} \\
+                    &= -\csc^2(x)
+                    \end{aligned}
+                """)
+            st.success("✨ Result: $\\frac{d}{dx} \\cot(x) = -\\csc^2(x)$")
+
+        st.info(
+            "💡 **Pattern Alert:** Did you notice that the derivatives of all the 'co-' functions ($\\cos$, $\\csc$, $\\cot$) always have a **negative sign**? This is a great trick to double-check your memory during exams!")
+
+        # ==============================================================================
+        # TAB 7: THE TRAINING GROUND (Practical Application)
+        # ==============================================================================
+        with diff_tabs[5]:  # 请确保这里的索引对应你新增的 Tab
+            st.subheader("⚔️ The Training Ground: Applying Your Knowledge")
+            st.write("""
+            Now that you understand the *why* behind the rules, it's time to test your mathematical instincts. 
+            In calculus, solving complex derivatives isn't about memorizing 100 different templates. It is about identifying the **structure** of the equation and applying the basic rules (Chain, Product, Quotient) step-by-step.
+
+            Try solving these on paper first, then click to reveal the step-by-step breakdown!
+            """)
+
+            st.divider()
+
+            # ---------------------------------------------------------
+            # Q1: Chain Rule (Basic Onion)
+            # ---------------------------------------------------------
+            with st.expander("🔥 Question 1: The 'Onion' Method 👉 $y = \sin(\ln x)$"):
+                st.markdown("#### The Chain Rule Strategy")
+                st.write(
+                    "Think of this function as an onion. You must peel the **Outer function** before you can reach the **Inner function**.")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("""
+                    * **Outer Function:** $\sin(\\text{stuff})$
+                    * **Inner Function:** $\ln x$
+                    """)
+                with col2:
+                    st.markdown("""
+                    * Derivative of Outer: $\cos(\\text{stuff})$
+                    * Derivative of Inner: $\\frac{1}{x}$
+                    """)
+
+                st.markdown("#### The Execution:")
+                st.latex(r"""
+                \begin{aligned}
+                y' &= \underbrace{\cos(\ln x)}_{\text{Deriv of Outer (keep inside intact)}} \cdot \underbrace{\left(\frac{1}{x}\right)}_{\text{Deriv of Inner}} \\
+                y' &= \frac{\cos(\ln x)}{x}
+                \end{aligned}
+                """)
+
+            # ---------------------------------------------------------
+            # Q2: Product Rule
+            # ---------------------------------------------------------
+            with st.expander("🔥 Question 2: The Tag Team 👉 $y = e^x \sec x$"):
+                st.markdown("#### The Product Rule Strategy")
+                st.write(
+                    "Two entirely different functions are multiplying each other. We must use the Product Rule: $(uv)' = u'v + uv'$.")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("""
+                    * **First function ($u$):** $e^x$
+                    * **Second function ($v$):** $\sec x$
+                    """)
+                with col2:
+                    st.markdown("""
+                    * $u' = e^x$ (The immortal function!)
+                    * $v' = \sec x \\tan x$ (From our previous proof)
+                    """)
+
+                st.markdown("#### The Execution:")
+                st.latex(r"""
+                \begin{aligned}
+                y' &= (u')(v) + (u)(v') \\
+                y' &= (e^x)(\sec x) + (e^x)(\sec x \tan x) \\
+                y' &= e^x \sec x (1 + \tan x) \quad \text{(Factored for elegance)}
+                \end{aligned}
+                """)
+
+            # ---------------------------------------------------------
+            # Q3: The Trap (Simplification)
+            # ---------------------------------------------------------
+            with st.expander("🚨 Question 3: The Ninja Trap 👉 $y = e^{\ln(\csc 2x)}$"):
+                st.markdown("#### The Strategy: Look before you leap!")
+                st.warning(
+                    "If you try to use the Chain Rule immediately, you will create a massive, ugly mess. A true mathematician always checks if the expression can be simplified first!")
+
+                st.write(
+                    "Remember the fundamental property of logarithms and exponentials: They are perfect opposites. $e^{\ln(\\text{stuff})} = \\text{stuff}$.")
+
+                st.markdown("#### Step 1: Disarm the trap")
+                st.latex(r"y = e^{\ln(\csc 2x)} \implies y = \csc(2x)")
+
+                st.markdown("#### Step 2: Simple Chain Rule")
+                st.write("Now we just have an outer function $\csc(\\text{stuff})$ and an inner function $2x$.")
+                st.latex(r"""
+                \begin{aligned}
+                y' &= \underbrace{-\csc(2x)\cot(2x)}_{\text{Deriv of Outer}} \cdot \underbrace{(2)}_{\text{Deriv of Inner}} \\
+                y' &= -2\csc(2x)\cot(2x)
+                \end{aligned}
+                """)
+                st.success("Lesson learned: Always simplify algebraically before doing calculus!")
+
+            # ---------------------------------------------------------
+            # Q4: Product + Chain Rule Combo
+            # ---------------------------------------------------------
+            with st.expander("☠️ Question 4: The Combo Breaker 👉 $y = \sin^2(x) \cos^3(x)$"):
+                st.markdown("#### The Strategy: Rewrite to see clearly")
+                st.write(
+                    "First, rewrite the notation so you don't get confused by the powers: $y = (\sin x)^2 \cdot (\cos x)^3$")
+                st.write("We have a Product Rule, but **both** pieces require the Chain Rule!")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**(u) Left piece:** $(\sin x)^2$")
+                    st.latex(r"u' = 2(\sin x)^1 \cdot (\cos x)")
+                with col2:
+                    st.markdown("**(v) Right piece:** $(\cos x)^3$")
+                    st.latex(r"v' = 3(\cos x)^2 \cdot (-\sin x)")
+
+                st.markdown("#### The Execution ($(uv)' = u'v + uv'$):")
+                st.latex(r"""
+                \begin{aligned}
+                y' &= \big[2\sin x \cos x\big] \cdot (\cos^3 x) + (\sin^2 x) \cdot \big[-3\cos^2 x \sin x\big] \\
+                y' &= 2\sin x \cos^4 x - 3\sin^3 x \cos^2 x
+                \end{aligned}
+                """)
+                st.write(
+                    "*(You can factor out $\sin x \cos^2 x$ if you want to be extra neat, but this is the core calculus step completed!)*")
+
+            # ---------------------------------------------------------
+            # Q5: The Final Boss (Triple Chain Rule)
+            # ---------------------------------------------------------
+            with st.expander("🐉 Question 5: The Final Boss 👉 $y = \sqrt{x^2 + \sec(2x+3)}$"):
+                st.markdown("#### The Strategy: The 3-Layer Inception")
+                st.write(
+                    "Rewrite the square root as a power of $1/2$. This function has an outer shell, a middle layer, and a deep core.")
+                st.latex(r"y = \Big( x^2 + \sec(2x+3) \Big)^{1/2}")
+
+                st.markdown("""
+                1. **Outer Shell:** $(\\text{huge stuff})^{1/2}$ $\implies$ Bring down $1/2$, subtract 1 from power.
+                2. **Middle Layer:** $x^2 + \sec(\\text{core})$ $\implies$ Normal derivative, but secant triggers another chain.
+                3. **Deep Core:** $2x+3$ $\implies$ Derivative is simply 2.
+                """)
+
+                st.markdown("#### The Execution (Peeling it all at once):")
+                st.latex(r"""
+                \begin{aligned}
+                y' &= \underbrace{\frac{1}{2}\Big( x^2 + \sec(2x+3) \Big)^{-1/2}}_{\text{Peeling Layer 1}} \cdot \underbrace{\left[ 2x + \sec(2x+3)\tan(2x+3) \cdot (2) \right]}_{\text{Peeling Layer 2 \& 3}}
+                \end{aligned}
+                """)
+
+                st.write("Let's clean it up by putting the negative exponent back into the denominator:")
+                st.latex(r"""
+                y' = \frac{2x + 2\sec(2x+3)\tan(2x+3)}{2\sqrt{x^2 + \sec(2x+3)}}
+                """)
+                st.write("Divide everything by 2 for the final perfect answer:")
+                st.latex(r"""
+                y' = \frac{x + \sec(2x+3)\tan(2x+3)}{\sqrt{x^2 + \sec(2x+3)}}
+                """)
 # ==========================================
 # 4. 占位符模块
 # ==========================================
