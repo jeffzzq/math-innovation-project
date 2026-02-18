@@ -3429,7 +3429,8 @@ def render_topic_differentiation():
         "3. The Rules of Calculus",
         "4. Calculus: Binomial Theorem to Taylor series",
         "5. 🌱 The Shapes of Nature: Exponentials, Logs, and Waves",
-        "6. ⚔️ The Training Ground: Applying Your Knowledge"
+        "6. ⚔️ The Training Ground: Applying Your Knowledge",
+        "7. 🎭 The Two Faces of Curves: Implicit vs. Parametric"
     ])
 
     # ==============================================================================
@@ -5002,6 +5003,794 @@ def render_topic_differentiation():
                 st.latex(r"""
                 y' = \frac{x + \sec(2x+3)\tan(2x+3)}{\sqrt{x^2 + \sec(2x+3)}}
                 """)
+                # ==============================================================================
+                # TAB 8: THE TWO FACES OF CURVES (Implicit vs. Parametric)
+                # ==============================================================================
+                with diff_tabs[6]:  # 请根据你的 Tab 数量调整索引
+                    st.subheader("🎭 The Two Faces of Curves: Implicit vs. Parametric")
+                    st.write("""
+                    How do we describe a curve? 
+                    One way is to set a **Static Rule** that coordinates must follow (Implicit). 
+                    Another way is to record a **Dynamic Journey** over time (Parametric). 
+                    Let's explore their distinct purposes and the profound truth they reveal when we take their derivatives.
+                    """)
+
+                    st.divider()
+
+                    # --- 第一部分：它们的真正用途 (The Real Use Cases) ---
+                    st.markdown("### 🛠️ What are their actual purposes?")
+
+                    col_use_im, col_use_pa = st.columns(2)
+                    with col_use_im:
+                        st.info("🏛️ **Implicit: The Unbreakable Constraints**")
+                        st.write(
+                            "**What it is:** Equations where $x$ and $y$ are hopelessly tangled together (e.g., $y + \sin(xy) = x$).")
+                        st.markdown("""
+                        **When to use it:**
+                        * **Shapes, not motions:** Perfect for analyzing static geometric boundaries like circles, ellipses, or complex blobs.
+                        * **The Algebraically Impossible:** When you physically cannot isolate $y$ on one side of the equals sign, Implicit Differentiation is your only mathematical lifeline to find the slope.
+                        """)
+                    with col_use_pa:
+                        st.success("🛰️ **Parametric: The Physics Engine**")
+                        st.write(
+                            "**What it is:** Introducing a third variable, $t$ (time), to dictate exactly where $x$ and $y$ are (e.g., $x=\cos t, y=\sin t$).")
+                        st.markdown("""
+                        **When to use it:**
+                        * **Computer Graphics & Physics:** To animate a bullet, you need to know not just *where* its path is, but exactly *when* it hits a coordinate.
+                        * **Self-Intersecting Paths:** A normal function cannot loop back on itself (like a figure-8). Parametric equations can easily describe paths that cross the same point at different times.
+                        """)
+
+                    st.divider()
+
+                    # --- 第二部分：推导对比 ---
+                    st.markdown("### ⚔️ The Calculus Duel: Finding $dy/dx$")
+                    st.write("Let's test both methods on the exact same unit circle.")
+
+                    tab_im_proof, tab_pa_proof = st.tabs(
+                        ["Method 1: Implicit Differentiation", "Method 2: Parametric Differentiation"])
+
+                    with tab_im_proof:
+                        st.write("Differentiate both sides of the **Static Rule**: $x^2 + y^2 = 1$")
+                        st.latex(r"""
+                        \begin{aligned}
+                        \frac{d}{dx}(x^2) + \frac{d}{dx}(y^2) &= \frac{d}{dx}(1) \\
+                        2x + 2y \cdot \frac{dy}{dx} &= 0 \\
+                        \mathbf{\frac{dy}{dx}} &= \mathbf{-\frac{x}{y}}
+                        \end{aligned}
+                        """)
+
+                    with tab_pa_proof:
+                        st.write(
+                            "Divide the vertical speed by the horizontal speed from the **Dynamic Journey**: $x = \cos t, y = \sin t$")
+                        st.latex(r"""
+                        \begin{aligned}
+                        \frac{dx}{dt} &= -\sin t \\
+                        \frac{dy}{dt} &= \cos t \\
+                        \frac{dy}{dx} &= \frac{dy/dt}{dx/dt} = \frac{\cos t}{-\sin t} \\
+                        \mathbf{\frac{dy}{dx}} &= \mathbf{-\frac{x}{y}} \quad \text{(Since } y=\sin t, x=\cos t\text{)}
+                        \end{aligned}
+                        """)
+
+                    # --- 第三部分：深刻含义揭晓 (The Deep Meaning) ---
+                    st.error("🤯 **Why do both methods give the exact same answer?**")
+                    st.write("""
+                        Because they are just **two different languages describing the same shape.**
+
+                        The 'steepness' (slope) of the circle at a specific point is a geometric fact. 
+                        * The **Implicit** equation ($x^2 + y^2 = 1$) looks at the circle as a static rule.
+                        * The **Parametric** equations ($x = \cos t, y = \sin t$) look at the circle as a moving path.
+
+                        The fact that $dy/dx$ is identical in both cases proves that our mathematical tools—whether they focus on static rules or dynamic motion—are perfectly consistent with the underlying geometry.
+                        """)
+                    st.divider()
+# Application
+
+
+import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
+
+
+def render_applications():
+    st.header("⚙️ Part 2: Applications of Differentiation")
+    st.write(
+        "Welcome to the Hardcore Engineering & Physics module. Here, we use calculus to solve real-world optimization and dynamic tracking problems.")
+
+    app_tabs = st.tabs(["1. Curve Analysis", "2. Related Rates", "3. Optimisation"])
+
+    # =========================================================
+    # TAB 1: CURVE ANALYSIS
+    # =========================================================
+    with app_tabs[0]:
+        st.subheader("Curve Analysis: Identifying Key Points")
+        st.write(
+            "Derivatives allow us to determine the exact coordinates where a function changes its increasing/decreasing behavior or its concavity.")
+
+        col_def, col_plot = st.columns([1.3, 1])
+
+        with col_def:
+            st.markdown("### 1. The Core Definitions")
+            st.markdown("""
+            * **Critical Point:** A point where $f'(x) = 0$ **OR** where $f'(x)$ is undefined.
+            * **Stationary Point:** A specific type of critical point where $f'(x) = 0$. The tangent line is perfectly horizontal.
+            * **Relative Extremum:** The local maximum or minimum point. It occurs at a critical point where $f'(x)$ changes sign.
+            * **Point of Inflection:** A point where the curve changes concavity. Here, $f''(x) = 0$ (or is undefined) AND $f''(x)$ changes sign.
+            """)
+
+            with st.expander("🧐 Deep Dive: Critical vs. Stationary Points"):
+                st.write(
+                    "All stationary points are critical points, but **not all critical points are stationary points!**")
+                st.markdown("""
+                * **Case A: The Smooth Valley ($y = x^2$)** At $x=0$, $y' = 0$. The curve is flat. This is BOTH a critical point and a stationary point.
+                * **Case B: The Sharp Corner ($y = |x|$)**
+                  At $x=0$, there is a sharp corner, so the derivative $y'$ is **undefined**. This is a **Critical Point**, but it is NOT a stationary point.
+                """)
+
+            st.divider()
+
+            st.markdown("### 2. Rigorous Analysis with Sign Tables")
+            st.info("Example Function: $f(x) = x^3 - 3x^2 + 2$")
+
+            st.write("#### Step 1: First Derivative Test (Extrema)")
+            st.latex(r"f'(x) = 3x^2 - 6x = 3x(x - 2)")
+            st.write(
+                "Setting $f'(x) = 0$, our stationary points are at $x = 0$ and $x = 2$. Let's check the signs around them:")
+
+            st.markdown("""
+            | Interval | Test Value ($x$) | Sign of $f'(x)$ | Behavior of $f(x)$ |
+            | :--- | :---: | :---: | :--- |
+            | $x < 0$ | -1 | $(-)(-)$ = **$+$** | ↗ Increasing |
+            | **$x = 0$** | **0** | **$0$** | $\\rightarrow$ **Local Max** |
+            | $0 < x < 2$ | 1 | $(+)(-)$ = **$-$** | ↘ Decreasing |
+            | **$x = 2$** | **2** | **$0$** | $\\rightarrow$ **Local Min** |
+            | $x > 2$ | 3 | $(+)(+)$ = **$+$** | ↗ Increasing |
+            """)
+
+            st.write("#### Step 2: Second Derivative Test (Concavity)")
+            st.latex(r"f''(x) = 6x - 6 = 6(x - 1)")
+            st.write("Setting $f''(x) = 0$, our potential inflection point is at $x = 1$. Let's verify:")
+
+            st.markdown("""
+            | Interval | Test Value ($x$) | Sign of $f''(x)$ | Concavity of $f(x)$ |
+            | :--- | :---: | :---: | :--- |
+            | $x < 1$ | 0 | **$-$** | ∩ Concave Down |
+            | **$x = 1$** | **1** | **$0$** | **Point of Inflection** |
+            | $x > 1$ | 2 | **$+$** | ∪ Concave Up |
+            """)
+
+        with col_plot:
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            x_vals = np.linspace(-1.5, 3.5, 100)
+            y_vals = x_vals ** 3 - 3 * x_vals ** 2 + 2
+
+            fig_curve = go.Figure()
+            fig_curve.add_trace(
+                go.Scatter(x=x_vals, y=y_vals, mode='lines', name='f(x)', line=dict(color='#636EFA', width=3)))
+            fig_curve.add_trace(
+                go.Scatter(x=[0], y=[2], mode='markers+text', text=["Local Max (0,2)"], textposition="top center",
+                           marker=dict(size=12, color='#EF553B'), name='Max'))
+            fig_curve.add_trace(
+                go.Scatter(x=[2], y=[-2], mode='markers+text', text=["Local Min (2,-2)"], textposition="bottom center",
+                           marker=dict(size=12, color='#00CC96'), name='Min'))
+            fig_curve.add_trace(
+                go.Scatter(x=[1], y=[0], mode='markers+text', text=["Inflection (1,0)"], textposition="top right",
+                           marker=dict(size=10, color='#FFA15A', symbol='diamond'), name='Inflection'))
+
+            fig_curve.update_layout(template="plotly_dark", height=550, margin=dict(t=20, b=20, l=20, r=20),
+                                    showlegend=False)
+            st.plotly_chart(fig_curve, use_container_width=True)
+
+        st.divider()
+
+        # [REVERSE ENGINEERING Q10]
+        st.markdown("### 🕵️ Advanced Challenge: Reverse Engineering (From SPM)")
+        with st.expander("Challenge: Find the Extremum from Derivative Graphs"):
+            st.markdown(
+                "**Problem:** Given the graphs of $dy/dx$ and $d^2y/dx^2$ for function $y=f(x)$. The curve $y=f(x)$ passes through $(-1, 6)$ and $(1, 2)$. Determine the coordinates of the maximum and minimum points.")
+
+            col_q10_1, col_q10_2 = st.columns(2)
+            x_q10 = np.linspace(-2, 2, 100)
+            dy_dx = 3 * x_q10 ** 2 - 3
+            d2y_dx2 = 6 * x_q10
+
+            with col_q10_1:
+                fig_dy = go.Figure()
+                fig_dy.add_trace(go.Scatter(x=x_q10, y=dy_dx, mode='lines', line=dict(color='#00CC96', width=3)))
+                fig_dy.add_trace(go.Scatter(x=[-1, 1], y=[0, 0], mode='markers+text', text=["x=-1", "x=1"],
+                                            textposition="top center", marker=dict(size=10, color='red')))
+                fig_dy.update_layout(title="Graph of dy/dx", template="plotly_dark", height=250,
+                                     margin=dict(t=40, b=10, l=10, r=10), showlegend=False)
+                st.plotly_chart(fig_dy, use_container_width=True)
+
+            with col_q10_2:
+                fig_d2y = go.Figure()
+                fig_d2y.add_trace(go.Scatter(x=x_q10, y=d2y_dx2, mode='lines', line=dict(color='#FFA15A', width=3)))
+                fig_d2y.add_trace(go.Scatter(x=[-1, 1], y=[-6, 6], mode='markers+text', text=["y=-6", "y=6"],
+                                             textposition=["bottom right", "top left"],
+                                             marker=dict(size=10, color='red')))
+                fig_d2y.update_layout(title="Graph of d²y/dx²", template="plotly_dark", height=250,
+                                      margin=dict(t=40, b=10, l=10, r=10), showlegend=False)
+                st.plotly_chart(fig_d2y, use_container_width=True)
+
+            st.write("**Visual Solution:**")
+            st.write(
+                "1. **From $dy/dx$:** The line crosses the x-axis at $x = -1$ and $x = 1$. These are our stationary points.")
+            st.write("2. **From $d^2y/dx^2$:**")
+            st.markdown("- At $x = -1$, the value is $-6$ (Concave Down $\\implies$ **Local Maximum**).")
+            st.markdown("- At $x = 1$, the value is $+6$ (Concave Up $\\implies$ **Local Minimum**).")
+            st.success(
+                "Result: The Maximum point is $(-1, 6)$ and the Minimum point is $(1, 2)$. No integration needed!")
+
+        # =========================================================
+        # TAB 2: RELATED RATES
+        # =========================================================
+        with app_tabs[1]:
+            st.subheader("Rate of Change: Related Rates & Dynamics")
+            st.write(
+                "When variables are related by an equation, their rates of change with respect to time ($t$) are linked via the Chain Rule.")
+
+            # [NEW HARDCORE 1] 航天测控：火箭追踪
+            with st.expander("🚀 Hardcore Challenge 1: Radar Tracking a Rocket (Angular Velocity)", expanded=True):
+                st.markdown(
+                    "**Problem:** A rocket blasts off vertically from a launchpad. A radar station is located 5,000 meters away. The rocket's upward velocity is $v = 500t$ m/s. The radar's camera must rotate at an angle $\\theta$ to keep the rocket in the center of the frame. Find the **angular velocity** (how fast the camera is rotating, $d\\theta/dt$) exactly 10 seconds after launch.")
+
+                col_r1, col_r2 = st.columns([1.2, 1])
+                with col_r1:
+                    st.write("**1. The Physics Model:**")
+                    st.write("First, find the height $h$ at $t=10$. Since $v = 500t$, height is the integral:")
+                    st.latex(r"h(t) = \int 500t \, dt = 250t^2")
+                    st.write("At $t=10$, $h = 25,000$ m, and velocity $dh/dt = 5,000$ m/s.")
+
+                    st.write("**2. The Geometry (Trigonometry):**")
+                    st.latex(r"\tan \theta = \frac{h}{5000}")
+
+                    st.write("**3. Differentiate w.r.t time $t$ (Chain Rule):**")
+                    st.latex(r"\sec^2 \theta \cdot \frac{d\theta}{dt} = \frac{1}{5000} \cdot \frac{dh}{dt}")
+
+                    st.write("**4. Solve for Angular Velocity:**")
+                    st.write("When $h = 25,000$, $\\tan\\theta = 5$. Thus, $\\sec^2\\theta = 1 + 5^2 = 26$.")
+                    st.latex(
+                        r"26 \cdot \frac{d\theta}{dt} = \frac{1}{5000} \cdot 5000 \implies \frac{d\theta}{dt} = \frac{1}{26} \text{ rad/s}")
+                    st.success(
+                        "Result: The camera rotates at approx 0.038 rad/s (2.2°/sec). Try the slider to see how it slows down as the rocket gets higher!")
+
+                with col_r2:
+                    t_slider = st.slider("Time after launch $t$ (seconds):", 1, 20, 10, key="rocket_time")
+                    h_current = 250 * (t_slider ** 2)
+                    v_current = 500 * t_slider
+                    theta_rad = np.arctan(h_current / 5000)
+                    dtheta_dt = (v_current / 5000) / (1 + (h_current / 5000) ** 2)
+
+                    st.metric("Camera Rotation Speed (dθ/dt)", f"{dtheta_dt * (180 / np.pi):.2f} °/sec")
+
+                    fig_rocket = go.Figure()
+                    fig_rocket.add_trace(go.Scatter(x=[0, 5000, 5000], y=[0, 0, h_current], mode='lines',
+                                                    line=dict(color='gray', dash='dash')))
+                    fig_rocket.add_trace(
+                        go.Scatter(x=[0], y=[0], mode='markers+text', text=["📡 Radar"], textposition="bottom right",
+                                   marker=dict(size=15, color='#00CC96')))
+                    fig_rocket.add_trace(go.Scatter(x=[5000], y=[h_current], mode='markers+text', text=["🚀 Rocket"],
+                                                    textposition="top center", marker=dict(size=15, color='#EF553B')))
+
+                    arc_x = [0] + [1000 * np.cos(a) for a in np.linspace(0, theta_rad, 20)] + [0]
+                    arc_y = [0] + [1000 * np.sin(a) for a in np.linspace(0, theta_rad, 20)] + [0]
+                    fig_rocket.add_trace(go.Scatter(x=arc_x, y=arc_y, fill='toself', fillcolor='rgba(255,161,90,0.5)',
+                                                    line=dict(color='rgba(255,255,255,0)'), showlegend=False))
+                    fig_rocket.add_annotation(x=1500, y=500, text=f"θ = {theta_rad * (180 / np.pi):.1f}°",
+                                              showarrow=False, font=dict(color="#FFA15A", size=14))
+
+                    fig_rocket.update_layout(template="plotly_dark", height=300, margin=dict(t=20, b=20, l=20, r=20),
+                                             xaxis_range=[-500, 6000], yaxis_range=[-500, 105000], showlegend=False)
+                    st.plotly_chart(fig_rocket, use_container_width=True)
+
+            # -------------------------------------------------------------
+            # THE CORE 5 RELATED RATES PROBLEMS (FULLY DETAILED)
+            # -------------------------------------------------------------
+
+            # 1. The Sliding Ladder
+            with st.expander("Example 1: The Sliding Ladder Problem"):
+                st.markdown(
+                    "**Problem:** A 10m ladder leans against a vertical wall. The base of the ladder slides away from the wall at a constant rate of 1 m/s. How fast is the top of the ladder sliding down the wall when the base is 6m away from the wall?")
+                st.markdown("")
+
+                st.write("**Detailed Solution:**")
+                st.write(
+                    "1. **Set up the Geometry:** Let $x$ be the horizontal distance from the wall, and $y$ be the vertical height on the wall. According to the Pythagorean theorem:")
+                st.latex(r"x^2 + y^2 = 10^2")
+
+                st.write("2. **Differentiate implicitly with respect to time $t$:**")
+                st.latex(r"2x\frac{dx}{dt} + 2y\frac{dy}{dt} = 0")
+
+                st.write(
+                    "3. **Substitute the known instant values:** We are given $x = 6$ and the sliding speed $\frac{dx}{dt} = 1$.")
+                st.write("First, we must find the current height $y$ when $x = 6$:")
+                st.latex(r"6^2 + y^2 = 100 \implies y = 8")
+
+                st.write("Now, plug everything into our differentiated equation:")
+                st.latex(r"""
+                \begin{aligned}
+                2(6)(1) + 2(8)\frac{dy}{dt} &= 0 \\
+                12 + 16\frac{dy}{dt} &= 0 \\
+                \frac{dy}{dt} &= -\frac{12}{16} = -0.75 \text{ m/s}
+                \end{aligned}
+                """)
+                st.success("Conclusion: The top of the ladder is sliding downwards at a rate of 0.75 m/s.")
+
+            # 2. The Conical Tank (Deep Dive)
+            with st.expander("Example 2: The Conical Tank Problem (Deep Dive)"):
+                st.markdown(
+                    "**Problem:** Water is poured into a conical tank (vertex down) at a rate of 2 m³/min. The tank has a base radius of 4m and a height of 10m. How fast is the water level rising when the depth is 5m?")
+                st.markdown("")
+
+                st.write("**Why do students get stuck here?**")
+                st.write(
+                    "The volume of a cone is $V = \\frac{1}{3}\pi r^2 h$. If we differentiate this directly, we get a messy product rule involving $dr/dt$, which we **don't know**. We must eliminate $r$ first to create a function purely in terms of $h$.")
+
+                st.write("**Step 1: Eliminate a variable using Similar Triangles**")
+                st.write(
+                    "Look at the cross-section. The water forms a small triangle inside the large tank triangle. Their proportions are permanently locked:")
+                st.latex(
+                    r"\frac{\text{Water Radius } r}{\text{Water Height } h} = \frac{\text{Tank Radius } 4}{\text{Tank Height } 10} \implies r = 0.4h")
+
+                st.write("**Step 2: Rewrite the Volume Formula**")
+                st.latex(r"V = \frac{1}{3}\pi (0.4h)^2 h = \frac{1}{3}\pi (0.16h^2)h = \frac{4}{75}\pi h^3")
+
+                st.write("**Step 3: Differentiate with respect to time $t$**")
+                st.write("Now, applying the Chain Rule is easy since we only have $V$ and $h$:")
+                st.latex(
+                    r"\frac{dV}{dt} = 3 \cdot \frac{4}{75}\pi h^2 \frac{dh}{dt} = \frac{4}{25}\pi h^2 \frac{dh}{dt}")
+
+                st.write("**Step 4: Plug in the instant values**")
+                st.write(
+                    "We are given the fill rate $\\frac{dV}{dt} = 2$ and we want to find $\\frac{dh}{dt}$ exactly when $h = 5$:")
+                st.latex(
+                    r"2 = \frac{4}{25}\pi (5)^2 \frac{dh}{dt} \implies 2 = 4\pi \frac{dh}{dt} \implies \frac{dh}{dt} = \frac{1}{2\pi} \approx 0.159 \text{ m/min}")
+                st.success("Conclusion: The water level is rising at approximately 0.159 m/min.")
+
+            # 3. Intersecting Cars
+            with st.expander("Example 3: Two Cars at an Intersection"):
+                st.markdown(
+                    "**Problem:** Car A drives North from an intersection at 60 km/h. Car B drives East from the same intersection at 80 km/h. What is the rate of change of the straight-line distance between them 2 hours after they leave the intersection?")
+                st.markdown("")
+
+                st.write("**Detailed Solution:**")
+                st.write(
+                    "1. **Set up the Geometry:** Let $y$ be Car A's distance North, $x$ be Car B's distance East, and $z$ be the straight-line distance between them. They form a right triangle:")
+                st.latex(r"x^2 + y^2 = z^2")
+
+                st.write("2. **Differentiate implicitly with respect to time $t$:**")
+                st.latex(
+                    r"2x\frac{dx}{dt} + 2y\frac{dy}{dt} = 2z\frac{dz}{dt} \implies x\frac{dx}{dt} + y\frac{dy}{dt} = z\frac{dz}{dt}")
+
+                st.write("3. **Find their exact positions after $t = 2$ hours:**")
+                st.write("We know $\\frac{dy}{dt} = 60$ and $\\frac{dx}{dt} = 80$.")
+                st.write("- $y = 60 \times 2 = 120$ km")
+                st.write("- $x = 80 \times 2 = 160$ km")
+                st.write("- $z = \sqrt{160^2 + 120^2} = \sqrt{25600 + 14400} = \sqrt{40000} = 200$ km")
+
+                st.write("4. **Substitute values and solve for $\frac{dz}{dt}$:**")
+                st.latex(r"""
+                \begin{aligned}
+                (160)(80) + (120)(60) &= (200)\frac{dz}{dt} \\
+                12800 + 7200 &= 200\frac{dz}{dt} \\
+                20000 &= 200\frac{dz}{dt} \\
+                \frac{dz}{dt} &= 100 \text{ km/h}
+                \end{aligned}
+                """)
+                st.success("Conclusion: The distance between the cars is increasing at exactly 100 km/h.")
+
+            # 4. The Shadow Problem
+            with st.expander("Example 4: The Moving Shadow Problem"):
+                st.markdown(
+                    "**Problem:** A 1.8m tall person walks *away* from a 5.4m tall street light at a speed of 1.5 m/s.")
+                st.markdown(
+                    "**Find:**<br>(A) At what rate is the **length of their shadow** increasing?<br>(B) At what rate is the **tip of their shadow** moving?",
+                    unsafe_allow_html=True)
+                st.markdown("")
+
+                st.write("**Detailed Solution:**")
+                st.write(
+                    "1. **Set up the variables:** Let $x$ be the person's distance from the lamppost, and $s$ be the length of the shadow. The person's walking speed is $\frac{dx}{dt} = 1.5$ m/s.")
+
+                st.write(
+                    "2. **Use Similar Triangles:** The large triangle (lamppost to shadow tip) and the small triangle (person to shadow tip) are similar triangles. We set up the ratio (Height / Base):")
+                st.latex(r"\frac{5.4}{x + s} = \frac{1.8}{s}")
+
+                st.write(
+                    "3. **Simplify the equation:** Cross-multiply to establish a clean relationship between $x$ and $s$ before doing any calculus:")
+                st.latex(r"""
+                \begin{aligned}
+                5.4s &= 1.8(x + s) \\
+                5.4s &= 1.8x + 1.8s \\
+                3.6s &= 1.8x \\
+                2s &= x \implies s = 0.5x
+                \end{aligned}
+                """)
+
+                st.write("---")
+                st.markdown("**(A) Rate of change of the shadow's length:**")
+                st.write(
+                    "We need to find $\frac{ds}{dt}$. Differentiate our simplified equation $s = 0.5x$ with respect to time $t$:")
+                st.latex(r"\frac{ds}{dt} = 0.5 \frac{dx}{dt}")
+                st.write("Substitute the known walking speed $\frac{dx}{dt} = 1.5$:")
+                st.latex(r"\frac{ds}{dt} = 0.5(1.5) = 0.75 \text{ m/s}")
+                st.success("Result A: The length of the shadow itself is growing at 0.75 m/s.")
+
+                st.write("---")
+                st.markdown("**(B) Rate of change of the shadow's tip:**")
+                st.write(
+                    "The tip of the shadow's distance from the lamppost is the total distance $(x + s)$. We need to find how fast this total distance is growing: $\frac{d}{dt}(x + s)$.")
+                st.latex(r"\frac{d}{dt}(x + s) = \frac{dx}{dt} + \frac{ds}{dt}")
+                st.write("Substitute the values we just calculated:")
+                st.latex(r"\frac{d}{dt}(x + s) = 1.5 + 0.75 = 2.25 \text{ m/s}")
+                st.success("Result B: The tip of the shadow is moving across the ground at 2.25 m/s.")
+
+            # 5. Dynamic Area (SPM) with Visualization
+            with st.expander("Example 5: Dynamic Area Under a Curve (From SPM)"):
+                st.markdown(
+                    "**Problem:** A curve is $y = 6x - x^2$. Point $P(x,y)$ lies on the curve. Point $Q$ is $(x, 0)$ on the x-axis. The Area of triangle $POQ$ is given by $A = \frac{1}{2}(6x^2 - x^3)$. Given that $x$ is increasing at a constant rate of 2 units/sec, find the rate of change for the Area $A$ when (i) $x=2$, (ii) $x=5$.")
+
+                st.write("**Visualizing the Geometry:**")
+                st.write(
+                    "Let's look at how the triangle changes shape as the point $P$ moves along the parabola. Notice how the triangle grows, but then gets 'squished' as it moves further right.")
+
+                col_q15_v1, col_q15_v2 = st.columns(2)
+                x_p = np.linspace(0, 6, 100)
+                y_p = 6 * x_p - x_p ** 2
+
+                def plot_q15_triangle(x_val, title):
+                    y_val = 6 * x_val - x_val ** 2
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(x=x_p, y=y_p, mode='lines', name='y=6x-x²', line=dict(color='gray')))
+                    fig.add_trace(go.Scatter(x=[0, x_val, x_val, 0], y=[0, 0, y_val, 0], fill='toself',
+                                             fillcolor='rgba(0,204,150,0.4)', line=dict(color='#00CC96'),
+                                             name=f'Triangle'))
+                    fig.add_trace(
+                        go.Scatter(x=[x_val], y=[y_val], mode='markers+text', text=["P(x,y)"], textposition="top right",
+                                   marker=dict(size=8, color='white'), showlegend=False))
+                    fig.update_layout(title=title, template="plotly_dark", height=250,
+                                      margin=dict(t=30, b=10, l=10, r=10), showlegend=False)
+                    return fig
+
+                with col_q15_v1:
+                    st.plotly_chart(plot_q15_triangle(2, "Situation (i): x = 2"), use_container_width=True)
+                with col_q15_v2:
+                    st.plotly_chart(plot_q15_triangle(5, "Situation (ii): x = 5"), use_container_width=True)
+
+                st.write("**Detailed Solution:**")
+                st.write(
+                    "1. We are given the area formula $A(x) = 3x^2 - \frac{1}{2}x^3$ and the speed $\frac{dx}{dt} = 2$.")
+                st.write(
+                    "2. **Apply the Chain Rule:** To find how fast Area grows over time, we link it: $\frac{dA}{dt} = \frac{dA}{dx} \cdot \frac{dx}{dt}$")
+                st.latex(r"\frac{dA}{dx} = 6x - \frac{3}{2}x^2")
+
+                st.write("---")
+                st.write("**(i) When $x = 2$ (Triangle is getting taller and wider):**")
+                st.latex(r"\frac{dA}{dx} = 6(2) - \frac{3}{2}(2)^2 = 12 - 6 = 6")
+                st.latex(r"\frac{dA}{dt} = 6 \cdot 2 = 12 \text{ units}^2\text{/sec (Area is Increasing)}")
+
+                st.write("**(ii) When $x = 5$ (Triangle gets wider but much shorter):**")
+                st.latex(r"\frac{dA}{dx} = 6(5) - \frac{3}{2}(5)^2 = 30 - 37.5 = -7.5")
+                st.latex(r"\frac{dA}{dt} = -7.5 \cdot 2 = -15 \text{ units}^2\text{/sec (Area is Decreasing)}")
+    # =========================================================
+        # =========================================================
+        # TAB 3: OPTIMISATION
+        # =========================================================
+        with app_tabs[2]:
+            st.subheader("🏗️ Industrial Engineering: Advanced Optimisation")
+            st.write(
+                "Optimisation uses derivatives to find the absolute maximum or minimum values of a physical quantity under given constraints. We will start from basic geometry and scale up to hardcore engineering.")
+
+            # --- Level 1 & 2: Basic Optimisation ---
+            with st.expander("🟢 Level 1: The Classic Fencing Problem"):
+                st.markdown(
+                    "**Problem:** A farmer has 100m of fencing to build a rectangular enclosure against a wall. What dimensions maximize area?")
+                st.markdown("")
+                st.write("1. **Constraint:** Perimeter is $2x + y = 100 \implies y = 100 - 2x$")
+                st.write("2. **Objective Function (Area):** $A(x) = x \cdot y = 100x - 2x^2$")
+                st.write("3. **Find Maximum:** $A'(x) = 100 - 4x = 0 \implies x = 25$. If $x=25$, $y=50$.")
+                st.success("Max Area = $1250$ m².")
+
+            with st.expander("🟡 Level 2: The Rotated Cone (From SPM)"):
+                st.markdown(
+                    "**Problem:** $\Delta ADB$ is a right-angled triangle with a fixed hypotenuse of $6\sqrt{3}$ cm. It is rotated about its vertical axis $AD$ to form a cone. Find the height ($h$) that generates the maximum volume.")
+                st.markdown("")
+                st.write("1. **Constraint (Pythagoras):** The hypotenuse is the slant height. Let radius be $r$.")
+                st.latex(r"r^2 + h^2 = (6\sqrt{3})^2 = 108 \implies r^2 = 108 - h^2")
+                st.write("2. **Objective Function (Volume):** Substitute $r^2$ to eliminate a variable:")
+                st.latex(r"V(h) = \frac{1}{3}\pi r^2 h = \frac{1}{3}\pi (108 - h^2)h = 36\pi h - \frac{1}{3}\pi h^3")
+                st.write("3. **Differentiate & Solve:**")
+                st.latex(r"V'(h) = 36\pi - \pi h^2 = 0 \implies h^2 = 36 \implies h = 6 \text{ cm}")
+                st.success("The maximum volume is achieved when the height is exactly 6 cm.")
+
+            # --- Level 3: Structural Engineering ---
+            with st.expander("🟠 Level 3: The Strongest Beam (Structural Engineering)", expanded=False):
+                st.markdown(
+                    "**Problem:** You must cut a rectangular beam from a cylindrical log of diameter $D=10$ cm. The physical **Strength ($S$)** of a beam is proportional to its width $b$ and the square of its height $h$ ($S = b \cdot h^2$). What dimensions ($b$ and $h$) maximize the beam's strength?")
+                st.markdown("")
+
+                col_b1, col_b2 = st.columns([1, 1])
+                with col_b1:
+                    st.write("**1. The Constraint (Pythagoras):**")
+                    st.write("The corners of the rectangle touch the circle, so the diagonal is the diameter $D$.")
+                    st.latex(r"b^2 + h^2 = D^2 \implies h^2 = 100 - b^2")
+
+                    st.write("**2. The Objective Function:**")
+                    st.latex(r"S(b) = b(100 - b^2) = 100b - b^3")
+
+                    st.write("**3. Differentiate & Solve:**")
+                    st.latex(r"S'(b) = 100 - 3b^2 = 0 \implies b = \frac{10}{\sqrt{3}} \approx 5.77 \text{ cm}")
+                    st.latex(r"h = \sqrt{100 - (\frac{100}{3})} = 10\sqrt{\frac{2}{3}} \approx 8.16 \text{ cm}")
+                    st.success(
+                        r"**Golden Rule of Beams:** The strongest beam always has a height-to-width ratio of exactly $\sqrt{2}:1$. It is never a perfect square!")
+
+                with col_b2:
+                    b_slider = st.slider("Adjust Beam Width $b$:", 1.0, 9.9, 5.77, key="beam_width")
+                    h_val = np.sqrt(100 - b_slider ** 2)
+                    strength = b_slider * (h_val ** 2)
+
+                    st.metric("Beam Strength (S = bh²)", f"{strength:.1f}", delta=f"{strength - 384.9:.1f} from Max")
+
+                    fig_beam = go.Figure()
+                    theta_circle = np.linspace(0, 2 * np.pi, 100)
+                    fig_beam.add_trace(go.Scatter(x=5 * np.cos(theta_circle), y=5 * np.sin(theta_circle), mode='lines',
+                                                  line=dict(color='saddlebrown', width=4), fill='toself',
+                                                  fillcolor='rgba(139,69,19,0.2)'))
+                    rect_x = [-b_slider / 2, b_slider / 2, b_slider / 2, -b_slider / 2, -b_slider / 2]
+                    rect_y = [-h_val / 2, -h_val / 2, h_val / 2, h_val / 2, -h_val / 2]
+                    fig_beam.add_trace(
+                        go.Scatter(x=rect_x, y=rect_y, mode='lines', fill='toself', fillcolor='rgba(0,204,150,0.6)',
+                                   line=dict(color='#00CC96', width=3)))
+
+                    fig_beam.update_layout(template="plotly_dark", height=280, margin=dict(t=10, b=10, l=10, r=10),
+                                           xaxis=dict(scaleanchor="y", scaleratio=1), showlegend=False)
+                    st.plotly_chart(fig_beam, use_container_width=True)
+
+            # --- Level 4: Cost Optimization ---
+            with st.expander("🔴 Level 4: Manufacturing Cost Optimization"):
+                st.markdown(
+                    "**Problem:** You must design a cylindrical can holding $V = 1000\pi$ cm³. The material for the top and bottom caps is **3 times more expensive** than the side material. Find the radius $r$ and height $h$ that minimize total material cost.")
+                st.markdown("")
+
+                st.write("**1. The Cost Function:**")
+                st.write("Let the cost of the side material be $k$ per cm². The top and bottom will cost $3k$ per cm².")
+                st.latex(r"\text{Cost} = \text{Cost of Caps} + \text{Cost of Sides}")
+                st.latex(r"C(r, h) = 2(\pi r^2)(3k) + (2\pi rh)(k) = 6\pi k r^2 + 2\pi k r h")
+
+                st.write("**2. Eliminate $h$ using the Volume Constraint:**")
+                st.latex(r"V = \pi r^2 h \implies 1000\pi = \pi r^2 h \implies h = \frac{1000}{r^2}")
+                st.write("Substitute $h$ back into the Cost function:")
+                st.latex(
+                    r"C(r) = 6\pi k r^2 + 2\pi k r \left(\frac{1000}{r^2}\right) = 6\pi k r^2 + \frac{2000\pi k}{r}")
+
+                st.write("**3. Differentiate & Find Minimum:**")
+                st.write("Set $C'(r) = 0$ to find the minimum cost:")
+                st.latex(r"C'(r) = 12\pi k r - \frac{2000\pi k}{r^2} = 0")
+                st.latex(
+                    r"12\pi k r = \frac{2000\pi k}{r^2} \implies 12r^3 = 2000 \implies r^3 = \frac{2000}{12} \approx 166.6")
+                st.latex(r"r \approx 5.50 \text{ cm}")
+
+                st.write("**4. Find the corresponding Height:**")
+                st.latex(r"h = \frac{1000}{(5.50)^2} \approx 33.0 \text{ cm}")
+                st.success(
+                    "Result: The optimal ratio is $h:r = 6:1$. Because the caps are so expensive, calculus proves the cheapest can design must be very tall and skinny to minimize the use of the expensive cap material!")
+
+            # --- Level 5: Fluid Dynamics ---
+            with st.expander("🔥 Level 5: Optimal Fluid Dynamics (Trapezoidal Gutter)"):
+                st.markdown(
+                    "**Problem:** A metal sheet of width $W=30$ cm is folded into a gutter. The base and two sides each have a length of 10 cm. The sides are folded up at an angle $\\theta$. What angle maximizes the cross-sectional area (and thus water flow)?")
+                st.markdown("")
+
+                st.write("**1. Geometry of the Area:**")
+                st.write(
+                    "We need the area of a trapezoid: $A = \\frac{1}{2}(\\text{Top Width} + \\text{Base}) \\times \\text{Height}$.")
+                st.write("- Base = 10")
+                st.write("- Height $h = 10\sin\\theta$")
+                st.write("- Top width = Base + 2(Horizontal Shift) = $10 + 2(10\cos\\theta) = 10 + 20\cos\\theta$")
+                st.latex(
+                    r"A(\theta) = \frac{10 + (10 + 20\cos\theta)}{2} \times 10\sin\theta = (10 + 10\cos\theta) \times 10\sin\theta = 100(1 + \cos\theta)\sin\theta")
+
+                st.write("**2. Differentiate using Product Rule ($u = 1+\cos\theta, v = \sin\theta$):**")
+                st.latex(r"A'(\theta) = 100 [ (-\sin\theta)(\sin\theta) + (1 + \cos\theta)(\cos\theta) ]")
+                st.latex(r"A'(\theta) = 100 [ -\sin^2\theta + \cos\theta + \cos^2\theta ]")
+
+                st.write("**3. Use Trig Identities to solve $A'(\theta) = 0$:**")
+                st.write("Convert everything to cosine using $\\sin^2\\theta = 1 - \\cos^2\\theta$:")
+                st.latex(r"-(1 - \cos^2\theta) + \cos\theta + \cos^2\theta = 0")
+                st.latex(r"2\cos^2\theta + \cos\theta - 1 = 0")
+
+                st.write("Factor the quadratic equation:")
+                st.latex(r"(2\cos\theta - 1)(\cos\theta + 1) = 0")
+                st.latex(r"\cos\theta = \frac{1}{2} \implies \theta = 60^\circ")
+                st.success(
+                    "Result: The maximum flow occurs at exactly 60°. This proves that the most efficient open channel shape is exactly half of a perfect regular hexagon!")
+
+                st.write("**Interactive Visualization:**")
+                theta_deg = st.slider("Test Fold Angle θ (degrees):", 0, 90, 60, key="gutter_angle")
+                theta_r = np.radians(theta_deg)
+                area_val = 100 * (1 + np.cos(theta_r)) * np.sin(theta_r)
+
+                st.metric("Cross-Sectional Area", f"{area_val:.1f} cm²", delta=f"{area_val - 129.9:.1f} from Max")
+
+                fig_gut = go.Figure()
+                gut_x = [-5, 5, 5 + 10 * np.cos(theta_r), -5 - 10 * np.cos(theta_r), -5]
+                gut_y = [0, 0, 10 * np.sin(theta_r), 10 * np.sin(theta_r), 0]
+                fig_gut.add_trace(go.Scatter(x=gut_x, y=gut_y, fill='toself', fillcolor='rgba(66, 135, 245, 0.5)',
+                                             line=dict(color='#4287f5', width=3)))
+
+                fig_gut.update_layout(template="plotly_dark", height=250, margin=dict(t=10, b=10, l=10, r=10),
+                                      xaxis=dict(scaleanchor="y", scaleratio=1), xaxis_range=[-20, 20],
+                                      yaxis_range=[-2, 15], showlegend=False)
+                st.plotly_chart(fig_gut, use_container_width=True)
+
+            # =========================================================
+            # 终极挑战阶段 1：纯数学解法解答过河问题
+            # =========================================================
+            st.divider()
+            st.markdown("### 🏆 The Ultimate Challenge: Optimization across Two Mediums")
+
+            with st.expander("The Lifeguard / Canoe Problem (Solving with Calculus)"):
+                st.markdown(
+                    "**Problem:** Mukhriz rows his canoe from point A in the river to point C on the shore, then cycles from C to D. The perpendicular distance from A to shore B is $30$m. Total shore distance $BD = 400$m. His rowing speed is 40 m/min, and cycling speed is 50 m/min. Let $x$ be the distance from B to his landing point C. Find $x$ to minimize total travel time.")
+                st.markdown("")
+
+                st.write("**1. The Mathematical Model (Time = Distance / Speed):**")
+                st.write("Total Time $T(x) = \\text{Time}_{\\text{row}} + \\text{Time}_{\\text{cycle}}$")
+                st.write("- Rowing Distance (Pythagoras): $\sqrt{x^2 + 30^2}$")
+                st.write("- Cycling Distance: $400 - x$")
+                st.latex(r"T(x) = \frac{\sqrt{x^2 + 30^2}}{40} + \frac{400 - x}{50}")
+
+                st.write("**2. The Derivative (Chain Rule):**")
+                st.write("Set $T'(x) = 0$ to find the minimum time:")
+                st.latex(r"T'(x) = \frac{1}{40} \cdot \frac{1}{2}(x^2+900)^{-1/2} \cdot (2x) - \frac{1}{50} = 0")
+                st.latex(r"\frac{x}{40\sqrt{x^2 + 900}} - \frac{1}{50} = 0")
+
+                st.write("**3. Solving the Algebra:**")
+                st.latex(r"""
+                \begin{aligned}
+                \frac{x}{40\sqrt{x^2+900}} &= \frac{1}{50} \\
+                50x &= 40\sqrt{x^2+900} \\
+                5x &= 4\sqrt{x^2+900} \\
+                \end{aligned}
+                """)
+                st.write("Square both sides:")
+                st.latex(r"""
+                \begin{aligned}
+                25x^2 &= 16(x^2 + 900) \\
+                25x^2 &= 16x^2 + 14400 \\
+                9x^2 &= 14400 \\
+                x^2 &= 1600 \implies x = 40 \text{ m}
+                \end{aligned}
+                """)
+                st.success(
+                    "Calculus proves that Mukhriz should land exactly 40m from point B to minimize his travel time.")
+
+            # =========================================================
+            # 终极挑战阶段 2：斯涅尔定律的视角转换
+            # =========================================================
+            with st.expander("🌌 The Grand Finale: Fermat's Principle & Snell's Law", expanded=True):
+                st.markdown(
+                    "Did you know **Light Rays** automatically solve the exact same calculus problem instantly? **Fermat's Principle** states that light takes the path of least time. Because light travels slower in water than in air, it bends when it hits the surface. This bending is governed by **Snell's Law**:")
+                st.latex(r"\frac{\sin \theta_{water}}{v_{water}} = \frac{\sin \theta_{land}}{v_{land}}")
+                st.markdown(
+                    "[Image illustrating Fermat's Principle with a path crossing two different mediums, highlighting refraction similar to a lifeguard running on sand and swimming in water]")
+
+                st.write("**How does the Canoe map to the Light Ray?**")
+                st.write("Look at your calculus equation before we squared it:")
+                st.latex(r"\frac{1}{40} \left( \frac{x}{\sqrt{x^2 + 900}} \right) = \frac{1}{50} (1)")
+
+                st.write(
+                    "Look at the interactive diagram below. $\\theta_{water}$ is the angle between the rowing path and the vertical Normal line. By basic trigonometry, $\\sin \\theta_{water} = \\frac{\\text{Opposite}}{\\text{Hypotenuse}} = \\frac{x}{\\sqrt{x^2+900}}$.")
+                st.write(
+                    "Because Mukhriz cycles completely flat along the shore, his angle to the Normal line is $90^\circ$. And $\\sin(90^\circ) = 1$.")
+
+                x_snell = st.slider("Landing Point x (m):", 0, 150, 40, key="snell_slider")
+
+                sin_theta_w = x_snell / np.sqrt(x_snell ** 2 + 30 ** 2) if x_snell != 0 else 0
+                ratio_w = sin_theta_w / 40
+                ratio_l = 1.0 / 50
+
+                fig_snell = go.Figure()
+                fig_snell.add_shape(type="rect", x0=0, y0=0, x1=150, y1=40, fillcolor="rgba(0, 191, 255, 0.1)",
+                                    line_width=0)
+                fig_snell.add_shape(type="rect", x0=0, y0=-20, x1=150, y1=0, fillcolor="rgba(34, 139, 34, 0.1)",
+                                    line_width=0)
+
+                fig_snell.add_trace(
+                    go.Scatter(x=[0, x_snell], y=[30, 0], mode='lines+markers', name='Rowing in Water (v=40)',
+                               line=dict(color='#00BFFF', width=3)))
+                fig_snell.add_trace(
+                    go.Scatter(x=[x_snell, 150], y=[0, 0], mode='lines+markers', name='Cycling on Land (v=50)',
+                               line=dict(color='#32CD32', width=4)))
+
+                # Normal Line
+                fig_snell.add_trace(go.Scatter(x=[x_snell, x_snell], y=[-15, 40], mode='lines', name='Normal Line',
+                                               line=dict(color='white', dash='dash')))
+
+                # Arrows & Angles
+                fig_snell.add_annotation(x=x_snell - 5, y=10, text="θ_water", showarrow=True, arrowhead=2, ax=15,
+                                         ay=-15, font=dict(color="#00BFFF", size=13))
+                fig_snell.add_annotation(x=x_snell + 20, y=-5, text="θ_land = 90°", showarrow=True, arrowhead=2, ax=-20,
+                                         ay=10, font=dict(color="#32CD32", size=13))
+                fig_snell.add_annotation(x=x_snell, y=43, text="Normal Line", showarrow=False,
+                                         font=dict(color="white", size=12))
+
+                fig_snell.update_layout(template="plotly_dark", height=300, margin=dict(t=10, b=10, l=10, r=10),
+                                        showlegend=True, yaxis=dict(scaleanchor="x", scaleratio=1))
+                st.plotly_chart(fig_snell, use_container_width=True)
+
+                col_s1, col_s2 = st.columns(2)
+                with col_s1:
+                    st.info(
+                        f"**Water Side Calculation:** \n\n $\\frac{{\\sin \\theta_{{water}}}}{{40}} = {ratio_w:.5f}$")
+                with col_s2:
+                    st.success(f"**Land Side Calculation:** \n\n $\\frac{{\\sin 90^\\circ}}{{50}} = {ratio_l:.5f}$")
+
+                if abs(ratio_w - ratio_l) < 0.0001:
+                    st.error(
+                        "🤯 **PERFECT MATCH!** At $x=40$, the ratios are equal. The derivative equation $T'(x)=0$ you solved earlier is literally Snell's Law in disguise! Calculus is the source code of reality.")
+
+            # =========================================================
+            # 重构后的超详细彩虹题 (隐函数求导)
+            # =========================================================
+            with st.expander("🌈 Bonus Challenge: The Rainbow Angle (Implicit Differentiation)"):
+                st.markdown(
+                    "**The Mystery:** Why do rainbows always appear as a 42-degree circle in the sky? It's a pure calculus optimization problem happening inside millions of raindrops.")
+                st.markdown("")
+
+                st.write("**The Physics Setup:**")
+                st.write(
+                    "When sunlight enters a spherical raindrop, it refracts (bends), reflects off the back wall, and refracts again as it exits. The total deflection angle $D$ of the light ray depends on the angle it enters (the incidence angle $\\theta_i$) and the refracted angle inside the drop ($\\theta_r$).")
+                st.write("The deflection is modeled by the equation:")
+                st.latex(r"D = \pi + 2\theta_i - 4\theta_r")
+
+                st.write(
+                    "These two angles are permanently linked by **Snell's Law** for water (where refractive index $k \\approx 1.33$):")
+                st.latex(r"\sin\theta_i = k \sin\theta_r")
+
+                st.write(
+                    "To find where the rainbow is brightest, we must find the minimum deflection angle. We need to set $\\frac{dD}{d\\theta_i} = 0$.")
+
+                st.divider()
+
+                st.write("**Step 1: Implicit Differentiation on Snell's Law**")
+                st.write(
+                    "We differentiate both sides of $\\sin\\theta_i = k \\sin\\theta_r$ with respect to $\\theta_i$. Remember to use the Chain Rule for $\\theta_r$!")
+                st.latex(r"\cos\theta_i = k \cos\theta_r \cdot \frac{d\theta_r}{d\theta_i}")
+                st.write("Isolate the derivative of the inner angle:")
+                st.latex(r"\frac{d\theta_r}{d\theta_i} = \frac{\cos\theta_i}{k\cos\theta_r}")
+
+                st.write("**Step 2: Differentiate the Deflection Function**")
+                st.write("Now differentiate $D = \pi + 2\\theta_i - 4\\theta_r$ with respect to $\\theta_i$:")
+                st.latex(r"\frac{dD}{d\theta_i} = 0 + 2 - 4\frac{d\theta_r}{d\theta_i}")
+
+                st.write("**Step 3: Set to Zero and Substitute**")
+                st.latex(r"2 - 4\left(\frac{\cos\theta_i}{k\cos\theta_r}\right) = 0")
+                st.latex(
+                    r"2 = \frac{4\cos\theta_i}{k\cos\theta_r} \implies 2k\cos\theta_r = 4\cos\theta_i \implies k\cos\theta_r = 2\cos\theta_i")
+
+                st.write("**Step 4: The Algebraic Masterstroke (Solving for $\\theta_i$)**")
+                st.write(
+                    "We have an equation with both $\\cos\\theta_r$ and $\\cos\\theta_i$. How do we get rid of $\\theta_r$? We square both sides and use trig identities!")
+                st.latex(r"k^2 \cos^2\theta_r = 4 \cos^2\theta_i")
+                st.write("Use the identity $\\cos^2 x = 1 - \sin^2 x$:")
+                st.latex(r"k^2 (1 - \sin^2\theta_r) = 4 \cos^2\theta_i")
+
+                st.write(
+                    "Look back at our original Snell's Law: $\\sin\\theta_i = k \\sin\\theta_r$. Square it: $\\sin^2\theta_i = k^2 \\sin^2\\theta_r$. Substitute this back in!")
+                st.latex(r"k^2 - k^2\sin^2\theta_r = 4 \cos^2\theta_i")
+                st.latex(r"k^2 - \sin^2\theta_i = 4 \cos^2\theta_i")
+
+                st.write("Convert $\\sin^2\\theta_i$ to $(1 - \cos^2\\theta_i)$ so everything is in terms of cosine:")
+                st.latex(r"k^2 - (1 - \cos^2\theta_i) = 4 \cos^2\theta_i")
+                st.latex(r"k^2 - 1 + \cos^2\theta_i = 4 \cos^2\theta_i")
+                st.latex(r"k^2 - 1 = 3 \cos^2\theta_i")
+                st.latex(r"\cos\theta_i = \sqrt{\frac{k^2 - 1}{3}}")
+
+                st.success(
+                    "By plugging in the refractive index of water ($k = 1.333$), we find $\\cos\\theta_i \\approx 0.507$, which means $\\theta_i \\approx 59.4^\circ$. If you plug this incidence angle back into the deflection equation, you get exactly **42.5 degrees**. Calculus proves why every rainbow you will ever see sits at exactly that angle in the sky!")
+
+
 # ==========================================
 # 4. 占位符模块
 # ==========================================
@@ -5038,7 +5827,7 @@ def main():
         "--- 📜 THE CALCULUS SAGA ---",
         "0. The Grand Tale (Overview)",  # 总览故事
         "Chapter I: Limits (The Paradox)",  # 极限
-        "Chapter II: Differentiation (The Motion)",  # 微分
+        "Chapter II: Differentiation (The Motion)", # 微分
         "Chapter III: Integration (The Area)"  # 积分
     ]
 
@@ -5079,8 +5868,33 @@ def main():
     elif topic_selection == "Chapter I: Limits (The Paradox)":
         render_topic_8_limits()
 
+
     elif topic_selection == "Chapter II: Differentiation (The Motion)":
-        render_topic_differentiation()
+
+        # 1. 在页面顶部创建一个横向的二级子菜单
+
+        sub_chapter = st.radio(
+
+            "📖 Select Section:",
+
+            ["Part 1: Core Concepts & Intuition", "Part 2: Real-World Applications"],
+
+            horizontal=True  # 横向排列，放在页面顶部看起来像标签页
+
+        )
+
+        st.divider()  # 加一条分割线，让排版更美观
+
+        # 2. 根据用户的选择，渲染不同的内容
+
+        if sub_chapter == "Part 1: Core Concepts & Intuition":
+
+            render_topic_differentiation()  # 渲染你原本的牛顿、泰勒等基础理论
+
+
+        elif sub_chapter == "Part 2: Real-World Applications":
+
+            render_applications()  # 渲染我们刚写好的极值、相关变化率等应用题
 
     elif topic_selection == "Chapter III: Integration (The Area)":
         render_coming_soon("Integration (The Area)")
