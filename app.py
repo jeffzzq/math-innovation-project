@@ -5183,7 +5183,7 @@ def render_applications():
         st.divider()
 
         # [REVERSE ENGINEERING Q10]
-        st.markdown("### 🕵️ Advanced Challenge: Reverse Engineering (From SPM)")
+        st.markdown("### 🕵️ Advanced Challenge: Reverse Engineering")
         with st.expander("Challenge: Find the Extremum from Derivative Graphs"):
             st.markdown(
                 "**Problem:** Given the graphs of $dy/dx$ and $d^2y/dx^2$ for function $y=f(x)$. The curve $y=f(x)$ passes through $(-1, 6)$ and $(1, 2)$. Determine the coordinates of the maximum and minimum points.")
@@ -5302,7 +5302,7 @@ def render_applications():
                 st.latex(r"2x\frac{dx}{dt} + 2y\frac{dy}{dt} = 0")
 
                 st.write(
-                    "3. **Substitute the known instant values:** We are given $x = 6$ and the sliding speed $\frac{dx}{dt} = 1$.")
+                    "3. **Substitute the known instant values:** We are given $x = 6$ and the sliding speed $\\frac{dx}{dt} = 1$.")
                 st.write("First, we must find the current height $y$ when $x = 6$:")
                 st.latex(r"6^2 + y^2 = 100 \implies y = 8")
 
@@ -5364,11 +5364,11 @@ def render_applications():
 
                 st.write("3. **Find their exact positions after $t = 2$ hours:**")
                 st.write("We know $\\frac{dy}{dt} = 60$ and $\\frac{dx}{dt} = 80$.")
-                st.write("- $y = 60 \times 2 = 120$ km")
-                st.write("- $x = 80 \times 2 = 160$ km")
+                st.write("- $y = 60 \\times 2 = 120$ km")
+                st.write("- $x = 80 \\times 2 = 160$ km")
                 st.write("- $z = \sqrt{160^2 + 120^2} = \sqrt{25600 + 14400} = \sqrt{40000} = 200$ km")
 
-                st.write("4. **Substitute values and solve for $\frac{dz}{dt}$:**")
+                st.write("4. **Substitute values and solve for $\\frac{dz}{dt}$:**")
                 st.latex(r"""
                 \begin{aligned}
                 (160)(80) + (120)(60) &= (200)\frac{dz}{dt} \\
@@ -5390,7 +5390,7 @@ def render_applications():
 
                 st.write("**Detailed Solution:**")
                 st.write(
-                    "1. **Set up the variables:** Let $x$ be the person's distance from the lamppost, and $s$ be the length of the shadow. The person's walking speed is $\frac{dx}{dt} = 1.5$ m/s.")
+                    "1. **Set up the variables:** Let $x$ be the person's distance from the lamppost, and $s$ be the length of the shadow. The person's walking speed is $\\frac{dx}{dt} = 1.5$ m/s.")
 
                 st.write(
                     "2. **Use Similar Triangles:** The large triangle (lamppost to shadow tip) and the small triangle (person to shadow tip) are similar triangles. We set up the ratio (Height / Base):")
@@ -5410,25 +5410,25 @@ def render_applications():
                 st.write("---")
                 st.markdown("**(A) Rate of change of the shadow's length:**")
                 st.write(
-                    "We need to find $\frac{ds}{dt}$. Differentiate our simplified equation $s = 0.5x$ with respect to time $t$:")
+                    "We need to find $\\frac{ds}{dt}$. Differentiate our simplified equation $s = 0.5x$ with respect to time $t$:")
                 st.latex(r"\frac{ds}{dt} = 0.5 \frac{dx}{dt}")
-                st.write("Substitute the known walking speed $\frac{dx}{dt} = 1.5$:")
+                st.write("Substitute the known walking speed $\\frac{dx}{dt} = 1.5$:")
                 st.latex(r"\frac{ds}{dt} = 0.5(1.5) = 0.75 \text{ m/s}")
                 st.success("Result A: The length of the shadow itself is growing at 0.75 m/s.")
 
                 st.write("---")
                 st.markdown("**(B) Rate of change of the shadow's tip:**")
                 st.write(
-                    "The tip of the shadow's distance from the lamppost is the total distance $(x + s)$. We need to find how fast this total distance is growing: $\frac{d}{dt}(x + s)$.")
+                    "The tip of the shadow's distance from the lamppost is the total distance $(x + s)$. We need to find how fast this total distance is growing: $\\frac{d}{dt}(x + s)$.")
                 st.latex(r"\frac{d}{dt}(x + s) = \frac{dx}{dt} + \frac{ds}{dt}")
                 st.write("Substitute the values we just calculated:")
                 st.latex(r"\frac{d}{dt}(x + s) = 1.5 + 0.75 = 2.25 \text{ m/s}")
                 st.success("Result B: The tip of the shadow is moving across the ground at 2.25 m/s.")
 
             # 5. Dynamic Area (SPM) with Visualization
-            with st.expander("Example 5: Dynamic Area Under a Curve (From SPM)"):
+            with st.expander("Example 5: Dynamic Area Under a Curve"):
                 st.markdown(
-                    "**Problem:** A curve is $y = 6x - x^2$. Point $P(x,y)$ lies on the curve. Point $Q$ is $(x, 0)$ on the x-axis. The Area of triangle $POQ$ is given by $A = \frac{1}{2}(6x^2 - x^3)$. Given that $x$ is increasing at a constant rate of 2 units/sec, find the rate of change for the Area $A$ when (i) $x=2$, (ii) $x=5$.")
+                    "**Problem:** A curve is $y = 6x - x^2$. Point $P(x,y)$ lies on the curve. Point $Q$ is $(x, 0)$ on the x-axis. The Area of triangle $POQ$ is given by $A = \\frac{1}{2}(6x^2 - x^3)$. Given that $x$ is increasing at a constant rate of 2 units/sec, find the rate of change for the Area $A$ when (i) $x=2$, (ii) $x=5$.")
 
                 st.write("**Visualizing the Geometry:**")
                 st.write(
@@ -5459,9 +5459,9 @@ def render_applications():
 
                 st.write("**Detailed Solution:**")
                 st.write(
-                    "1. We are given the area formula $A(x) = 3x^2 - \frac{1}{2}x^3$ and the speed $\frac{dx}{dt} = 2$.")
+                    "1. We are given the area formula $A(x) = 3x^2 - \\frac{1}{2}x^3$ and the speed $\\frac{dx}{dt} = 2$.")
                 st.write(
-                    "2. **Apply the Chain Rule:** To find how fast Area grows over time, we link it: $\frac{dA}{dt} = \frac{dA}{dx} \cdot \frac{dx}{dt}$")
+                    "2. **Apply the Chain Rule:** To find how fast Area grows over time, we link it: $\\frac{dA}{dt} = \\frac{dA}{dx} \cdot \\frac{dx}{dt}$")
                 st.latex(r"\frac{dA}{dx} = 6x - \frac{3}{2}x^2")
 
                 st.write("---")
@@ -5491,7 +5491,7 @@ def render_applications():
                 st.write("3. **Find Maximum:** $A'(x) = 100 - 4x = 0 \implies x = 25$. If $x=25$, $y=50$.")
                 st.success("Max Area = $1250$ m².")
 
-            with st.expander("🟡 Level 2: The Rotated Cone (From SPM)"):
+            with st.expander("🟡 Level 2: The Rotated Cone"):
                 st.markdown(
                     "**Problem:** $\Delta ADB$ is a right-angled triangle with a fixed hypotenuse of $6\sqrt{3}$ cm. It is rotated about its vertical axis $AD$ to form a cone. Find the height ($h$) that generates the maximum volume.")
                 st.markdown("")
@@ -5590,11 +5590,11 @@ def render_applications():
                 st.latex(
                     r"A(\theta) = \frac{10 + (10 + 20\cos\theta)}{2} \times 10\sin\theta = (10 + 10\cos\theta) \times 10\sin\theta = 100(1 + \cos\theta)\sin\theta")
 
-                st.write("**2. Differentiate using Product Rule ($u = 1+\cos\theta, v = \sin\theta$):**")
+                st.write("**2. Differentiate using Product Rule ($u = 1+\cos\\theta, v = \sin\\theta$):**")
                 st.latex(r"A'(\theta) = 100 [ (-\sin\theta)(\sin\theta) + (1 + \cos\theta)(\cos\theta) ]")
                 st.latex(r"A'(\theta) = 100 [ -\sin^2\theta + \cos\theta + \cos^2\theta ]")
 
-                st.write("**3. Use Trig Identities to solve $A'(\theta) = 0$:**")
+                st.write("**3. Use Trig Identities to solve $A'(\\theta) = 0$:**")
                 st.write("Convert everything to cosine using $\\sin^2\\theta = 1 - \\cos^2\\theta$:")
                 st.latex(r"-(1 - \cos^2\theta) + \cos\theta + \cos^2\theta = 0")
                 st.latex(r"2\cos^2\theta + \cos\theta - 1 = 0")
@@ -5777,7 +5777,7 @@ def render_applications():
                 st.latex(r"k^2 (1 - \sin^2\theta_r) = 4 \cos^2\theta_i")
 
                 st.write(
-                    "Look back at our original Snell's Law: $\\sin\\theta_i = k \\sin\\theta_r$. Square it: $\\sin^2\theta_i = k^2 \\sin^2\\theta_r$. Substitute this back in!")
+                    "Look back at our original Snell's Law: $\\sin\\theta_i = k \\sin\\theta_r$. Square it: $\\sin^2\\theta_i = k^2 \\sin^2\\theta_r$. Substitute this back in!")
                 st.latex(r"k^2 - k^2\sin^2\theta_r = 4 \cos^2\theta_i")
                 st.latex(r"k^2 - \sin^2\theta_i = 4 \cos^2\theta_i")
 
