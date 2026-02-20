@@ -6470,7 +6470,13 @@ def render_topic_integration():
 
                     # 梯形的高度是两曲线之差
                     y_trap_diff = y_trap_f - y_trap_g
-                    trap_res = np.trapezoid(y_trap_diff, x_trap)
+                    # 自动兼容新旧版本 NumPy 的写法
+                    if hasattr(np, 'trapezoid'):
+                        # 如果是新版 NumPy (2.0+)
+                        trap_res = np.trapezoid(y_trap_diff, x_trap)
+                    else:
+                        # 如果是旧版 NumPy (1.x)
+                        trap_res = np.trapz(y_trap_diff, x_trap)
 
                     st.success(f"**Trapezoidal Estimate:** {trap_res:.4f}")
                     st.write(f"Compare this with the exact integral: {exact_area:.4f}")
@@ -6573,64 +6579,54 @@ def main():
     # === 路由逻辑 (Routing) ===
 
     # 1. 微积分总览
-    # 1. 如果用户选到了那个带横线的“主题标题”，自动帮他跳转到 Grand Tale
-    if topic_selection == "--- 📜 THE CALCULUS SAGA ---":
-        render_calculus_grand_story()
-    if topic_selection == "0. The Grand Tale (Overview)":
-        render_calculus_grand_story()
+    # === 路由逻辑 (Routing) ===
 
-        # 2. 前置章节 (直接根据原名跳转)
+    # 1. 确保这行代码在 main() 函数内部
+    # === 路由逻辑 (Routing) ===
+
+    # 1. 顶部总览 (逻辑分流)
+    if topic_selection == "--- 📜 THE CALCULUS SAGA ---" or topic_selection == "0. The Grand Tale (Overview)":
+        with st.spinner('📜 Opening the ancient scrolls...'):
+            render_calculus_grand_story()
+
+    # 2. 前置章节 (Topic 系列)
     elif topic_selection == "Topic 1: Number Systems":
         render_topic_1_number_system()
 
     elif topic_selection == "Topic 3: Sequences & Series":
         render_topic_3_sequence()
 
-    # 其他还没做的代数 Topic 占位
     elif "Topic" in topic_selection:
         render_coming_soon(topic_selection)
 
     # 3. 微积分章节 (Saga 系列)
     elif topic_selection == "Chapter I: Limits (The Paradox)":
-        render_topic_8_limits()
-
-
+        with st.spinner('⏳ Navigating the Zeno\'s Paradox...'):
+            render_topic_8_limits()
 
     elif topic_selection == "Chapter II: Differentiation (The Motion)":
-
-        # 1. 更新二级子菜单，加入 Part 3
-
+        # 【关键修改】：将 radio 放在 spinner 外面
         sub_chapter = st.radio(
-
             "📖 Select Section:",
-
             ["Part 1: Core Concepts & Intuition", "Part 2: Real-World Applications",
              "Part 3: Numerical Methods (The Algorithm)"],
-
             horizontal=True
-
         )
-
         st.divider()
 
-        # 2. 逻辑分流
-
-        if sub_chapter == "Part 1: Core Concepts & Intuition":
-
-            render_topic_differentiation()
-
-
-        elif sub_chapter == "Part 2: Real-World Applications":
-
-            render_applications()
-
-
-        elif sub_chapter == "Part 3: Numerical Methods (The Algorithm)":
-
-            render_numerical_methods()  # 调用我们要写的新函数
+        # 只在调用具体的渲染函数时显示加载
+        with st.spinner('🚀 Calculating the slope of change...'):
+            if sub_chapter == "Part 1: Core Concepts & Intuition":
+                render_topic_differentiation()
+            elif sub_chapter == "Part 2: Real-World Applications":
+                render_applications()
+            elif sub_chapter == "Part 3: Numerical Methods (The Algorithm)":
+                render_numerical_methods()
 
     elif topic_selection == "Chapter III: Integration (The Area)":
-        render_topic_integration()
+        # 这里就是你最自豪的 3D 可视化部分
+        with st.spinner('🌊 Summing up the infinite...'):
+            render_topic_integration()
 
 if __name__ == "__main__":
     main()
