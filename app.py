@@ -6242,12 +6242,10 @@ def render_topic_integration():
     st.markdown(
         "Welcome to the **Integration** chapter! Here, math comes to life. Play with the interactive tools below to truly understand what integrals do.")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "1. Basic Rules",
-        "2. Trigo",
-        "3. Techniques",
-        "4. Interactive Area & Volume",
-        "5. Trapezoidal Rule"
+    tab1, tab2, tab3 = st.tabs([
+        "1. Basic",
+        "2. Interactive Area & Volume",
+        "3. Trapezoidal Rule"
     ])
 
     # --- Tab 1 ~ 3 保持简洁清晰的静态展示 ---
@@ -6516,20 +6514,11 @@ def render_topic_integration():
 
             st.success(r"**Final Answer:** $x - \ln(1 + e^x) + C$")
 
-    with tab2:
-        st.header("Trigonometric Integration")
-        st.latex(r"\int \sin x \, dx = -\cos x + C \quad \quad \int \cos x \, dx = \sin x + C")
-
-    with tab3:
-        st.header("Techniques of Integration")
-        st.write("1. **Substitution:** " + r"$\int f(g(x))g'(x) \, dx = \int f(u) \, du$")
-        st.write("2. **By Parts:** " + r"$\int u \, dv = uv - \int v \, du$")
-
 
 
         # --- Tab 4: 终极动态面积与旋转体积 (空白宽容 + 智能解析版) ---
         # ==========================================
-        with tab4:
+        with tab2:
             st.header("Interactive Area & Volume Visualizer")
             st.write(
                 "Calculate the area between two curves, choose the axis of revolution, and interact with the models! You can enter `pi`, `2pi`, `sqrt(2)`, or `e` for boundaries.")
@@ -6702,7 +6691,7 @@ def render_topic_integration():
             # ==========================================
             # --- Tab 5: 动态交互版梯形法则 (支持双曲线 & 防崩溃) ---
             # ==========================================
-            with tab5:
+            with tab3:
                 st.header("Interactive Numerical Integration: Trapezoidal Rule")
                 st.write(
                     "See how the number of trapezoids ($n$) affects the accuracy of the area between the two curves.")
