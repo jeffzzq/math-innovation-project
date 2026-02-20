@@ -1,12 +1,17 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import scipy.stats as stats  # <--- 新增：用于二项分布计算
-import matplotlib.pyplot as plt
 from fractions import Fraction
 import math
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+import scipy.integrate as integrate
+import sympy as sp
+
+
 
 
 # ==========================================
@@ -5790,20 +5795,741 @@ def render_applications():
                 st.success(
                     "By plugging in the refractive index of water ($k = 1.333$), we find $\\cos\\theta_i \\approx 0.507$, which means $\\theta_i \\approx 59.4^\circ$. If you plug this incidence angle back into the deflection equation, you get exactly **42.5 degrees**. Calculus proves why every rainbow you will ever see sits at exactly that angle in the sky!")
 
+#牛顿法
 
-# ==========================================
+
+def render_numerical_methods():
+    st.header("🧮 Part 3: Numerical Methods & Algorithms")
+    st.write(
+        "When traditional algebra hits a dead end, computer science and calculus step in. Welcome to the art of approximation.")
+
+    num_tabs = st.tabs(["📘 1. The Philosophy", "⚙️ 2. The Engine (Simulator)", "⚠️ 3. Chaos & Failures"])
+
+    # ==========================================
+    # TAB 1: 理论哲学 (Transcendental, IVT, Linearization)
+    # ==========================================
+    with num_tabs[0]:
+        st.markdown("### 1. The Foundation: Transcendental Equations")
+        st.write("Why do we need complex algorithms? Consider this equation:")
+        st.latex(r"\ln(x) + x - 2 = 0")
+        st.write("""
+        * **Algebraic Equations:** Contain only standard operations (e.g., $x^2 + 3x + 2 = 0$). Solvable by exact formulas.
+        * **Transcendental Equations:** Contain logarithms, exponentials, or trig functions. They "transcend" standard algebra.
+        """)
+        st.info(
+            "**Deep Insight:** 99% of equations in real-world physics or engineering cannot be solved analytically (by hand). **Numerical Methods** are the only way to find a solution.")
+
+        st.divider()
+
+        col_ivt1, col_ivt2 = st.columns([1.2, 1])
+        with col_ivt1:
+            st.markdown("### 2. Root Detection: Intermediate Value Theorem (IVT)")
+            st.write("Before running a search algorithm, we must prove a root actually exists.")
+            st.markdown(
+                "**Theorem:** If $f(x)$ is continuous on the interval $[a, b]$, and $f(a) \cdot f(b) < 0$ (meaning they have opposite signs), a root MUST exist between them.")
+            st.write("Testing our equation $f(x) = \ln(x) + x - 2$:")
+            st.write("- At $x=1$: $f(1) = -1$ (Negative)")
+            st.write("- At $x=2$: $f(2) \approx 0.693$ (Positive)")
+            st.success(
+                "Conclusion: A root definitely exists between $x=1$ and $x=2$. This narrows down our search area and provides an excellent initial guess $x_0$.")
+
+        with col_ivt2:
+            x_range = np.linspace(0.5, 3, 100)
+            y_range = np.log(x_range) + x_range - 2
+            fig_ivt = go.Figure()
+            fig_ivt.add_trace(
+                go.Scatter(x=x_range, y=y_range, mode='lines', name='f(x)', line=dict(color='#636EFA', width=3)))
+            fig_ivt.add_hline(y=0, line_dash="dash", line_color="white")
+            fig_ivt.add_trace(
+                go.Scatter(x=[1, 2], y=[-1, 0.693], mode='markers+text', text=["f(1) is Negative", "f(2) is Positive"],
+                           textposition=["bottom center", "top center"], marker=dict(size=12, color='#EF553B'),
+                           name='Test Points'))
+            fig_ivt.update_layout(template="plotly_dark", height=300, margin=dict(t=10, b=10, l=10, r=10),
+                                  showlegend=False)
+            st.plotly_chart(fig_ivt, use_container_width=True)
+
+        st.divider()
+
+        st.markdown("### 3. The Core Tool: The 'Slope Triangle' Geometry")
+        st.write(
+            "Finding the root of a curve is hard, but finding the root of a straight line is elementary math. Instead of complex calculus, let's build the formula using a simple **Right Triangle**.")
+
+        # 1. 回忆初中斜率公式
+        st.write("**Step 1: The Basic Slope Formula**")
+        st.write(
+            "Remember from middle school that the slope $m$ of a line is 'rise over run' (vertical change divided by horizontal change). In calculus, the slope of the tangent line is the derivative $f'(x_n)$.")
+        st.latex(r"m = \frac{\Delta y}{\Delta x} = \frac{y_2 - y_1}{x_2 - x_1}")
+
+        # 2. 构造三角形 (对应你截图里的绝佳逻辑)
+        st.write("**Step 2: Finding the 'Triangle' on the Graph**")
+        st.write(
+            "Imagine drawing a tangent line at point $A(x_n, f(x_n))$ on the curve. This line slides down the slope and hits the x-axis at our next guess, point $B(x_{n+1}, 0)$.")
+        st.write("These two points create a right triangle:")
+        st.markdown("""
+                * **Vertical side (Height):** The y-coordinate of point A, which has a length of $f(x_n)$.
+                * **Horizontal side (Width):** The distance between our two guess points, which is $x_n - x_{n+1}$.
+                """)
+
+        # 3. 代入斜率公式
+        st.write("**Step 3: Plugging into the Slope Formula**")
+        st.write("Substitute these specific lengths into our slope formula from Step 1:")
+        st.latex(r"f'(x_n) = \frac{f(x_n) - 0}{x_n - x_{n+1}}")
+
+        # 4. 简单的代数移项
+        st.write("**Step 4: Isolating the Next Guess**")
+        st.write(
+            "Now, we use basic algebra to solve for our next guess, $x_{n+1}$. First, swap the denominator with the slope:")
+        st.latex(r"x_n - x_{n+1} = \frac{f(x_n)}{f'(x_n)}")
+
+        st.write(
+            "Finally, move $x_n$ over and flip the signs to completely isolate $x_{n+1}$. This gives us the famous Newton-Raphson iteration formula:")
+
+        # 5. 最终公式
+        st.latex(r"x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}")
+
+        # 删掉那句 st.markdown，替换成真正的 Streamlit 图片代码：
+        st.image("newtonRaphsonMethod.png", caption="Geometric Derivation of Newton's Method", use_container_width=True)
+
+    # ==========================================
+    # TAB 2: 算法引擎 (Convergence & Simulator)
+    # ==========================================
+    with num_tabs[1]:
+        st.markdown("### 4 & 5. Linear vs. Quadratic Convergence")
+        st.write(
+            "The algorithm feeds the output of the previous step back into the formula as the new input. But what makes Newton's method the absolute king of algorithms is its **convergence speed**.")
+
+        # 新增：对比平方收敛和线性收敛的深度解释
+        col_conv1, col_conv2 = st.columns(2)
+        with col_conv1:
+            st.success("**Quadratic Convergence (The Superpower)**")
+            st.write(
+                "Normally, Newton's method is quadratic ($e_{n+1} \approx C \cdot e_n^2$). This means the number of accurate decimal places **DOUBLES** with every step!")
+            st.markdown("""
+            * **Step 1:** Error $0.1$ (1 accurate digit)
+            * **Step 2:** Error $0.01$ (2 accurate digits)
+            * **Step 3:** Error $0.0001$ (4 accurate digits)
+            * **Step 4:** Error $0.00000001$ (8 accurate digits)
+            """)
+            st.write("🏃‍♂️ **Analogy:** It's like **teleporting** closer to your destination.")
+
+        with col_conv2:
+            st.error("**Linear Convergence (The Trap)**")
+            st.write(
+                "If the root is a **Multiple Root** (the curve 'kisses' the x-axis instead of piercing it), both $f(x)$ and slope $f'(x)$ approach zero simultaneously. The formula loses its power ($e_{n+1} \approx 0.5 \cdot e_n$).")
+            st.markdown("""
+            * **Step 1:** Error $0.1$
+            * **Step 2:** Error $0.05$
+            * **Step 3:** Error $0.025$
+            * **Step 4:** Error $0.0125$
+            """)
+            st.write(
+                "🚶‍♂️ **Analogy:** It's like **walking** slowly to your destination, gaining only a fraction of a digit per step.")
+            st.markdown("")
+
+        st.divider()
+
+        st.markdown("### 🕹️ Live Newton-Raphson Simulator")
+
+        # 完美呼应 Tab 1 的超越方程
+        mode = st.radio("Choose a scenario to test:",
+                        ["A. Transcendental Equation (Watch the explosive Quadratic Convergence!)",
+                         "B. The 'Double Root' Trap (Watch it degrade to slow Linear Convergence)"])
+
+        if 'nr_step_main' not in st.session_state:
+            st.session_state.nr_step_main = 0
+
+        # 根据用户的选择设定目标方程
+        if "Transcendental" in mode:
+            # 使用 Tab 1 的方程，保持教学连贯性
+            f_str = r"f(x) = \ln(x) + x - 2 = 0"
+            df_str = r"f'(x) = \frac{1}{x} + 1"
+            start_val = 0.5  # 刻意设得远一点，展示恐怖的收敛速度
+            x_min, x_max = 0.1, 4.0
+            y_min, y_max = -3, 3
+
+            def get_f(x):
+                return np.log(x) + x - 2 if x > 0 else float('nan')
+
+            def get_df(x):
+                return (1 / x) + 1 if x > 0 else float('nan')
+        else:
+            # 保留重根陷阱，展示线性收敛的龟速
+            f_str = r"f(x) = x^3 - 3x + 2 = 0 \text{ (Double root at x=1)}"
+            df_str = r"f'(x) = 3x^2 - 3"
+            start_val = 2.5
+            x_min, x_max = 0.0, 3.0
+            y_min, y_max = -2, 10
+
+            def get_f(x):
+                return x ** 3 - 3 * x + 2
+
+            def get_df(x):
+                return 3 * x ** 2 - 3
+
+        st.latex(f"\\text{{Solving: }} {f_str} \quad \quad \\text{{Derivative: }} {df_str}")
+
+        col_sim1, col_sim2 = st.columns([1, 1.5])
+
+        with col_sim1:
+            x0 = st.slider("Select Initial Guess $x_0$:", x_min + 0.1, x_max, start_val, step=0.1, key="sim_slider")
+
+            col_btn1, col_btn2 = st.columns(2)
+            with col_btn1:
+                if st.button("Iterate +1 Step", use_container_width=True):
+                    st.session_state.nr_step_main += 1
+            with col_btn2:
+                if st.button("Reset", use_container_width=True):
+                    st.session_state.nr_step_main = 0
+
+            # 计算过程
+            history = [x0]
+            # 防御处理：避免初始值为负数时的报错
+            safe_f0 = get_f(x0)
+            errors = [abs(safe_f0) if not np.isnan(safe_f0) else 999]
+            curr_x = x0
+
+            for _ in range(st.session_state.nr_step_main):
+                if curr_x <= 0 and "Transcendental" in mode:
+                    break  # 绝对防御：防止ln(负数)崩溃
+
+                f_val = get_f(curr_x)
+                df_val = get_df(curr_x)
+                if abs(df_val) < 1e-9: break  # 防止分母为0
+
+                curr_x = curr_x - (f_val / df_val)
+                history.append(curr_x)
+                errors.append(abs(get_f(curr_x)))
+
+            st.metric(f"Current Guess (Step {st.session_state.nr_step_main})", f"{history[-1]:.8f}")
+            st.metric("Current Error |f(x)|", f"{errors[-1]:.2e}")
+
+            if st.session_state.nr_step_main > 0:
+                if "Transcendental" in mode:
+                    st.success(
+                        "Quadratic Convergence! The exponent of the error roughly doubles every step. We conquered the Transcendental Equation instantly.")
+                else:
+                    st.error(
+                        "Linear Convergence detected! Because the curve is flat at the root ($f'(x) \\approx 0$), the algorithm loses its superpower. It crawls slowly toward the answer.")
+
+        with col_sim2:
+            x_plot = np.linspace(x_min, x_max, 200)
+            # 处理超越方程的绘图数据
+            if "Transcendental" in mode:
+                y_plot = np.where(x_plot > 0, np.log(x_plot) + x_plot - 2, np.nan)
+            else:
+                y_plot = get_f(x_plot)
+
+            fig_nr = go.Figure()
+
+            # 绘制主函数曲线
+            fig_nr.add_trace(
+                go.Scatter(x=x_plot, y=y_plot, mode='lines', line=dict(color='gray', width=3), name='f(x)'))
+            fig_nr.add_hline(y=0, line_color="white")
+
+            # 动态绘制切线跳跃过程
+            for i in range(len(history) - 1):
+                xn = history[i]
+                xn_next = history[i + 1]
+                fn = get_f(xn)
+                dfn = get_df(xn)
+
+                # 如果是历史步骤，用半透明的线画出痕迹
+                if i < len(history) - 2:
+                    fig_nr.add_trace(go.Scatter(x=[xn, xn_next], y=[fn, 0], mode='lines',
+                                                line=dict(color='rgba(0, 204, 150, 0.3)', width=1), showlegend=False))
+                    fn_next_hist = get_f(xn_next)
+                    if not np.isnan(fn_next_hist):
+                        fig_nr.add_trace(go.Scatter(x=[xn_next, xn_next], y=[0, fn_next_hist], mode='lines',
+                                                    line=dict(color='rgba(255, 255, 255, 0.2)', dash='dot', width=1),
+                                                    showlegend=False))
+
+                # 如果是最新的一步，重点高亮
+                else:
+                    fig_nr.add_trace(go.Scatter(x=[xn], y=[fn], mode='markers', marker=dict(size=10, color='red'),
+                                                name='Point of Tangency'))
+
+                    # 绘制真实切线
+                    tangent_x = np.array([x_min, x_max])
+                    tangent_y = dfn * (tangent_x - xn) + fn
+                    fig_nr.add_trace(go.Scatter(x=tangent_x, y=tangent_y, mode='lines',
+                                                line=dict(color='rgba(255, 161, 90, 0.5)', dash='dash', width=2),
+                                                name='True Tangent Line'))
+
+                    # 绘制跳跃线
+                    fig_nr.add_trace(go.Scatter(x=[xn, xn_next], y=[fn, 0], mode='lines+markers',
+                                                line=dict(color='#00CC96', width=4), marker=dict(size=8),
+                                                name=f'Jump (Step {i + 1})'))
+
+                    # 重置高度的虚线
+                    fn_next = get_f(xn_next)
+                    if not np.isnan(fn_next):
+                        fig_nr.add_trace(go.Scatter(x=[xn_next, xn_next], y=[0, fn_next], mode='lines',
+                                                    line=dict(color='white', dash='dot', width=2), name='Reset Height'))
+
+            fig_nr.update_layout(template="plotly_dark", height=400, margin=dict(t=10, b=10, l=10, r=10),
+                                 xaxis_range=[x_min, x_max], yaxis_range=[y_min, y_max])
+            st.plotly_chart(fig_nr, use_container_width=True)
+
+        # ==========================================
+        # TAB 3: 算法灾难实验室 (Failure Modes & Chaos)
+        # ==========================================
+        with num_tabs[2]:
+            st.markdown("### 6. The Dark Side: Divergence & Failure Modes")
+            st.write(
+                "An advanced algorithm engineer must know exactly when their tools will break. Let's physically simulate the three fatal flaws of Newton's method:")
+
+            # 使用单选按钮让用户切换不同的“翻车”场景
+            fail_mode = st.radio("🚨 Select a Failure Mode to Simulate:",
+                                 ["A. The Flat Spot (Zero Derivative)",
+                                  "B. Overshooting (Flung into the void)",
+                                  "C. Endless Oscillation (The Ping-Pong trap)"],
+                                 horizontal=True)
+
+            st.divider()
+
+            col_f_text, col_f_plot = st.columns([1, 1.5])
+
+            with col_f_text:
+                # 动态生成每个模式的解释和初始参数
+                if "Flat Spot" in fail_mode:
+                    st.error("**A. The Flat Spot (Zero Derivative)**")
+                    st.write(
+                        "If you accidentally start your guess at a local minimum or maximum, the tangent line is perfectly horizontal ($f'(x)=0$).")
+                    st.latex(r"x_{n+1} = x_n - \frac{f(x_n)}{0} \rightarrow \text{Crash!}")
+                    st.write("**Target:** $f(x) = x^3 - 3x + 1$")
+                    st.write("**Start Point:** $x_0 = 1.0$ (At the valley bottom)")
+                    x0 = 1.0
+
+                    def f(x):
+                        return x ** 3 - 3 * x + 1
+
+                    def df(x):
+                        return 3 * x ** 2 - 3
+
+                elif "Overshooting" in fail_mode:
+                    st.warning("**B. Overshooting**")
+                    st.write(
+                        "If the slope is very flat, the tangent line shoots millions of miles away. It throws your next guess completely out of bounds.")
+                    st.write("**Target:** $f(x) = \\arctan(x)$")
+                    st.write("**Start Point:** $x_0 = 1.5$")
+                    x0 = 1.5
+
+                    def f(x):
+                        return np.arctan(x)
+
+                    def df(x):
+                        return 1 / (1 + x ** 2)
+
+                else:
+                    st.info("**C. Endless Oscillation**")
+                    st.write(
+                        "For certain equations, the tangent lines will ping-pong back and forth across the y-axis symmetrically forever. It enters an infinite loop.")
+                    st.write("**Target:** $f(x) = \sqrt[3]{x}$")
+                    st.write("**Start Point:** $x_0 = 1.0$")
+                    x0 = 1.0
+
+                    # Python 对负数开三次方有复数问题，这里用 sign(x)*abs(x)^(1/3) 解决
+                    def f(x):
+                        return np.sign(x) * np.abs(x) ** (1 / 3)
+
+                    def df(x):
+                        return (1 / 3) * np.abs(x) ** (-2 / 3) if x != 0 else 0
+
+                # 为每个模式创建独立的步数记录，防止切换时报错
+                step_key = f"fail_step_{fail_mode}"
+                if step_key not in st.session_state:
+                    st.session_state[step_key] = 0
+
+                col_fb1, col_fb2 = st.columns(2)
+                if col_fb1.button("Iterate +1 Step", key=f"btn_step_{fail_mode}", use_container_width=True):
+                    st.session_state[step_key] += 1
+                if col_fb2.button("Reset", key=f"btn_reset_{fail_mode}", use_container_width=True):
+                    st.session_state[step_key] = 0
+
+                # 翻车模拟计算核心
+                history = [x0]
+                curr_x = x0
+                crashed = False
+
+                for i in range(st.session_state[step_key]):
+                    val_df = df(curr_x)
+                    # 触发 A 模式崩溃
+                    if abs(val_df) < 1e-9:
+                        crashed = True
+                        break
+                    curr_x = curr_x - f(curr_x) / val_df
+                    history.append(curr_x)
+
+                if crashed:
+                    st.error("💥 CRASH! Division by zero detected. Algorithm terminated.")
+                else:
+                    st.metric(f"Current Guess (Step {len(history) - 1})", f"{history[-1]:.4f}")
+
+                # 补充震荡和起飞的提示
+                if "Overshooting" in fail_mode and len(history) > 2:
+                    st.warning("Look at the x-axis! The number is getting exponentially huge!")
+                if "Oscillation" in fail_mode and len(history) > 2:
+                    st.info(
+                        "Notice the signs? Positive, negative, positive... It's doubling its distance away from the root every time!")
+
+            with col_f_plot:
+                fig_fail = go.Figure()
+
+                # 动态计算绘图范围，让图表能“跟随”那些飞走的点
+                min_x = min(history) if history else x0
+                max_x = max(history) if history else x0
+                pad = max(2, abs(max_x - min_x) * 0.5)
+                pad = min(pad, 15)  # 限制最大 padding，防止直接缩放到看不清
+
+                xp = np.linspace(min_x - pad, max_x + pad, 400)
+                yp = f(xp)
+
+                # 绘制主函数曲线
+                fig_fail.add_trace(go.Scatter(x=xp, y=yp, mode='lines', line=dict(color='gray', width=3), name='f(x)'))
+                fig_fail.add_hline(y=0, line_color="white")
+
+                # 绘制翻车轨迹
+                for i in range(len(history) - 1):
+                    xn = history[i]
+                    xn_next = history[i + 1]
+                    fn = f(xn)
+                    dfn = df(xn)
+
+                    # 历史痕迹
+                    if i < len(history) - 2:
+                        fig_fail.add_trace(go.Scatter(x=[xn, xn_next], y=[fn, 0], mode='lines',
+                                                      line=dict(color='rgba(239, 85, 59, 0.3)', width=1),
+                                                      showlegend=False))
+                        fn_next_val = f(xn_next)
+                        fig_fail.add_trace(go.Scatter(x=[xn_next, xn_next], y=[0, fn_next_val], mode='lines',
+                                                      line=dict(color='rgba(255, 255, 255, 0.2)', dash='dot', width=1),
+                                                      showlegend=False))
+                    else:
+                        # 最新一步的高亮
+                        fig_fail.add_trace(go.Scatter(x=[xn], y=[fn], mode='markers', marker=dict(size=10, color='red'),
+                                                      name='Point of Tangency'))
+                        fig_fail.add_trace(go.Scatter(x=[xn, xn_next], y=[fn, 0], mode='lines+markers',
+                                                      line=dict(color='#EF553B', width=4), marker=dict(size=8),
+                                                      name=f'Disaster Jump'))
+                        if not crashed:
+                            fn_next_val = f(xn_next)
+                            fig_fail.add_trace(go.Scatter(x=[xn_next, xn_next], y=[0, fn_next_val], mode='lines',
+                                                          line=dict(color='white', dash='dot', width=2),
+                                                          name='Reset Height'))
+
+                # 特殊处理：如果是分母为零崩溃，画一条平行的红色虚线
+                if crashed and len(history) > 0:
+                    xn = history[-1]
+                    fn = f(xn)
+                    fig_fail.add_trace(go.Scatter(x=[xn], y=[fn], mode='markers', marker=dict(size=10, color='red'),
+                                                  name='Point of Tangency'))
+                    fig_fail.add_trace(go.Scatter(x=[xn - pad, xn + pad], y=[fn, fn], mode='lines',
+                                                  line=dict(color='#EF553B', width=4, dash='dash'),
+                                                  name='Horizontal Tangent (Crash)'))
+
+                fig_fail.update_layout(template="plotly_dark", height=400, margin=dict(t=10, b=10, l=10, r=10))
+                st.plotly_chart(fig_fail, use_container_width=True)
+
+            st.divider()
+
+
+#integration
+
+# 这是一个包含整个第三章所有逻辑和绘图的“超级函数”
+
+def render_topic_integration():
+    st.title("Chapter III: Integration")
+    st.markdown(
+        "Welcome to the **Integration** chapter! Here, math comes to life. Play with the interactive tools below to truly understand what integrals do.")
+
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "1. Basic Rules",
+        "2. Trigo",
+        "3. Techniques",
+        "4. Interactive Area & Volume",
+        "5. Trapezoidal Rule"
+    ])
+
+    # --- Tab 1 ~ 3 保持简洁清晰的静态展示 ---
+    with tab1:
+        st.header("Basic Integration")
+        st.latex(r"\int x^n \, dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)")
+        st.latex(r"\int \frac{1}{x} \, dx = \ln|x| + C")
+
+    with tab2:
+        st.header("Trigonometric Integration")
+        st.latex(r"\int \sin x \, dx = -\cos x + C \quad \quad \int \cos x \, dx = \sin x + C")
+
+    with tab3:
+        st.header("Techniques of Integration")
+        st.write("1. **Substitution:** " + r"$\int f(g(x))g'(x) \, dx = \int f(u) \, du$")
+        st.write("2. **By Parts:** " + r"$\int u \, dv = uv - \int v \, du$")
+
+
+
+        # --- Tab 4: 终极动态面积与旋转体积 (空白宽容 + 智能解析版) ---
+        # ==========================================
+        with tab4:
+            st.header("Interactive Area & Volume Visualizer")
+            st.write(
+                "Calculate the area between two curves, choose the axis of revolution, and interact with the models! You can enter `pi`, `2pi`, `sqrt(2)`, or `e` for boundaries.")
+
+            # 1. 用户交互区 UI
+            col_axis, col_input1, col_input2 = st.columns([1, 1.5, 1.5])
+            with col_axis:
+                rotation_axis = st.radio("Axis of Revolution", ["X-axis", "Y-axis"])
+            with col_input1:
+                user_f = st.text_input("Top/Right Function $f(x)$", value="sin(x)")
+                a_str = st.text_input("Lower Bound ($a = x_1$)", value="0")
+            with col_input2:
+                # 默认把 g(x) 设为空白，模拟学生的真实操作
+                user_g = st.text_input("Bottom/Left Function $g(x)$", value="")
+                b_str = st.text_input("Upper Bound ($b = x_2$)", value="2pi")
+
+                # 2. 安全解析与数学引擎计算
+                x_sym = sp.Symbol('x')
+                try:
+                    import re
+                    def preprocess_formula(formula):
+                        f = formula.replace('^', '**')
+                        # 自动为常见函数补全括号
+                        f = re.sub(r'(sqrt|sin|cos|tan|exp|log|ln)\s*([a-zA-Z])', r'\1(\2)', f)
+                        # 自动把 "数字+字母" 中间补上乘号
+                        f = re.sub(r'(\d)\s*([a-zA-Z\(])', r'\1*\2', f)
+                        return f
+
+                    safe_f_str = user_f.strip() if user_f.strip() else "0"
+                    safe_g_str = user_g.strip() if user_g.strip() else "0"
+                    safe_a_str = a_str.strip() if a_str.strip() else "0"
+                    safe_b_str = b_str.strip() if b_str.strip() else "1"
+
+                    safe_f = preprocess_formula(safe_f_str)
+                    safe_g = preprocess_formula(safe_g_str)
+                    safe_a = preprocess_formula(safe_a_str)
+                    safe_b = preprocess_formula(safe_b_str)
+
+                    # 【核心修复】：建立字典，强制把输入的字母 'e' 翻译成数学常数 E
+                    local_dict = {'e': sp.E}
+
+                    # 解析函数时带上字典
+                    expr_f = sp.sympify(safe_f, locals=local_dict)
+                    expr_g = sp.sympify(safe_g, locals=local_dict)
+
+                    # 解析上下限时也带上字典 (这样学生在 Bound 里输 e 也没问题)
+                    a = float(sp.sympify(safe_a, locals=local_dict).evalf())
+                    b = float(sp.sympify(safe_b, locals=local_dict).evalf())
+
+                    f_num = sp.lambdify(x_sym, expr_f, 'numpy')
+                    g_num = sp.lambdify(x_sym, expr_g, 'numpy')
+
+                    def f_val(val):
+                        res = f_num(val)
+                        return np.full_like(val, res) if np.isscalar(res) else res
+
+                    def g_val(val):
+                        res = g_num(val)
+                        return np.full_like(val, res) if np.isscalar(res) else res
+
+                    st.session_state['f_val_func'] = f_val
+                    st.session_state['g_val_func'] = g_val
+
+                except Exception as e:
+                    st.error(
+                        f"Syntax Error: Invalid math expression. You can use 'pi', '2pi', 'e', 'sqrt(2)', etc.\n\nDetail: {e}")
+                    st.stop()
+
+            # ===============================
+            # 开始计算逻辑
+            # ===============================
+            if a >= b:
+                st.error("Lower bound must be less than upper bound!")
+            else:
+                st.markdown("### Step-by-Step Solution")
+
+                # 计算面积
+                area_integral = expr_f - expr_g
+                area_res, _ = integrate.quad(lambda val: f_val(val) - g_val(val), a, b)
+
+                st.info("**1. Area Between Curves:**")
+                st.latex(
+                    rf"A = \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx = {area_res:.4f} \text{{ units}}^2")
+
+                # 计算体积
+                st.info(f"**2. Volume of Revolution (around {rotation_axis}):**")
+
+                if rotation_axis == "X-axis":
+                    st.write("Using the **Washer Method**: " + r"$V = \pi \int_a^b [f(x)^2 - g(x)^2] dx$")
+                    vol_res = np.pi * integrate.quad(lambda val: (f_val(val)) ** 2 - (g_val(val)) ** 2, a, b)[0]
+                    st.latex(
+                        rf"V_x = \pi \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)})^2 - ({sp.latex(expr_g)})^2 \right) dx")
+                else:
+                    st.write("Using the **Cylindrical Shell Method**: " + r"$V = 2\pi \int_a^b x[f(x) - g(x)] dx$")
+                    vol_res = 2 * np.pi * integrate.quad(lambda val: val * (f_val(val) - g_val(val)), a, b)[0]
+                    st.latex(
+                        rf"V_y = 2\pi \int_{{{a}}}^{{{b}}} x \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx")
+
+                st.success(f"**Final Volume:** {vol_res:.4f} units³")
+
+                # ===============================
+                # 3. 动态绘图 (全 Plotly 双雄)
+                # ===============================
+                st.markdown("### Visualizations")
+
+                col_plot1, col_plot2 = st.columns(2)
+
+                # --- 左图：Plotly 2D 交互式全景图 ---
+                with col_plot1:
+                    fig_2d = go.Figure()
+
+                    span = b - a
+                    if span < 1e-3: span = 1.0
+                    x_wide = np.linspace(a - span * 1.5, b + span * 1.5, 500)
+
+                    fig_2d.add_trace(go.Scatter(x=x_wide, y=f_val(x_wide), mode='lines', name='$f(x)$',
+                                                line=dict(color='blue', width=2)))
+                    fig_2d.add_trace(go.Scatter(x=x_wide, y=g_val(x_wide), mode='lines', name='$g(x)$',
+                                                line=dict(color='red', width=2)))
+
+                    x_fill = np.linspace(a, b, 200)
+                    fig_2d.add_trace(
+                        go.Scatter(x=x_fill, y=g_val(x_fill), mode='lines', line=dict(width=0), showlegend=False,
+                                   hoverinfo='skip'))
+                    fig_2d.add_trace(go.Scatter(x=x_fill, y=f_val(x_fill), mode='lines', fill='tonexty',
+                                                fillcolor='rgba(135, 206, 235, 0.5)', line=dict(width=0),
+                                                name='Integral Area', hoverinfo='skip'))
+
+                    fig_2d.add_hline(y=0, line_color="black", line_width=1)
+                    fig_2d.add_vline(x=0, line_color="black", line_width=1)
+
+                    fig_2d.update_layout(
+                        title="2D Area (Scroll to Zoom, Drag to Pan)",
+                        margin=dict(l=0, r=0, b=0, t=40),
+                        hovermode="x unified",
+                        xaxis=dict(zeroline=False),
+                        yaxis=dict(zeroline=False),
+                        height=400
+                    )
+                    st.plotly_chart(fig_2d, use_container_width=True)
+
+                # --- 右图：Plotly 交互式 3D 旋转模型 ---
+                with col_plot2:
+                    theta = np.linspace(0, 2 * np.pi, 60)
+                    u = np.linspace(a, b, 100)
+                    U, Theta = np.meshgrid(u, theta)
+                    fig_3d = go.Figure()
+
+                    if rotation_axis == "X-axis":
+                        X_out, Y_out, Z_out = U, f_val(U) * np.cos(Theta), f_val(U) * np.sin(Theta)
+                        X_in, Y_in, Z_in = U, g_val(U) * np.cos(Theta), g_val(U) * np.sin(Theta)
+                    else:
+                        X_out, Y_out, Z_out = U * np.cos(Theta), f_val(U), U * np.sin(Theta)
+                        X_in, Y_in, Z_in = U * np.cos(Theta), g_val(U), U * np.sin(Theta)
+
+                    fig_3d.add_trace(
+                        go.Surface(x=X_out, y=Y_out, z=Z_out, colorscale='Blues', opacity=0.9, name='Outer',
+                                   showscale=False))
+                    fig_3d.add_trace(go.Surface(x=X_in, y=Y_in, z=Z_in, colorscale='Reds', opacity=0.5, name='Inner',
+                                                showscale=False))
+
+                    fig_3d.update_layout(
+                        title="3D Volume (Drag to Rotate)",
+                        margin=dict(l=0, r=0, b=0, t=40),
+                        scene=dict(xaxis_title='X Axis', yaxis_title='Y Axis', zaxis_title='Z Axis'),
+                        height=400
+                    )
+                    st.plotly_chart(fig_3d, use_container_width=True)
+
+            # ==========================================
+            # --- Tab 5: 动态交互版梯形法则 (支持双曲线 & 防崩溃) ---
+            # ==========================================
+            with tab5:
+                st.header("Interactive Numerical Integration: Trapezoidal Rule")
+                st.write(
+                    "See how the number of trapezoids ($n$) affects the accuracy of the area between the two curves.")
+
+                # 【拦截保护】：如果 a >= b，或者 Tab 4 的函数解析失败，直接不跑后续代码
+                if a >= b:
+                    st.warning(
+                        "⚠️ Please ensure Lower Bound ($a$) is less than Upper Bound ($b$) in Tab 4 to view this section.")
+                elif 'f_val_func' not in st.session_state or 'g_val_func' not in st.session_state:
+                    st.warning("⚠️ Please enter valid functions in Tab 4 first.")
+                else:
+                    n_slider = st.slider("Number of Trapezoids ($n$)", min_value=1, max_value=50, value=6)
+
+                    # 从全局状态提取函数
+                    current_f = st.session_state['f_val_func']
+                    current_g = st.session_state['g_val_func']
+
+                    # 为 Tab 5 独立计算精确面积，防止跨 Tab 变量丢失
+                    exact_area, _ = integrate.quad(lambda val: current_f(val) - current_g(val), a, b)
+
+                    # 计算梯形法则
+                    x_trap = np.linspace(a, b, n_slider + 1)
+                    y_trap_f = current_f(x_trap)
+                    y_trap_g = current_g(x_trap)
+
+                    # 梯形的高度是两曲线之差
+                    y_trap_diff = y_trap_f - y_trap_g
+                    trap_res = np.trapz(y_trap_diff, x_trap)
+
+                    st.success(f"**Trapezoidal Estimate:** {trap_res:.4f}")
+                    st.write(f"Compare this with the exact integral: {exact_area:.4f}")
+
+                    # 绘制双曲线之间的梯形
+                    fig_trap, ax_t = plt.subplots(figsize=(8, 4), dpi=100)
+
+                    span = b - a
+                    x_smooth = np.linspace(a - span * 0.2, b + span * 0.2, 300)
+
+                    ax_t.plot(x_smooth, current_f(x_smooth), 'b-', linewidth=2, label="$f(x)$")
+                    ax_t.plot(x_smooth, current_g(x_smooth), 'r-', linewidth=2, label="$g(x)$")
+
+                    # 画梯形：连接 f(x) 和 g(x) 之间的空间
+                    for i in range(n_slider):
+                        verts = [
+                            (x_trap[i], y_trap_g[i]),
+                            (x_trap[i], y_trap_f[i]),
+                            (x_trap[i + 1], y_trap_f[i + 1]),
+                            (x_trap[i + 1], y_trap_g[i + 1])
+                        ]
+                        poly = Polygon(verts, facecolor='lightgreen', edgecolor='green', alpha=0.4, linewidth=1.5)
+                        ax_t.add_patch(poly)
+
+                        # 画出梯形的上下边，视觉更清晰
+                        ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_f[i], y_trap_f[i + 1]], 'g--', alpha=0.8)
+                        ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_g[i], y_trap_g[i + 1]], 'g--', alpha=0.8)
+
+                    ax_t.set_title(f"Approximation with {n_slider} Trapezoids")
+                    ax_t.grid(True, linestyle='--', alpha=0.5)
+                    ax_t.legend()
+                    st.pyplot(fig_trap)
+
 # 4. 占位符模块
 # ==========================================
 def render_coming_soon(topic_name):
-    st.title(f"🚧 {topic_name}")
+    """
+    渲染一个“敬请期待”的页面，供未完成的章节调用。
+    """
+    st.title(topic_name)
     st.markdown("---")
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        st.info("⚠️ Lab Under Construction...")
-        st.write("We are coding deep visualizations for this topic.")
-        st.progress(10)
-    with col2:
-        st.warning("Developer Mode: Module Not Linked")
+
+    # 显示黄色的警告框
+    st.warning(f"🚧 **{topic_name}** is currently under construction!")
+
+    # 英文介绍文本
+    st.write(
+        "Welcome to the uncharted territories of this section. Our team is currently working hard to forge interactive visualizations and high-quality content for you.")
+
+    # 放一个进度条装饰一下
+    st.progress(0)
+
+
+
+# ==========================================
+# 你的其他章节渲染函数放在这个下面
+# ==========================================
+# def render_integration_chapter():
+# ...
 
 # ==========================================
 # ==========================================
@@ -5869,35 +6595,42 @@ def main():
         render_topic_8_limits()
 
 
+
     elif topic_selection == "Chapter II: Differentiation (The Motion)":
 
-        # 1. 在页面顶部创建一个横向的二级子菜单
+        # 1. 更新二级子菜单，加入 Part 3
 
         sub_chapter = st.radio(
 
             "📖 Select Section:",
 
-            ["Part 1: Core Concepts & Intuition", "Part 2: Real-World Applications"],
+            ["Part 1: Core Concepts & Intuition", "Part 2: Real-World Applications",
+             "Part 3: Numerical Methods (The Algorithm)"],
 
-            horizontal=True  # 横向排列，放在页面顶部看起来像标签页
+            horizontal=True
 
         )
 
-        st.divider()  # 加一条分割线，让排版更美观
+        st.divider()
 
-        # 2. 根据用户的选择，渲染不同的内容
+        # 2. 逻辑分流
 
         if sub_chapter == "Part 1: Core Concepts & Intuition":
 
-            render_topic_differentiation()  # 渲染你原本的牛顿、泰勒等基础理论
+            render_topic_differentiation()
 
 
         elif sub_chapter == "Part 2: Real-World Applications":
 
-            render_applications()  # 渲染我们刚写好的极值、相关变化率等应用题
+            render_applications()
+
+
+        elif sub_chapter == "Part 3: Numerical Methods (The Algorithm)":
+
+            render_numerical_methods()  # 调用我们要写的新函数
 
     elif topic_selection == "Chapter III: Integration (The Area)":
-        render_coming_soon("Integration (The Area)")
+        render_topic_integration()
 
 if __name__ == "__main__":
     main()
