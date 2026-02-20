@@ -6252,9 +6252,269 @@ def render_topic_integration():
 
     # --- Tab 1 ~ 3 保持简洁清晰的静态展示 ---
     with tab1:
-        st.header("Basic Integration")
-        st.latex(r"\int x^n \, dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)")
-        st.latex(r"\int \frac{1}{x} \, dx = \ln|x| + C")
+        st.header("📚 Extended Integration Cheat Sheet")
+        st.caption("Practical integral formulas involving linear transformations (ax + b).")
+
+        # ==========================================
+        # 1. Algebraic & Exponential Functions
+        # ==========================================
+        st.subheader("1. Algebraic & Exponential Functions")
+        st.latex(r"\int (ax+b)^n \, dx = \frac{(ax+b)^{n+1}}{a(n+1)} + C \quad (n \neq -1)")
+        st.latex(r"\int \frac{1}{ax+b} \, dx = \frac{1}{a}\ln|ax+b| + C")
+        st.latex(r"\int e^{ax+b} \, dx = \frac{1}{a}e^{ax+b} + C")
+
+        st.divider()
+
+        # ==========================================
+        # 2. Trigonometric Functions (Linear Form)
+        # ==========================================
+        st.subheader("2. Trigonometric Functions")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.latex(r"\int \sin(ax+b) \, dx = -\frac{1}{a}\cos(ax+b) + C")
+            st.latex(r"\int \cos(ax+b) \, dx = \frac{1}{a}\sin(ax+b) + C")
+            st.latex(r"\int \sec^2(ax+b) \, dx = \frac{1}{a}\tan(ax+b) + C")
+        with col2:
+            st.latex(r"\int \csc^2(ax+b) \, dx = -\frac{1}{a}\cot(ax+b) + C")
+            st.latex(r"\int \sec(ax+b)\tan(ax+b) \, dx = \frac{1}{a}\sec(ax+b) + C")
+            st.latex(r"\int \csc(ax+b)\cot(ax+b) \, dx = -\frac{1}{a}\csc(ax+b) + C")
+
+        st.divider()
+
+        # ==========================================
+        # 3. Inverse Trigonometric Forms
+        # ==========================================
+        st.subheader("3. Inverse Trigonometric Forms")
+        st.caption("Here, 'k' is a constant.")
+        st.latex(r"\int \frac{1}{\sqrt{k^2 - (ax+b)^2}} \, dx = \frac{1}{a}\arcsin\left(\frac{ax+b}{k}\right) + C")
+        st.latex(r"\int \frac{1}{k^2 + (ax+b)^2} \, dx = \frac{1}{ak}\arctan\left(\frac{ax+b}{k}\right) + C")
+
+        st.divider()
+
+        # ==========================================
+        # 4. The Golden Rules of Integration (实战版)
+        # ==========================================
+        st.subheader("4. The Golden Rules of Integration")
+
+        # --- 换元法三大常见模式 ---
+        st.markdown("#### A. Substitution Rule (3 Common Patterns)")
+        st.caption("Look for a function $f(x)$ and its derivative $f'(x)$ multiplying together.")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("**1. The Power Pattern**")
+            st.latex(r"\int [f(x)]^n f'(x) \, dx = \frac{[f(x)]^{n+1}}{n+1} + C")
+        with col2:
+            st.markdown("**2. The Logarithmic Pattern**")
+            st.latex(r"\int \frac{f'(x)}{f(x)} \, dx = \ln|f(x)| + C")
+        with col3:
+            st.markdown("**3. The Exponential Pattern**")
+            st.latex(r"\int e^{f(x)} f'(x) \, dx = e^{f(x)} + C")
+
+        st.divider()
+
+        # --- 分部积分与 LIATE 口诀 ---
+        st.markdown("#### B. Integration by Parts & The LIATE Rule")
+        st.latex(r"\int u \, dv = uv - \int v \, du")
+
+        st.info(
+            "**How to choose $u$? Use the LIATE mnemonic!** Choose the function that appears *first* in this list to be your $u$.")
+
+        # 用排版清晰的列表展示口诀
+        st.markdown("""
+            * **L** - **Logarithmic** (e.g., $\ln x$, $\log_2 x$)
+            * **I** - **Inverse Trigonometric** (e.g., $\\arcsin x$, $\\arctan x$)
+            * **A** - **Algebraic** (e.g., $x^2$, $3x+5$)
+            * **T** - **Trigonometric** (e.g., $\sin x$, $\cos x$)
+            * **E** - **Exponential** (e.g., $e^x$, $2^x$)
+            """)
+        st.caption("💡 *Tip: Whatever is left over becomes $dv$ (and don't forget the $dx$!)*")
+
+        st.divider()
+
+        # ==========================================
+        # 终极对照表：换元法 vs 分部积分法 (大量实例)
+        # ==========================================
+        st.subheader("🧠 The Ultimate Diagnostic: Substitution vs. By Parts (LOPET)")
+        st.caption(
+            "Spot the difference: Substitution requires an 'inner function' and its derivative. By Parts handles unrelated function products.")
+
+        col_sub, col_bp = st.columns(2)
+
+        with col_sub:
+            st.markdown("### ✅ Substitution")
+            st.caption("Pattern: Contains $f(g(x))g'(x)$. Look for the derivative!")
+
+            # 指数类
+            st.markdown("**1. The Exponential Matches**")
+            st.latex(r"\int x e^{x^2} \, dx \quad \Rightarrow \text{let } u=x^2")
+            st.latex(r"\int x^2 e^{x^3} \, dx \quad \Rightarrow \text{let } u=x^3")
+            st.latex(r"\int \frac{e^{\sqrt{x}}}{\sqrt{x}} \, dx \quad \Rightarrow \text{let } u=\sqrt{x}")
+
+            # 对数类
+            st.markdown("**2. The Logarithmic Matches**")
+            st.latex(r"\int \frac{\ln x}{x} \, dx \quad \Rightarrow \text{let } u=\ln x")
+            st.latex(r"\int \frac{(\ln x)^2}{x} \, dx \quad \Rightarrow \text{let } u=\ln x")
+            st.latex(r"\int \frac{1}{x \ln x} \, dx \quad \Rightarrow \text{let } u=\ln x")
+
+            # 三角类
+            st.markdown("**3. The Trigonometric Matches**")
+            st.latex(r"\int x \cos(x^2) \, dx \quad \Rightarrow \text{let } u=x^2")
+            st.latex(r"\int \sin^2(x) \cos x \, dx \quad \Rightarrow \text{let } u=\sin x")
+            st.latex(r"\int \tan x \sec^2 x \, dx \quad \Rightarrow \text{let } u=\tan x")
+            st.latex(r"\int \frac{\sin(\ln x)}{x} \, dx \quad \Rightarrow \text{let } u=\ln x")
+
+        with col_bp:
+            st.markdown("### 🎯 By Parts (LOPET)")
+            st.caption("Pattern: Unrelated functions $u \cdot dv$. Follow L-O-P-E-T.")
+
+            # 指数类
+            st.markdown("**1. Polynomial & Exponential (P beats E)**")
+            st.latex(r"\int x e^x \, dx \quad \Rightarrow \text{let } u=x")
+            st.latex(r"\int x^2 e^{3x} \, dx \quad \Rightarrow \text{let } u=x^2 \text{ (Do twice)}")
+            st.latex(r"\int (2x+1) e^x \, dx \quad \Rightarrow \text{let } u=2x+1")
+
+            # 对数类
+            st.markdown("**2. Logarithmic & Polynomial (L beats P)**")
+            st.latex(r"\int x \ln x \, dx \quad \Rightarrow \text{let } u=\ln x")
+            st.latex(r"\int x^3 \ln x \, dx \quad \Rightarrow \text{let } u=\ln x")
+            st.latex(r"\int \ln x \, dx \quad \Rightarrow \text{let } u=\ln x, dv=1\,dx")
+
+            # 三角类
+            st.markdown("**3. Polynomial & Trigonometric (P beats T)**")
+            st.latex(r"\int x \cos x \, dx \quad \Rightarrow \text{let } u=x")
+            st.latex(r"\int x^2 \sin x \, dx \quad \Rightarrow \text{let } u=x^2 \text{ (Do twice)}")
+
+            # 循环大招预告
+            st.markdown("**4. Exponential & Trigonometric (Looping)**")
+            st.latex(r"\int e^x \sin x \, dx \quad \Rightarrow \text{See Detailed Derivation below!}")
+
+        st.divider()
+
+        # ==========================================
+        # The Professor's Vault: Black Magic Integrals
+        # ==========================================
+        st.subheader("🎩Advanced Integration Cases & Special Techniques")
+        st.write(
+            "Detailed step-by-step analysis of complex integrals requiring specialized algebraic and trigonometric methods.")
+
+        # --- 1. The Epic Showdown: e^x sin(x) ---
+        with st.expander("🌀 1. The Epic Showdown: ∫ e^x sin(x) dx (Two Ways)"):
+            st.markdown(
+                "**The Challenge:** This integral never ends. Differentiating or integrating $e^x$ and $\sin x$ just loops them forever. Here are two ways to defeat it.")
+            st.latex(r"\text{Let } I = \int e^x \sin x \, dx")
+
+            col_m1, col_m2 = st.columns(2)
+
+            with col_m1:
+                st.info("**Method 1: The Looping Trick (Algebraic)**")
+                st.markdown("**Step 1: First By Parts** ($u=e^x, dv=\sin x \, dx$)")
+                st.latex(r"I = -e^x \cos x - \int (-\cos x) e^x \, dx")
+                st.latex(r"I = -e^x \cos x + \int e^x \cos x \, dx")
+
+                st.markdown("**Step 2: Second By Parts** ($u=e^x, dv=\cos x \, dx$)")
+                st.latex(r"I = -e^x \cos x + \left[ e^x \sin x - \int e^x \sin x \, dx \right]")
+
+                st.markdown("**Step 3: Solve for I**")
+                st.markdown(
+                    "Notice the original integral $I$ has appeared on the right! Treat it as an algebraic equation and move $-I$ to the left:")
+                st.latex(r"I = e^x(\sin x - \cos x) - I")
+                st.latex(r"2I = e^x(\sin x - \cos x)")
+                st.latex(r"I = \frac{e^x}{2}(\sin x - \cos x) + C")
+
+            with col_m2:
+                st.success("**Method 2: Euler's Shortcut (Complex Numbers) Extra knowledge**")
+                st.markdown("**Step 1: Enter the Complex Plane**")
+                st.markdown(
+                    "Use Euler's Formula: $e^{ix} = \cos x + i\sin x$. We can solve $\int e^x \cos x$ (Real) and $\int e^x \sin x$ (Imaginary) simultaneously!")
+                st.latex(r"\int e^x (\cos x + i\sin x) \, dx = \int e^x \cdot e^{ix} \, dx = \int e^{(1+i)x} \, dx")
+
+                st.markdown("**Step 2: Integrate like a normal exponential**")
+                st.latex(r"= \frac{1}{1+i} e^{(1+i)x} = \frac{1-i}{(1+i)(1-i)} e^x (\cos x + i\sin x)")
+                st.latex(r"= \frac{1-i}{2} e^x (\cos x + i\sin x)")
+
+                st.markdown("**Step 3: Extract the Imaginary Part**")
+                st.markdown("Expand and take only the terms attached to $i$ (since we want $\sin x$):")
+                st.latex(r"\text{Im} = \frac{e^x}{2}(\sin x - \cos x) + C")
+
+        # --- 2. The Hidden Loop: sec^3(x) ---
+        with st.expander("🗡️ 2. The Hidden Loop: ∫ sec³(x) dx"):
+            st.markdown(
+                "**The Trick:** Break it into $\sec x \cdot \sec^2 x$ and use By Parts, followed by a clever trigonometric identity.")
+            st.latex(r"\text{Let } I = \int \sec^3 x \, dx = \int \sec x \cdot \sec^2 x \, dx")
+
+            st.markdown("**Step 1: Integration By Parts**")
+            st.markdown("Let $u=\sec x$ (so $du=\sec x \\tan x \, dx$) and $dv=\sec^2 x \, dx$ (so $v=\\tan x$).")
+            st.latex(r"I = \sec x \tan x - \int \tan x (\sec x \tan x) \, dx")
+            st.latex(r"I = \sec x \tan x - \int \sec x \tan^2 x \, dx")
+
+            st.markdown("**Step 2: The Identity Substitution**")
+            st.markdown("Use the identity $\\tan^2 x = \sec^2 x - 1$ to convert everything back to secants.")
+            st.latex(r"I = \sec x \tan x - \int \sec x (\sec^2 x - 1) \, dx")
+            st.latex(r"I = \sec x \tan x - \int \sec^3 x \, dx + \int \sec x \, dx")
+
+            st.markdown("**Step 3: The Return of 'I'**")
+            st.markdown(
+                "The term $\int \sec^3 x \, dx$ is exactly our starting integral $I$. Move it to the left side:")
+            st.latex(r"2I = \sec x \tan x + \int \sec x \, dx")
+
+            st.markdown("**Step 4: Integrating sec(x) (The Missing Step)**")
+            st.markdown("How do we integrate $\sec x$? We multiply the top and bottom by $(\sec x + \\tan x)$:")
+            st.latex(
+                r"\int \sec x \, dx = \int \frac{\sec x(\sec x + \tan x)}{\sec x + \tan x} \, dx = \int \frac{\sec^2 x + \sec x \tan x}{\sec x + \tan x} \, dx")
+            st.markdown(
+                "Notice the numerator is the exact derivative of the denominator! So it becomes $\ln|\sec x + \\tan x|$. Substitute this back:")
+            st.latex(r"2I = \sec x \tan x + \ln|\sec x + \tan x|")
+
+            st.success(r"**Final Answer:** $I = \frac{1}{2}(\sec x \tan x + \ln|\sec x + \tan x|) + C$")
+
+        # --- 3. Weierstrass Substitution ---
+        with st.expander("🌍 3. The Ultimate Weapon (Weierstrass Substitution): ∫ 1 / (1 + sin x) dx"):
+            st.markdown(
+                "**The 'Why':** Why does $t = \\tan(x/2)$ work? Imagine a right triangle with an angle of $x/2$. If $\\tan(x/2) = t/1$, the opposite side is $t$, the adjacent is $1$, and the hypotenuse is $\sqrt{1+t^2}$.")
+
+            st.info("**The Geometric Proof (Half-Angle Formulas):**")
+            st.markdown(
+                "Using double angle formulas: $\sin x = 2\sin(x/2)\cos(x/2)$ and $\cos x = \cos^2(x/2) - \sin^2(x/2)$. Reading from our triangle, we get the magic substitutions:")
+            st.latex(
+                r"\sin x = 2\left(\frac{t}{\sqrt{1+t^2}}\right)\left(\frac{1}{\sqrt{1+t^2}}\right) = \frac{2t}{1+t^2}")
+            st.latex(
+                r"\cos x = \left(\frac{1}{\sqrt{1+t^2}}\right)^2 - \left(\frac{t}{\sqrt{1+t^2}}\right)^2 = \frac{1-t^2}{1+t^2}")
+            st.latex(r"dx = \frac{2}{1+t^2} dt \quad \text{(derived from } t = \tan(x/2)\text{)}")
+
+            st.markdown("**Step 1: Substitute everything into the integral**")
+            st.markdown("This transforms any impossible trigonometric fraction into a simple algebraic polynomial!")
+            st.latex(
+                r"\int \frac{1}{1 + \sin x} \, dx = \int \frac{1}{1 + \left(\frac{2t}{1+t^2}\right)} \left( \frac{2}{1+t^2} \right) dt")
+
+            st.markdown("**Step 2: Algebraic Simplification**")
+            st.markdown("Multiply the top and bottom by $(1+t^2)$ to clear the complex fractions:")
+            st.latex(r"= \int \frac{2}{(1+t^2) + 2t} \, dt = \int \frac{2}{t^2 + 2t + 1} \, dt")
+
+            st.markdown("**Step 3: Easy Polynomial Integration**")
+            st.markdown("Factor the denominator to $(t+1)^2$. Now it's just a basic power rule problem:")
+            st.latex(r"= \int 2(t+1)^{-2} \, dt = -\frac{2}{t+1} + C")
+
+            st.success(r"**Final Answer:** Substitute $t$ back: $-\frac{2}{\tan(x/2) + 1} + C$")
+
+        # --- 4. The Magic Zero ---
+        with st.expander("✨ 4. The Magic Zero: ∫ 1 / (1 + e^x) dx"):
+            st.markdown(
+                "**The Trick:** Don't rush into substitution. Create a perfect fraction by adding and subtracting $e^x$ in the numerator (essentially adding zero).")
+
+            st.markdown("**Step 1: Construct the perfect numerator**")
+            st.latex(r"\int \frac{1}{1 + e^x} \, dx = \int \frac{(1 + e^x) - e^x}{1 + e^x} \, dx")
+
+            st.markdown("**Step 2: Split the fraction**")
+            st.latex(r"= \int \left( \frac{1 + e^x}{1 + e^x} - \frac{e^x}{1 + e^x} \right) dx")
+            st.latex(r"= \int 1 \, dx - \int \frac{e^x}{1 + e^x} \, dx")
+
+            st.markdown("**Step 3: Integrate individually**")
+            st.markdown("The first term $\int 1 \, dx$ simply becomes $x$.")
+            st.markdown(
+                "For the second term, notice the numerator $e^x$ is the exact derivative of the denominator $(1+e^x)$. This follows the $\int \frac{f'(x)}{f(x)} dx = \ln|f(x)|$ rule.")
+
+            st.success(r"**Final Answer:** $x - \ln(1 + e^x) + C$")
 
     with tab2:
         st.header("Trigonometric Integration")
