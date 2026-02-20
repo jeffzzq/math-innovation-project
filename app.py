@@ -6470,7 +6470,7 @@ def render_topic_integration():
 
                     # 梯形的高度是两曲线之差
                     y_trap_diff = y_trap_f - y_trap_g
-                    trap_res = np.trapz(y_trap_diff, x_trap)
+                    trap_res = np.trapezoid(y_trap_diff, x_trap)
 
                     st.success(f"**Trapezoidal Estimate:** {trap_res:.4f}")
                     st.write(f"Compare this with the exact integral: {exact_area:.4f}")
