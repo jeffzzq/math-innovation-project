@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import scipy.integrate as integrate
 import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
+import re  # <--- 新增这个 Python 内置的正则表达式库
 
 
 
@@ -2194,17 +2196,7 @@ Key Insight: Newton used Calculus to discover the truth, but used Geometry to bu
                 """)
                 st.info("💬 'Let us calculate!' — His famous response to any intellectual dispute.")
             # --- 🤖 哲学区：二进制 ---
-            with st.expander("🤖 The Code of God: Binary"):
-                st.write("""
-                Leibniz was obsessed with a 'Universal Language'.
 
-                He invented the **Binary System (0 and 1)** used by computers today.
-                * **1 (God)** represents existence.
-                * **0 (Void)** represents nothingness.
-                """)
-                st.image(
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Leibniz_binary_system_1703.png/440px-Leibniz_binary_system_1703.png",
-                    caption="Leibniz's Binary Manuscript (1703)")
 
         st.divider()
 
@@ -6510,7 +6502,7 @@ def render_topic_integration():
             st.markdown("**Step 3: Integrate individually**")
             st.markdown("The first term $\int 1 \, dx$ simply becomes $x$.")
             st.markdown(
-                "For the second term, notice the numerator $e^x$ is the exact derivative of the denominator $(1+e^x)$. This follows the $\int \frac{f'(x)}{f(x)} dx = \ln|f(x)|$ rule.")
+                "For the second term, notice the numerator $e^x$ is the exact derivative of the denominator $(1+e^x)$. This follows the $\int \\frac{f'(x)}{f(x)} dx = \ln|f(x)|$ rule.")
 
             st.success(r"**Final Answer:** $x - \ln(1 + e^x) + C$")
 
@@ -6759,6 +6751,817 @@ def render_topic_integration():
                     ax_t.legend()
                     st.pyplot(fig_trap)
 
+#ODE
+
+
+def render_chapter_ode():
+    st.title("🌊 Chapter IV: First Order Differential Equations")
+    st.markdown("---")
+
+    # 五个硬核 Tab
+    tab_def, tab_methods, tab_problems, tab_solver, tab_apps = st.tabs([
+        "🧠 1. The True Definition",
+        "🛠️ 2. Core Methods",
+        "🔥 3. Hardcore Problem Set",
+        "🤖 4. Dual Auto-Solver",
+        "🌍 5. Applications"
+    ])
+
+    # ==========================================
+    # Tab 1: 什么是真正的 ODE？(重写清晰定义)
+    # ==========================================
+    with tab_def:
+        st.header("What is an ODE, Really?")
+        st.write(
+            "Let's discard the confusing textbook jargon. To understand an Ordinary Differential Equation, you must understand the difference between finding a **Destination** and finding a **Map**.")
+
+        st.markdown("### 1. The Algebraic Way (Finding a Destination)")
+        st.write(
+            "In algebra, you are given an equation like $x^2 - 5x + 6 = 0$. You solve it to find a static, dead number ($x = 2$ or $x = 3$). The puzzle is over.")
+
+        st.markdown("### 2. The Differential Way (Finding the Map)")
+        st.write(
+            "An ODE does not give you a number. It gives you a **Rule of Change**. An ODE is an equation that links an unknown function $y(x)$ to its own derivative $\\frac{dy}{dx}$.")
+
+        st.info(
+            "**Think of it this way:** The universe doesn't tell you the exact temperature of your coffee at 5:00 PM. It only tells you the *rule*: 'The coffee cools down faster when the room is colder.' An ODE translates that rule into math. Your job is to solve the ODE to find the actual formula $T(t)$ that predicts the temperature at *any* time.")
+
+        st.write(
+            "In short: **An ODE is a blueprint of a system's behavior. Solving it means finding the original function that generated that blueprint.**")
+
+    # ==========================================
+    # Tab 2: 两种核心解法 (Separable & Linear)
+    # ==========================================
+    with tab_methods:
+        st.header("The Two Pillars of First-Order ODEs")
+        st.write("To solve a first-order ODE, you must diagnose it first. Is it Separable, or is it Linear?")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("1. Separable Variables")
+            st.write("**Form:** $\\frac{dy}{dx} = f(x)g(y)$")
+            st.write(
+                "**The Logic:** If the equation can be factored into purely $x$ terms and purely $y$ terms multiplied together, you can literally separate them to opposite sides of the equals sign.")
+            st.latex(r"\frac{1}{g(y)} dy = f(x) dx")
+            st.write("**The Finish:** Integrate both sides. Easy and intuitive.")
+
+        with col2:
+            st.subheader("2. First-Order Linear (Integrating Factor)")
+            st.write("**Form:** $\\frac{dy}{dx} + P(x)y = Q(x)$")
+            st.write(
+                "**The Logic:** You cannot separate this. Instead, we use a genius trick called the **Integrating Factor**, denoted as $I(x)$ or $\\mu(x)$.")
+            st.latex(r"I(x) = e^{\int P(x) dx}")
+            st.write(
+                "If you multiply the entire equation by this $I(x)$, the left side magically collapses into the perfect derivative of a product: $\\frac{d}{dx}(I(x) \cdot y)$.")
+            st.write("**The Finish:** Integrate both sides. The left side simply becomes $I(x) \cdot y$.")
+
+        # ==========================================
+        # Tab 3: 高阶初值问题 (The Advanced IVP)
+        # ==========================================
+        with tab_problems:
+            st.header("The Advanced Initial Value Problems")
+            st.write(
+                "Here, we test your absolute mastery of calculus tricks and algebraic manipulation. Find the general solution, substitute the Initial Condition, and hunt down the exact value of $C$.")
+
+            with st.expander("Problem 1: The Boss-Level Linear ODE"):
+                st.markdown("**Solve the IVP:** $x\\frac{dy}{dx} + (1+x)y = e^{-x} \sin(2x)$, given $y(\pi) = 0$")
+                st.write("This looks terrifying, but it contains a beautiful mathematical cancellation.")
+
+                st.write("**Step 1: Convert to Standard Form**")
+                st.write("Divide everything by $x$ to isolate $\\frac{dy}{dx}$:")
+                st.latex(r"\frac{dy}{dx} + \left(\frac{1}{x} + 1\right)y = \frac{e^{-x} \sin(2x)}{x}")
+
+                st.write("**Step 2: The Tricky Integrating Factor $I(x)$**")
+                st.write("Here, $P(x) = \\frac{1}{x} + 1$. Watch the exponent rules closely:")
+                st.latex(r"I(x) = e^{\int \left(\frac{1}{x} + 1\right) dx} = e^{\ln(x) + x}")
+                st.write("Using algebra ($e^{a+b} = e^a e^b$), this becomes:")
+                st.latex(r"I(x) = e^{\ln(x)} \cdot e^x = x e^x")
+
+                st.write("**Step 3: Multiply and Witness the Magic**")
+                st.write("Multiply $I(x)$ to both sides. Notice how the messy right side perfectly collapses!")
+                st.latex(r"\frac{d}{dx}(x e^x \cdot y) = (x e^x) \cdot \frac{e^{-x} \sin(2x)}{x}")
+                st.latex(r"\frac{d}{dx}(x e^x \cdot y) = \sin(2x)")
+
+                st.write("**Step 4: Integrate Both Sides**")
+                st.latex(r"x e^x y = \int \sin(2x) dx")
+                st.latex(r"x e^x y = -\frac{1}{2}\cos(2x) + C")
+
+                st.write("**Step 5: Hunt for $C$**")
+                st.write("Substitute $x = \pi$ and $y = 0$. Remember that $\cos(2\pi) = 1$:")
+                st.latex(r"\pi e^\pi (0) = -\frac{1}{2}(1) + C \implies C = \frac{1}{2}")
+
+                st.write("**Step 6: The Particular Solution**")
+                st.latex(r"x e^x y = -\frac{1}{2}\cos(2x) + \frac{1}{2}")
+                st.success("**Final Equation:** $y = \\frac{1 - \cos(2x)}{2x e^x}$")
+
+            with st.expander("Problem 2: The 'Impossible' Equation"):
+                st.markdown("**Solve the IVP:** $\\frac{dy}{dx} = \\frac{x^2 + y^2}{xy}$, given $y(1) = 1$")
+                st.write(
+                    "At first glance, this is a nightmare. It is **not separable**, and it is **not linear**. Standard methods completely fail here. But math has a cheat code: The Homogeneous Substitution.")
+
+                st.write("**Step 1: The 'Cheat Code' Substitution**")
+                st.write(
+                    "Let $y = vx$. By the Product Rule, the derivative becomes $\\frac{dy}{dx} = v + x\\frac{dv}{dx}$. Let's plug this into our 'impossible' equation:")
+                st.latex(r"v + x\frac{dv}{dx} = \frac{x^2 + (vx)^2}{x(vx)}")
+
+                st.write("**Step 2: Watch it Crumble**")
+                st.write("Factor out $x^2$ on the right side and watch what happens:")
+                st.latex(r"v + x\frac{dv}{dx} = \frac{x^2(1 + v^2)}{x^2(v)} = \frac{1 + v^2}{v}")
+                st.latex(r"v + x\frac{dv}{dx} = \frac{1}{v} + v")
+                st.write("The $v$ on both sides beautifully cancels out!")
+                st.latex(r"x\frac{dv}{dx} = \frac{1}{v}")
+
+                st.write("**Step 3: Separate and Integrate**")
+                st.write("Suddenly, it's just a basic separable equation for $v$ and $x$:")
+                st.latex(r"v dv = \frac{1}{x} dx")
+                st.latex(r"\int v dv = \int \frac{1}{x} dx")
+                st.latex(r"\frac{v^2}{2} = \ln|x| + C")
+
+                st.write("**Step 4: Return to $y$ and Hunt for $C$**")
+                st.write("Since $y = vx$, we know $v = \\frac{y}{x}$:")
+                st.latex(r"\frac{y^2}{2x^2} = \ln|x| + C")
+                st.write("Substitute the Initial Condition: $x = 1, y = 1$. (Recall $\ln(1) = 0$):")
+                st.latex(r"\frac{1^2}{2(1)^2} = 0 + C \implies C = \frac{1}{2}")
+
+                st.write("**Step 5: The Particular Solution**")
+                st.latex(r"\frac{y^2}{2x^2} = \ln|x| + \frac{1}{2}")
+                st.write("Multiply by $2x^2$ and square root to isolate $y$:")
+                st.success("**Final Equation:** $y = x\sqrt{2\ln|x| + 1}$")
+                st.info(
+                    "💡 **Professor's Note:** When a problem is unsolvable in its current dimension (the $x-y$ plane), we mathematically teleport it to a new dimension ($x-v$ plane), solve it effortlessly, and teleport the answer back. This is true mathematical elegance.")
+            # ==========================================================
+
+            with st.expander("Problem 3: The Rocket Escape"):
+                st.write(
+                    "No physics formulas required here, just pure calculus logic. Acceleration is normally the derivative of velocity with respect to time $\\left(\\frac{dv}{dt}\\right)$. But using the **Chain Rule**, we can rewrite it as:")
+                st.latex(r"\frac{dv}{dt} = \frac{dv}{dx} \cdot \frac{dx}{dt} = v \frac{dv}{dx}")
+
+                st.markdown(
+                    "**The Challenge:** A rocket is fired into space. Its acceleration decreases as it gets further from Earth. You are given the ODE: $v \\frac{dv}{dx} = -\\frac{k}{x^2}$. Find the velocity $v(x)$ given that it launched from Earth's surface ($x = R$) with initial velocity $v(R) = V_0$.")
+
+                st.write("**Step 1: Separate Variables**")
+                st.write(
+                    "Notice we are solving for $v$ in terms of distance $x$, not time! Multiply $dx$ to the right:")
+                st.latex(r"v dv = -k x^{-2} dx")
+
+                st.write("**Step 2: Integrate**")
+                st.latex(r"\int v dv = \int -k x^{-2} dx")
+                st.latex(r"\frac{v^2}{2} = \frac{k}{x} + C")
+
+                st.write("**Step 3: Find $C$**")
+                st.write("Substitute initial conditions: $x = R, v = V_0$:")
+                st.latex(r"\frac{V_0^2}{2} = \frac{k}{R} + C \implies C = \frac{V_0^2}{2} - \frac{k}{R}")
+
+                st.write("**Step 4: The Particular Solution**")
+                st.latex(r"\frac{v^2}{2} = \frac{k}{x} + \left( \frac{V_0^2}{2} - \frac{k}{R} \right)")
+                st.success("**Final Equation:** $v(x) = \sqrt{\\frac{2k}{x} + V_0^2 - \\frac{2k}{R}}$")
+                st.info(
+                    "💡 **Mind-Blowing Fact:** Look at the term $\left(V_0^2 - \\frac{2k}{R}\\right)$. If this term is exactly $0$, the rocket will never fall back down. Setting it to $0$ gives $V_0 = \sqrt{\\frac{2k}{R}}$, which is exactly the mathematical proof for the **Escape Velocity** of a planet!")
+
+        # ==========================================
+        # Tab 4: 终极智能双引擎解题器 (支持带系数输入)
+        # ==========================================
+        with tab_solver:
+            st.header("Dual-Engine ODE Solver")
+            st.write("Enter your equation exactly as it appears in your textbook. We will handle the rest.")
+
+            # 智能解析函数 (不变，保持强大的防呆能力)
+            # 💡 V3.0 终极智能解析引擎
+            def smart_parse(expr_str):
+                import re
+                from sympy.parsing.sympy_parser import parse_expr, standard_transformations, \
+                    implicit_multiplication_application, convert_xor
+
+                # 0. 自动断句加乘号：把 xsin 变 x*sin, xe 变 x*e
+                expr_str = re.sub(r'([a-zA-Z0-9_])(sin|cos|tan|sec|csc|cot|ln|log|e)', r'\1*\2', expr_str)
+
+                # 1. 自动加括号：把 sinx 变 sin(x), cos2x 变 cos(2x)
+                expr_str = re.sub(r'(sin|cos|tan|sec|csc|cot|ln|log)\s*([a-zA-Z0-9_]+)', r'\1(\2)', expr_str)
+
+                # 2. 自动处理 e 的次方：把 e^-x 变 exp(-x), e^(2x) 变 exp(2x)
+                expr_str = re.sub(r'e\^([-\w]+)', r'exp(\1)', expr_str)
+                expr_str = re.sub(r'e\^\(([^)]+)\)', r'exp(\1)', expr_str)
+
+                # 3. 自动加乘号 (数字和字母间)：把 3x 变 3*x
+                expr_str = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', expr_str)
+
+                # 4. 交给 SymPy 处理
+                transformations = standard_transformations + (implicit_multiplication_application, convert_xor)
+                return parse_expr(expr_str, transformations=transformations, local_dict={'e': sp.E})
+
+            st.info("**💡 Smart Input:** Type naturally! Examples: `2x` (auto-multiplies), `e^-x` (auto-exponent).")
+
+            solver_type = st.radio("Select ODE Type:", ["Separable Variables", "First-Order Linear"])
+
+            if solver_type == "Separable Variables":
+                st.markdown("**Form:** $\\frac{dy}{dx} = f(x) \cdot g(y)$")
+                col1, col2 = st.columns(2)
+                fx_input = col1.text_input("Enter $f(x)$:", "x * sin(x)")
+                gy_input = col2.text_input("Enter $g(y)$:", "y")
+
+                if st.button("Solve Separable"):
+                    try:
+                        x, y = sp.symbols('x y')
+                        f_expr = smart_parse(fx_input)
+                        g_expr = smart_parse(gy_input)
+
+                        int_left = sp.integrate(1 / g_expr, y)
+                        int_right = sp.integrate(f_expr, x)
+
+                        st.success("Steps Generated Successfully! 🌳")
+                        st.markdown("**1. The Separated Equation:**")
+                        st.latex(f"\\int {sp.latex(1 / g_expr)} \\, dy = \\int {sp.latex(f_expr)} \\, dx")
+                        st.markdown("**2. The Integrated Result:**")
+                        st.latex(f"{sp.latex(int_left)} = {sp.latex(int_right)} + C")
+                    except Exception as e:
+                        st.error("Oops! Couldn't parse that. Please check your syntax.")
+
+            elif solver_type == "First-Order Linear":
+                # 【核心升级】：改成 A(x), B(x), C(x) 的输入模式
+                st.markdown("**Form:** $A(x)\\frac{dy}{dx} + B(x)y = C(x)$")
+
+                col1, col2, col3 = st.columns(3)
+                ax_input = col1.text_input("coeff of dy/dx ($A$):", "x")
+                bx_input = col2.text_input("coeff of y ($B$):", "-2")
+                cx_input = col3.text_input("Right side ($C$):", "x^3 * cos(x)")
+
+                if st.button("Solve Linear Steps"):
+                    try:
+                        x = sp.symbols('x')
+                        A_expr = smart_parse(ax_input)
+                        B_expr = smart_parse(bx_input)
+                        C_expr = smart_parse(cx_input)
+
+                        # 自动化简出 P(x) 和 Q(x)
+                        P_expr = sp.simplify(B_expr / A_expr)
+                        Q_expr = sp.simplify(C_expr / A_expr)
+
+                        # 计算积分因子
+                        IF_integral = sp.integrate(P_expr, x)
+                        IF = sp.simplify(sp.exp(IF_integral))
+
+                        # 计算右侧积分
+                        RHS = sp.simplify(sp.integrate(IF * Q_expr, x))
+
+                        st.success("Steps Generated Successfully! 🌳")
+
+                        # 步骤 1：展示如何化简为标准式
+                        st.markdown("**Step 1: Convert to Standard Form**")
+                        if A_expr != 1:
+                            st.write(
+                                f"Divide the entire equation by ${sp.latex(A_expr)}$ to isolate $\\frac{{dy}}{{dx}}$:")
+                        st.latex(f"\\frac{{dy}}{{dx}} + \\left({sp.latex(P_expr)}\\right)y = {sp.latex(Q_expr)}")
+
+                        # 步骤 2：计算积分因子
+                        st.markdown("**Step 2: Find the Integrating Factor $I(x)$**")
+                        st.latex(f"I(x) = e^{{ \\int \\left({sp.latex(P_expr)}\\right) dx }} = {sp.latex(IF)}")
+
+                        # 步骤 3：左右同乘并积分
+                        st.markdown("**Step 3: Multiply and Integrate**")
+                        st.write("Notice how the left side perfectly collapses into the derivative of a product:")
+                        st.latex(
+                            f"\\int \\frac{{d}}{{dx}} \\left( {sp.latex(IF)} \\cdot y \\right) dx = \\int \\left({sp.latex(IF)}\\right) \\cdot \\left({sp.latex(Q_expr)}\\right) dx")
+                        st.latex(f"{sp.latex(IF)} \\cdot y = {sp.latex(RHS)} + C")
+
+                        # 步骤 4：得出最终解
+                        st.markdown("**Step 4: Isolate $y(x)$**")
+                        st.latex(f"y = \\frac{{{sp.latex(RHS)} + C}}{{{sp.latex(IF)}}}")
+
+                    except Exception as e:
+                        st.error(
+                            f"Oops! Math syntax error. Did you type something like `sin x` instead of `sin(x)`? \n\n (Log: {e})")
+
+        # ==========================================
+        # Tab 5: 真实世界应用 (The Foundation of Modeling)
+        # ==========================================
+        with tab_apps:
+            st.header("The Foundation of Mathematical Modeling")
+
+            st.info(
+                "**Why do we need ODEs?**\n\nNature does not give us explicit formulas like $y = f(x)$. Instead, Nature operates on **Rates of Change**. \n\nWe observe that things cool down, populations grow, and currents build up according to specific rules. An ODE translates these physical rules into a mathematical blueprint. Solving the ODE is how we decode that blueprint to predict the future.")
+
+            st.markdown("Here is how First-Order ODEs model four fundamental pillars of the physical world:")
+
+            with st.container(border=True):
+                st.subheader("1. Population Growth (Biology)")
+                st.write(
+                    "**The Observation:** The more people there are, the faster the population grows. The rate of growth is strictly proportional to the current population.")
+                st.write("**The Mathematical Model (ODE):**")
+                st.latex(r"\frac{dP}{dt} = kP")
+                st.write("**The Predicted Future (Solution):** Exponential Growth Explosion.")
+                st.latex(r"P(t) = P_0 e^{kt}")
+
+            with st.container(border=True):
+                st.subheader("2. Radioactive Decay (Nuclear Physics)")
+                st.write(
+                    "**The Observation:** Unstable atoms decay randomly. The rate at which atoms disappear is proportional to how many unstable atoms are left. (Notice the negative sign for decay).")
+                st.write("**The Mathematical Model (ODE):**")
+                st.latex(r"\frac{dN}{dt} = -\lambda N")
+                st.write("**The Predicted Future (Solution):** Exponential Decay and Half-life.")
+                st.latex(r"N(t) = N_0 e^{-\lambda t}")
+
+            with st.container(border=True):
+                st.subheader("3. Newton's Law of Cooling (Thermodynamics)")
+                st.write(
+                    "**The Observation:** A hot cup of coffee cools down much faster in a freezer than in a warm room. The rate of heat loss is proportional to the **temperature difference** between the object and its surroundings ($T_s$).")
+                st.write("**The Mathematical Model (ODE):**")
+                st.latex(r"\frac{dT}{dt} = -k(T - T_s)")
+                st.write(
+                    "**The Predicted Future (Solution):** The temperature decays smoothly until it perfectly matches the room temperature.")
+                st.latex(r"T(t) = T_s + (T_0 - T_s)e^{-kt}")
+
+            with st.container(border=True):
+                st.subheader("4. Electric Circuits (Electromagnetism)")
+                st.write(
+                    "**The Observation:** In an RL Circuit, an inductor ($L$) fights against sudden changes in current. Therefore, the battery's voltage ($V$) must overcome both the resistor ($IR$) and the **rate of change of the current** ($L \\frac{di}{dt}$).")
+                st.write("**The Mathematical Model (ODE):**")
+                st.latex(r"L \frac{di}{dt} + R i = V")
+                st.write("*(This is a classic First-Order Linear ODE!)*")
+                st.write(
+                    "**The Predicted Future (Solution):** The current does not jump to maximum instantly; it builds up logarithmically to a steady state.")
+                st.latex(r"i(t) = \frac{V}{R}\left(1 - e^{-\frac{R}{L}t}\right)")
+
+#线代//////////
+
+
+def render_la_vectors():
+    st.title("Chapter I: The Foundations of Vectors")
+    st.markdown(
+        "Vectors are not merely arrows on a graph; they are the architectural framework of mathematical space. Let us explore their fundamental properties.")
+
+    # Using Tabs for a cleaner, academic UI
+    tab_mag, tab_dot, tab_cross, tab_app = st.tabs([
+        "1. Magnitude & Direction",
+        "2. The Dot Product",
+        "3. The Cross Product",
+        "4. Applications"
+    ])
+
+    # --- TAB 1: Magnitude & Direction Cosines ---
+    with tab_mag:
+        st.header("Magnitude & Direction Cosines")
+        st.markdown(
+            "Every vector in 3D space has an intrinsic length and a specific orientation relative to the coordinate axes.")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            x = st.number_input("x-component", value=3.0, step=1.0)
+        with col2:
+            y = st.number_input("y-component", value=4.0, step=1.0)
+        with col3:
+            z = st.number_input("z-component", value=5.0, step=1.0)
+
+        v = np.array([x, y, z])
+        mag = np.linalg.norm(v)
+
+        st.latex(r"|\vec{v}| = \sqrt{x^2 + y^2 + z^2}")
+
+        if mag == 0:
+            st.error("Magnitude is 0. A zero vector has no direction!")
+        else:
+            st.info(f"Calculated Magnitude: **{mag:.4f}**")
+
+            st.markdown("### 1. The Direction Angles (α, β, γ)")
+
+            # Calculate the angles in degrees
+            alpha = np.degrees(np.arccos(x / mag))
+            beta = np.degrees(np.arccos(y / mag))
+            gamma = np.degrees(np.arccos(z / mag))
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Angle with X-axis (α)", f"{alpha:.1f}°")
+            c2.metric("Angle with Y-axis (β)", f"{beta:.1f}°")
+            c3.metric("Angle with Z-axis (γ)", f"{gamma:.1f}°")
+
+            # --- 修复符号显示的 3D 可视化部分 ---
+            st.markdown(
+                "Here is a 3D visualization showing exactly where **α, β, and γ** are located relative to the vector.")
+
+            fig = go.Figure()
+            axis_len = max(mag, 2) * 1.2
+            offset = mag * 0.4
+
+            # 1. 画出向量 Vector v (红色粗线)
+            fig.add_trace(go.Scatter3d(
+                x=[0, x], y=[0, y], z=[0, z],
+                mode='lines+markers', name='Vector v',
+                line=dict(color='red', width=7),
+                marker=dict(size=4)
+            ))
+
+            # 2. 画出坐标轴 Axes (灰色细线)
+            fig.add_trace(
+                go.Scatter3d(x=[0, axis_len], y=[0, 0], z=[0, 0], mode='lines', line=dict(color='grey', width=2),
+                             showlegend=False))
+            fig.add_trace(
+                go.Scatter3d(x=[0, 0], y=[0, axis_len], z=[0, 0], mode='lines', line=dict(color='grey', width=2),
+                             showlegend=False))
+            fig.add_trace(
+                go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, axis_len], mode='lines', line=dict(color='grey', width=2),
+                             showlegend=False))
+
+            # 3. 坐标轴标签 (X, Y, Z) - 直接用纯文本
+            fig.add_trace(go.Scatter3d(
+                x=[axis_len, 0, 0], y=[0, axis_len, 0], z=[0, 0, axis_len],
+                mode='text', text=['X', 'Y', 'Z'], textposition='middle right',
+                textfont=dict(color='black', size=16), showlegend=False
+            ))
+
+            # 4. 角度标签 (α, β, γ) - 【修复重点】直接用纯文本的希腊字母，不要用 LaTeX 代码
+            fig.add_trace(go.Scatter3d(
+                x=[offset, 0, 0], y=[0, offset, 0], z=[0, 0, offset],
+                mode='markers+text',
+                marker=dict(size=5, color='purple'),
+                text=['  α', '  β', '  γ'],  # 直接打出 α β γ
+                textposition='middle right',
+                textfont=dict(color='purple', size=18),
+                showlegend=False
+            ))
+
+            # 5. 投影虚线
+            fig.add_trace(go.Scatter3d(
+                x=[x, x], y=[y, 0], z=[z, 0],
+                mode='lines', line=dict(color='orange', width=2.5, dash='dash'),
+                name='Projection to X'
+            ))
+            fig.add_trace(go.Scatter3d(
+                x=[x, 0], y=[y, y], z=[z, 0],
+                mode='lines', line=dict(color='green', width=2.5, dash='dash'),
+                name='Projection to Y'
+            ))
+            fig.add_trace(go.Scatter3d(
+                x=[x, 0], y=[y, 0], z=[z, z],
+                mode='lines', line=dict(color='blue', width=2.5, dash='dash'),
+                name='Projection to Z'
+            ))
+
+            fig.update_layout(
+                scene=dict(aspectmode='cube'),
+                margin=dict(l=0, r=0, b=0, t=0),
+                scene_dragmode='orbit',
+                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.caption(
+                "✨ **Tip:** Look at the dashed lines! They form perfect right-angled triangles with the vector. This is why $\cos\\alpha = x / |\\vec{v}|$ (Adjacent / Hypotenuse).")
+            # --- 结束 3D 可视化部分 ---
+
+            st.markdown("### 2. The Direction Cosines")
+            st.markdown(
+                "If we drop a perpendicular line from the tip of the vector to the X-axis, we form a right-angled triangle. Using basic trigonometry (SOH-CAH-TOA), the cosine of the angle is the adjacent side (the coordinate) divided by the hypotenuse (the magnitude).")
+
+            st.latex(
+                r"\cos\alpha = \frac{x}{|\vec{v}|}, \quad \cos\beta = \frac{y}{|\vec{v}|}, \quad \cos\gamma = \frac{z}{|\vec{v}|}")
+
+            # --- 替换原来的第 3 和第 4 节 ---
+
+            st.markdown(r"""
+                        ### 3. The Unit Vector: The Bridge Between Algebra and Geometry
+
+                        Why is the Unit Vector written as a matrix of cosines? Let's break it down step-by-step.
+
+                        **Step A: The Algebraic Definition**
+                        To create a Unit Vector ($\hat{v}$) — a vector with a length of exactly $1$ — we must take the original vector $\vec{v}$ and divide it by its own total length ($|\vec{v}|$).
+
+                        If $\vec{v} = \begin{bmatrix} x \\ y \\ z \end{bmatrix}$, then shrinking the whole vector means dividing *each individual piece*:
+                        """)
+
+            # 展示代数除法
+            st.latex(
+                r"\hat{v} = \frac{1}{|\vec{v}|} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} \frac{x}{|\vec{v}|} \\ \frac{y}{|\vec{v}|} \\ \frac{z}{|\vec{v}|} \end{bmatrix}")
+
+            st.markdown(r"""
+                        **Step B: The Geometric Substitution**
+                        Now, look at those three fractions inside the matrix: $\frac{x}{|\vec{v}|}$, $\frac{y}{|\vec{v}|}$, and $\frac{z}{|\vec{v}|}$. 
+
+                        Do they look familiar? From our right-angled triangles in the 3D plot above, we already proved that $\cos\alpha = \frac{x}{|\vec{v}|}$ (Adjacent / Hypotenuse).
+
+                        When we substitute the cosines into the fractions, the matrix transforms into pure geometry:
+                        """)
+
+            # 展示代入替换
+            st.latex(r"\hat{v} = \begin{bmatrix} \cos\alpha \\ \cos\beta \\ \cos\gamma \end{bmatrix}")
+
+            st.info(
+                r"💡 The Direction Cosines are not just random angles. They are literally the new $x, y, z$ coordinates of the vector after you shrink its length to exactly 1.")
+
+            st.markdown(r"""
+                        ---
+                        ### 4. The Famous Identity: Why does it equal 1?
+
+                        You will constantly see this rule in exams: $\cos^2\alpha + \cos^2\beta + \cos^2\gamma = 1$. 
+
+                        Why does adding their squares magically equal 1? It is not magic; it is just the **3D Pythagorean Theorem** applied to the Unit Vector. Let's prove it:
+
+                        **1. The Coordinates:** We just proved that the coordinates of the Unit Vector $\hat{v}$ are $(\cos\alpha, \cos\beta, \cos\gamma)$.
+
+                        **2. The Definition:** By definition, the total length (magnitude) of *any* Unit Vector is exactly **$1$**.
+
+                        **3. The Calculation:** How do we calculate the length of a vector? We square its components, add them together, and take the square root. Let's do that for $\hat{v}$:
+                        """)
+
+            # 展示长度计算
+            st.latex(r"|\hat{v}| = \sqrt{(\cos\alpha)^2 + (\cos\beta)^2 + (\cos\gamma)^2} = 1")
+
+            st.markdown(r"""
+                        To remove the square root, we simply square both sides of the equation ($1^2$ is still $1$). And there we have it—the famous identity:
+                        """)
+
+            # 最终公式
+            st.latex(r"\cos^2\alpha + \cos^2\beta + \cos^2\gamma = 1")
+        # --- TAB 2: The Dot Product ---
+            # --- TAB 2: The Dot Product ---
+            with tab_dot:
+                st.header("The Dot Product: From Work to Axioms")
+
+                # ==========================================
+                # 1. 物理直觉与投影
+                # ==========================================
+                st.markdown("### 1. The Physical Intuition: Work and Projection")
+                st.markdown(r"""
+                Let's start with a physical concept: **Work**. If a Force ($\vec{F}$) drags an object along a displacement ($\vec{s}$), the work done is the magnitude of the force multiplied by the displacement, but *only the portion of the force in the direction of the movement*.
+                """)
+                st.latex(r"W = |\vec{F}| \cdot |\vec{s}| \cdot \cos\theta")
+
+                # [Visual 1]
+                fig1 = go.Figure()
+                fig1.add_trace(
+                    go.Scatter(x=[0, 6], y=[0, 0], mode='lines+markers+text', name='Displacement (s)', text=['', 's'],
+                               textposition='bottom right', line=dict(color='blue', width=5)))
+                fig1.add_trace(
+                    go.Scatter(x=[0, 3], y=[0, 4], mode='lines+markers+text', name='Force (F)', text=['', 'F'],
+                               textposition='top left', line=dict(color='red', width=5)))
+                fig1.add_trace(
+                    go.Scatter(x=[3, 3], y=[4, 0], mode='lines', line=dict(color='orange', width=2, dash='dash')))
+                fig1.add_trace(
+                    go.Scatter(x=[0, 3], y=[0, 0], mode='lines', name='Shadow', line=dict(color='orange', width=8)))
+                fig1.update_layout(title="Visual 1: The Shadow of Force", xaxis=dict(range=[-1, 7], zeroline=False),
+                                   yaxis=dict(range=[-1, 5], zeroline=False), height=350,
+                                   margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig1, use_container_width=True)
+
+                st.warning(
+                    "But why is it defined this way? What are the fundamental properties of this operation? Let's look at the two axioms.")
+
+                # ==========================================
+                # 2. 点积的两大公理 (Axiom 1 & 2 附带完美可视化)
+                # ==========================================
+                st.markdown("### 2. The Two Axioms of the Dot Product")
+
+                st.markdown("#### Axiom 1: Linearity and The Distributive Property (分配律)")
+                st.markdown(r"""
+                **Case A:** Imagine two forces, $F_1$ and $F_2$, dragging an object over distance $s_1$. The work done by the combined force is exactly equal to the work done by $F_1$ plus the work done by $F_2$.
+                $$(F_1 + F_2) \cdot s_1 = (F_1 \cdot s_1) + (F_2 \cdot s_1)$$
+
+                **Case B:** If one force $F$ drags an object for distance $s_1$, and then continues for $s_2$:
+                $$F \cdot (s_1 + s_2) = (F \cdot s_1) + (F \cdot s_2)$$
+
+                **The Insight:** This proves the **Distributive Property**. Because of this linearity, we can infinitely break down any vector into smaller vectors (just like breaking a polygon into infinite small steps) and the dot product distributes perfectly.
+                """)
+
+                # [Visual 2: Linearity - F2 指向右上]
+                fig2 = go.Figure()
+                fig2.add_trace(go.Scatter(x=[0, 8], y=[0, 0], mode='lines', name='Displacement (s)',
+                                          line=dict(color='blue', width=3)))
+                # F1: (0,0) to (2,3)
+                fig2.add_trace(go.Scatter(x=[0, 2], y=[0, 3], mode='lines+text', name='F1', text=['', 'F1'],
+                                          textposition='top left', line=dict(color='red', width=4)))
+                # F2: (2,3) to (5.5, 4.5) - 指向右上!
+                fig2.add_trace(go.Scatter(x=[2, 5.5], y=[3, 4.5], mode='lines+text', name='F2', text=['', 'F2'],
+                                          textposition='top right', line=dict(color='green', width=4)))
+                # F_total: (0,0) to (5.5, 4.5)
+                fig2.add_trace(
+                    go.Scatter(x=[0, 5.5], y=[0, 4.5], mode='lines+text', name='F_total (F1+F2)', text=['', 'F1+F2'],
+                               textposition='bottom right', line=dict(color='purple', width=5)))
+                # 投影线
+                fig2.add_trace(go.Scatter(x=[2, 2], y=[3, 0], mode='lines', showlegend=False,
+                                          line=dict(color='red', width=2, dash='dash')))
+                fig2.add_trace(go.Scatter(x=[5.5, 5.5], y=[4.5, 0], mode='lines', showlegend=False,
+                                          line=dict(color='purple', width=2, dash='dash')))
+                fig2.update_layout(
+                    title="Visual 2: The Distributive Property (Red Shadow + Green Shadow = Purple Shadow)",
+                    xaxis=dict(range=[-1, 7]), yaxis=dict(range=[-1, 5]), height=350, margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig2, use_container_width=True)
+
+                st.markdown("#### Axiom 2: Relative Position and The Commutative Property (交换律)")
+                st.markdown(r"""
+                Does it matter which vector we project onto which? If vectors $F$ and $s$ form a triangle, rotating that entire triangle in space does not change their product. 
+
+                Furthermore, projecting $F$ onto $s$, or projecting $s$ onto $F$, yields the exact same geometric area. This proves the **Commutative Property**:
+                $$F \cdot s = s \cdot F$$
+                """)
+
+                # [Visual 3: Commutativity 双向投影]
+                fig3 = go.Figure()
+                # Vector A = (5,0), Vector B = (3,4)
+                fig3.add_trace(
+                    go.Scatter(x=[0, 5], y=[0, 0], mode='lines+markers+text', name='Vector A', text=['', 'A'],
+                               textposition='bottom right', line=dict(color='blue', width=4)))
+                fig3.add_trace(
+                    go.Scatter(x=[0, 3], y=[0, 4], mode='lines+markers+text', name='Vector B', text=['', 'B'],
+                               textposition='top left', line=dict(color='red', width=4)))
+
+                # 1. B 投影到 A 上 (垂直线从 (3,4) 到 (3,0))
+                fig3.add_trace(go.Scatter(x=[3, 3], y=[4, 0], mode='lines', name='Proj B onto A',
+                                          line=dict(color='red', width=2, dash='dash')))
+                fig3.add_trace(go.Scatter(x=[0, 3], y=[0, 0], mode='lines', name='Shadow of B (Length=3)',
+                                          line=dict(color='red', width=6, dash='dot')))
+
+                # 2. A 投影到 B 上 (垂直线从 (5,0) 到 B的延长线 (1.8, 2.4))
+                # (A dot B_unit) * B_unit = (15 / 5) * (3/5, 4/5) = 3 * (0.6, 0.8) = (1.8, 2.4)
+                fig3.add_trace(go.Scatter(x=[5, 1.8], y=[0, 2.4], mode='lines', name='Proj A onto B',
+                                          line=dict(color='blue', width=2, dash='dash')))
+                fig3.add_trace(go.Scatter(x=[0, 1.8], y=[0, 2.4], mode='lines', name='Shadow of A (Length=3)',
+                                          line=dict(color='blue', width=6, dash='dot')))
+
+                fig3.update_layout(title="Visual 3: Commutativity (Shadow B × |A| == Shadow A × |B| == 15)",
+                                   xaxis=dict(range=[-1, 6], scaleanchor="y", scaleratio=1), yaxis=dict(range=[-1, 5]),
+                                   height=400, margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig3, use_container_width=True)
+
+                # ==========================================
+                # 3. 代数展开与 p=-p 证明
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 3. The Algebraic Breakdown: Why $x_1x_2 + y_1y_2$?")
+                st.markdown(r"""
+                Using the Linearity (Distributive Property) we just proved, we can expand the product of $\vec{a} = x_1\hat{i} + y_1\hat{j}$ and $\vec{b} = x_2\hat{i} + y_2\hat{j}$ into **four separate multiplications**:
+                $$\vec{a} \cdot \vec{b} = x_1x_2(\hat{i} \cdot \hat{i}) + x_1y_2(\hat{i} \cdot \hat{j}) + y_1x_2(\hat{j} \cdot \hat{i}) + y_1y_2(\hat{j} \cdot \hat{j})$$
+                """)
+
+                st.info(r"""
+                **Why does the orthogonal product ($\hat{i} \cdot \hat{j}$) always equal $0$?**
+
+                Assume their product is $p$. If we move one vector to point in the exact opposite direction (making it negative $-\hat{i}$), the algebraic product becomes $-p$. 
+
+                However, by Axiom 2 (Relative Position), the fundamental geometric interaction (they are still perfectly perpendicular) hasn't changed. Therefore, the result must remain the same:
+                $$-p = p \implies p = 0$$
+
+                Thus, the orthogonal cross-terms disappear! We are elegantly left with:
+                $$\vec{a} \cdot \vec{b} = x_1x_2 + y_1y_2$$
+                """)
+
+                # [Visual 4: 正交基底乘积为0的对称性证明]
+                fig4 = go.Figure()
+                fig4.add_trace(go.Scatter(x=[0, 0], y=[0, 3], mode='lines+markers+text', name='j (Up)', text=['', 'j'],
+                                          textposition='top right', line=dict(color='red', width=5)))
+                fig4.add_trace(
+                    go.Scatter(x=[0, 3], y=[0, 0], mode='lines+markers+text', name='i (Right)', text=['', 'i'],
+                               textposition='bottom right', line=dict(color='blue', width=5)))
+                fig4.add_trace(
+                    go.Scatter(x=[0, -3], y=[0, 0], mode='lines+markers+text', name='-i (Left)', text=['', '-i'],
+                               textposition='bottom left', line=dict(color='green', width=5, dash='dash')))
+                fig4.update_layout(title="Visual 4: Symmetry of Orthogonality (-p must equal p)",
+                                   xaxis=dict(range=[-4, 4]), yaxis=dict(range=[-1, 4]), height=350,
+                                   margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig4, use_container_width=True)
+
+                # ==========================================
+                # 4a. 左上与向右向量的直观证明
+                # ==========================================
+                st.markdown("#### A Visual Proof: The Surviving Projection")
+                st.markdown(r"""
+                Let's draw a vector pointing **top-left** $OA = (-3, 4)$ and a vector pointing **straight-right** $OB = (5, 0)$. 
+                Because orthogonal components multiply to $0$, the vertical part of $OA$ contributes nothing. Only the longitudinal (horizontal) projection of $OA$ onto $OB$ survives.
+
+                * **Algebraically:** $(-3 \times 5) + (4 \times 0) = -15$
+                * **Geometrically:** The horizontal shadow of $OA$ is $-3$. Multiplying it by the length of $OB$ ($5$) gives $-15$. Both methods match perfectly!
+                """)
+
+                # [Visual 5a: 左上与正右向量的投影]
+                fig5a = go.Figure()
+                fig5a.add_trace(
+                    go.Scatter(x=[0, -3], y=[0, 4], mode='lines+markers+text', name='Vector OA', text=['O', 'A(-3, 4)'],
+                               textposition='top left', line=dict(color='red', width=4)))
+                fig5a.add_trace(
+                    go.Scatter(x=[0, 5], y=[0, 0], mode='lines+markers+text', name='Vector OB', text=['', 'B(5, 0)'],
+                               textposition='bottom right', line=dict(color='blue', width=4)))
+                fig5a.add_trace(go.Scatter(x=[-3, -3], y=[4, 0], mode='lines', name='Drop Perpendicular',
+                                           line=dict(color='orange', width=2, dash='dash')))
+                fig5a.add_trace(go.Scatter(x=[0, -3], y=[0, 0], mode='lines', name='Surviving Projection',
+                                           line=dict(color='orange', width=6)))
+                fig5a.update_layout(title="Visual 5a: Only the horizontal projection survives",
+                                    xaxis=dict(range=[-4, 6], zeroline=False),
+                                    yaxis=dict(range=[-1, 5], zeroline=False), height=350,
+                                    margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig5a, use_container_width=True)
+
+                # ==========================================
+                # 4b. 余弦定理暴力展开证明
+                # ==========================================
+                st.markdown("#### The General Proof: Law of Cosines")
+                st.markdown(r"""
+                To prove this works for *any* two vectors $A(x_1, y_1)$ and $B(x_2, y_2)$, we form a triangle and use the **Law of Cosines**:
+                $$|AB|^2 = |OA|^2 + |OB|^2 - 2|OA||OB|\cos\angle AOB$$
+                """)
+
+                # [Visual 5b: 一般三角形的余弦定理]
+                fig5b = go.Figure()
+                fig5b.add_trace(
+                    go.Scatter(x=[0, 2], y=[0, 4], mode='lines+markers+text', name='Vector OA', text=['O', 'A(x1, y1)'],
+                               textposition='top left', line=dict(color='red', width=4)))
+                fig5b.add_trace(
+                    go.Scatter(x=[0, 5], y=[0, 2], mode='lines+markers+text', name='Vector OB', text=['', 'B(x2, y2)'],
+                               textposition='bottom right', line=dict(color='blue', width=4)))
+                fig5b.add_trace(go.Scatter(x=[2, 5], y=[4, 2], mode='lines+text', name='Vector AB', text=['', ''],
+                                           line=dict(color='green', width=2, dash='dash')))
+                fig5b.update_layout(title="Visual 5b: Forming a general triangle",
+                                    xaxis=dict(range=[-1, 6], zeroline=False),
+                                    yaxis=dict(range=[-1, 5], zeroline=False), height=350,
+                                    margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig5b, use_container_width=True)
+
+                st.markdown(r"""
+                Substitute the coordinate distances using the Pythagorean theorem:
+                $$x_2^2 - 2x_1x_2 + x_1^2 + y_2^2 - 2y_1y_2 + y_1^2 = (x_1^2 + y_1^2) + (x_2^2 + y_2^2) - 2|OA||OB|\cos\angle AOB$$
+
+                Cancel the squared terms and divide by $-2$:
+                $$x_1x_2 + y_1y_2 = |OA||OB|\cos\angle AOB$$
+                """)
+                st.success(
+                    "Through calculation, we have proven the coordinate multiplication perfectly equals the geometric definition!")
+
+                # ==========================================
+                # 5. 余弦合角公式 (带滑块)
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 4. A Beautiful Application: The Cosine Difference Formula")
+                st.markdown(r"""
+                We can use Axiom 2 to effortlessly prove $\cos(\alpha - \beta)$. Imagine a Unit Circle with Vector A at angle $\alpha$ and Vector B at angle $\beta$. 
+                """)
+
+                # [Visual 6: 动态滑块]
+                rot_angle = st.slider("Rotate the System (Match Vector B to X-axis)", 0, 45, 0,
+                                      help="Drag this to rotate the vectors clockwise!")
+                alpha_rad = np.radians(75 - rot_angle)
+                beta_rad = np.radians(45 - rot_angle)
+                ax, ay = np.cos(alpha_rad), np.sin(alpha_rad)
+                bx, by = np.cos(beta_rad), np.sin(beta_rad)
+
+                fig6 = go.Figure()
+                theta = np.linspace(0, 2 * np.pi, 100)
+                fig6.add_trace(go.Scatter(x=np.cos(theta), y=np.sin(theta), mode='lines',
+                                          line=dict(color='lightgrey', dash='dash'), showlegend=False))
+                fig6.add_trace(
+                    go.Scatter(x=[0, 1.2], y=[0, 0], mode='lines', line=dict(color='black', width=1), showlegend=False))
+                fig6.add_trace(
+                    go.Scatter(x=[0, ax], y=[0, ay], mode='lines+markers+text', name='Vector A', text=['', 'A'],
+                               textposition='top right', line=dict(color='red', width=4)))
+                fig6.add_trace(
+                    go.Scatter(x=[0, bx], y=[0, by], mode='lines+markers+text', name='Vector B', text=['', 'B'],
+                               textposition='bottom right', line=dict(color='blue', width=4)))
+                fig6.update_layout(title="Visual 6: Rotating the Vectors",
+                                   xaxis=dict(range=[-0.2, 1.2], scaleanchor="y", scaleratio=1),
+                                   yaxis=dict(range=[-0.2, 1.2]), height=400, margin=dict(l=0, r=0, b=0, t=30))
+                st.plotly_chart(fig6, use_container_width=True)
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Method 1: Before Rotation**")
+                    st.latex(r"\vec{A} \cdot \vec{B} = \cos\alpha\cos\beta + \sin\alpha\sin\beta")
+
+                with col2:
+                    st.markdown("**Method 2: After Rotation**")
+                    st.latex(r"\vec{A}' \cdot \vec{B}' = \cos(\alpha-\beta)")
+
+                st.success(
+                    r"**The Geometric Equivalence:** $ \cos(\alpha - \beta) = \cos\alpha\cos\beta + \sin\alpha\sin\beta $")
+
+    # --- TAB 3: Cross Product & Normal Vectors ---
+    with tab_cross:
+        st.header("The Cross Product: Birth of the Normal")
+        st.markdown(
+            "The cross product generates a new vector that is strictly perpendicular to the plane formed by the original two vectors. This 'Normal' vector is the backbone of 3D geometry.")
+
+        st.latex(
+            r"\vec{n} = \vec{a} \times \vec{b} = \begin{vmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ a_x & a_y & a_z \\ b_x & b_y & b_z \end{vmatrix}")
+
+        if st.checkbox("Launch 3D Visualizer"):
+            fig = go.Figure()
+            fig.add_trace(go.Scatter3d(x=[0, 1], y=[0, 0], z=[0, 0], mode='lines+markers', name='Vector A',
+                                       line=dict(color='blue', width=4)))
+            fig.add_trace(go.Scatter3d(x=[0, 0], y=[0, 1], z=[0, 0], mode='lines+markers', name='Vector B',
+                                       line=dict(color='green', width=4)))
+            fig.add_trace(go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, 1], mode='lines+markers', name='Normal Vector (AxB)',
+                                       line=dict(color='red', width=6)))
+
+            fig.update_layout(scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=0), scene_dragmode='orbit')
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("The red vector is the Normal, orthogonal to both the blue and green vectors.")
+
+    # --- TAB 4: Applications ---
+    with tab_app:
+        st.header("Applications of Vectors")
+        st.markdown("With the dot and cross products established, we can calculate spatial relationships effortlessly.")
+
+        st.markdown("**1. Finding the Angle Between Vectors**")
+        st.latex(r"\cos\theta = \frac{\vec{a} \cdot \vec{b}}{|\vec{a}||\vec{b}|}")
+
+        st.markdown("**2. Area of a Parallelogram**")
+        st.latex(r"\text{Area} = |\vec{a} \times \vec{b}|")
+
 # 4. 占位符模块
 # ==========================================
 def render_coming_soon(topic_name):
@@ -6809,8 +7612,14 @@ def main():
         "0. The Grand Tale (Overview)",  # 总览故事
         "Chapter I: Limits (The Paradox)",  # 极限
         "Chapter II: Differentiation (The Motion)", # 微分
-        "Chapter III: Integration (The Area)"  # 积分
+        "Chapter III: Integration (The Area)",  # 积分
+        "Chapter IV: First Order Differential Equations",
+
+        "--- 📐 THE LINEAR ALGEBRA SAGA ---",
+        "Chapter I: Vectors",
+        "Chapter II: Matrices"
     ]
+
 
     # 侧边栏选择
     topic_selection = st.sidebar.selectbox("Navigate:", menu_options)
@@ -6876,6 +7685,15 @@ def main():
         # 这里就是你最自豪的 3D 可视化部分
         with st.spinner('🌊 Summing up the infinite...'):
             render_topic_integration()
+
+    elif topic_selection == "Chapter IV: First Order Differential Equations":
+        render_chapter_ode()
+
+    if topic_selection == "--- 📐 THE LINEAR ALGEBRA SAGA ---" or topic_selection == "Chapter I: Vectors":
+        render_la_vectors()
+
+    elif topic_selection == "Chapter II: Matrices ":
+        render_la_matrices()
 
 if __name__ == "__main__":
     main()
