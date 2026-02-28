@@ -7273,6 +7273,7 @@ def render_la_vectors():
             st.latex(r"\cos^2\alpha + \cos^2\beta + \cos^2\gamma = 1")
         # --- TAB 2: The Dot Product ---
             # --- TAB 2: The Dot Product ---
+            # --- TAB 2: The Dot Product ---
             with tab_dot:
                 st.header("The Dot Product: From Work to Axioms")
 
@@ -7281,8 +7282,9 @@ def render_la_vectors():
                 # ==========================================
                 st.markdown("### 1. The Physical Intuition: Work and Projection")
                 st.markdown(r"""
-                Let's start with a physical concept: **Work**. If a Force ($\vec{F}$) drags an object along a displacement ($\vec{s}$), the work done is the magnitude of the force multiplied by the displacement, but *only the portion of the force in the direction of the movement*.
-                """)
+                    Let's start with a physical concept: **Work**. If a Force ($\vec{F}$) drags an object along a displacement ($\vec{s}$), the work done is the magnitude of the force multiplied by the displacement, but *only the portion of the force in the direction of the movement*.
+                    """)
+
                 st.latex(r"W = |\vec{F}| \cdot |\vec{s}| \cdot \cos\theta")
 
                 # [Visual 1]
@@ -7302,40 +7304,37 @@ def render_la_vectors():
                                    margin=dict(l=0, r=0, b=0, t=30))
                 st.plotly_chart(fig1, use_container_width=True)
 
-                st.warning(
-                    "But why is it defined this way? What are the fundamental properties of this operation? Let's look at the two axioms.")
+                st.info(r"""
+                    **A Note on Mathematical Rigor:** Physics gives us the *intuition* (Work), but mathematics requires rigorous *definitions*. In pure math, we don't 'prove' the dot product from physics; instead, we **define** a mathematical operation to intentionally mirror these physical properties (Linearity and Symmetry). Let's formalize these as axioms.
+                    """)
 
                 # ==========================================
-                # 2. 点积的两大公理 (Axiom 1 & 2 附带完美可视化)
+                # 2. 点积的两大公理
                 # ==========================================
                 st.markdown("### 2. The Two Axioms of the Dot Product")
 
-                st.markdown("#### Axiom 1: Linearity and The Distributive Property (分配律)")
+                st.markdown("#### Axiom 1: Linearity and The Distributive Property")
                 st.markdown(r"""
-                **Case A:** Imagine two forces, $F_1$ and $F_2$, dragging an object over distance $s_1$. The work done by the combined force is exactly equal to the work done by $F_1$ plus the work done by $F_2$.
-                $$(F_1 + F_2) \cdot s_1 = (F_1 \cdot s_1) + (F_2 \cdot s_1)$$
+                    **Case A:** Imagine two forces, $F_1$ and $F_2$, dragging an object over distance $s_1$. The work done by the combined force is exactly equal to the work done by $F_1$ plus the work done by $F_2$.
+                    $$(F_1 + F_2) \cdot s_1 = (F_1 \cdot s_1) + (F_2 \cdot s_1)$$
 
-                **Case B:** If one force $F$ drags an object for distance $s_1$, and then continues for $s_2$:
-                $$F \cdot (s_1 + s_2) = (F \cdot s_1) + (F \cdot s_2)$$
+                    **Case B:** If one force $F$ drags an object for distance $s_1$, and then continues for $s_2$:
+                    $$F \cdot (s_1 + s_2) = (F \cdot s_1) + (F \cdot s_2)$$
 
-                **The Insight:** This proves the **Distributive Property**. Because of this linearity, we can infinitely break down any vector into smaller vectors (just like breaking a polygon into infinite small steps) and the dot product distributes perfectly.
-                """)
+                    **The Insight:** This establishes the **Distributive Property**. Because of this linearity, we can infinitely break down any vector into a sum of smaller basis vectors, and the dot product will distribute perfectly across all of them.
+                    """)
 
-                # [Visual 2: Linearity - F2 指向右上]
+                # [Visual 2]
                 fig2 = go.Figure()
                 fig2.add_trace(go.Scatter(x=[0, 8], y=[0, 0], mode='lines', name='Displacement (s)',
                                           line=dict(color='blue', width=3)))
-                # F1: (0,0) to (2,3)
                 fig2.add_trace(go.Scatter(x=[0, 2], y=[0, 3], mode='lines+text', name='F1', text=['', 'F1'],
                                           textposition='top left', line=dict(color='red', width=4)))
-                # F2: (2,3) to (5.5, 4.5) - 指向右上!
                 fig2.add_trace(go.Scatter(x=[2, 5.5], y=[3, 4.5], mode='lines+text', name='F2', text=['', 'F2'],
                                           textposition='top right', line=dict(color='green', width=4)))
-                # F_total: (0,0) to (5.5, 4.5)
                 fig2.add_trace(
                     go.Scatter(x=[0, 5.5], y=[0, 4.5], mode='lines+text', name='F_total (F1+F2)', text=['', 'F1+F2'],
                                textposition='bottom right', line=dict(color='purple', width=5)))
-                # 投影线
                 fig2.add_trace(go.Scatter(x=[2, 2], y=[3, 0], mode='lines', showlegend=False,
                                           line=dict(color='red', width=2, dash='dash')))
                 fig2.add_trace(go.Scatter(x=[5.5, 5.5], y=[4.5, 0], mode='lines', showlegend=False,
@@ -7345,65 +7344,64 @@ def render_la_vectors():
                     xaxis=dict(range=[-1, 7]), yaxis=dict(range=[-1, 5]), height=350, margin=dict(l=0, r=0, b=0, t=30))
                 st.plotly_chart(fig2, use_container_width=True)
 
-                st.markdown("#### Axiom 2: Relative Position and The Commutative Property (交换律)")
+                st.markdown("#### Axiom 2: Relative Position and The Commutative Property")
                 st.markdown(r"""
-                Does it matter which vector we project onto which? If vectors $F$ and $s$ form a triangle, rotating that entire triangle in space does not change their product. 
+                    If vectors $F$ and $s$ form a triangle, rotating that entire triangle in space does not change their geometric relationship. 
+                    Furthermore, projecting $F$ onto $s$, or projecting $s$ onto $F$, yields the exact same geometric area. This defines the **Commutative Property**:
+                    $$F \cdot s = s \cdot F$$
+                    """)
 
-                Furthermore, projecting $F$ onto $s$, or projecting $s$ onto $F$, yields the exact same geometric area. This proves the **Commutative Property**:
-                $$F \cdot s = s \cdot F$$
-                """)
-
-                # [Visual 3: Commutativity 双向投影]
+                # [Visual 3]
                 fig3 = go.Figure()
-                # Vector A = (5,0), Vector B = (3,4)
                 fig3.add_trace(
                     go.Scatter(x=[0, 5], y=[0, 0], mode='lines+markers+text', name='Vector A', text=['', 'A'],
                                textposition='bottom right', line=dict(color='blue', width=4)))
                 fig3.add_trace(
                     go.Scatter(x=[0, 3], y=[0, 4], mode='lines+markers+text', name='Vector B', text=['', 'B'],
                                textposition='top left', line=dict(color='red', width=4)))
-
-                # 1. B 投影到 A 上 (垂直线从 (3,4) 到 (3,0))
                 fig3.add_trace(go.Scatter(x=[3, 3], y=[4, 0], mode='lines', name='Proj B onto A',
                                           line=dict(color='red', width=2, dash='dash')))
                 fig3.add_trace(go.Scatter(x=[0, 3], y=[0, 0], mode='lines', name='Shadow of B (Length=3)',
                                           line=dict(color='red', width=6, dash='dot')))
-
-                # 2. A 投影到 B 上 (垂直线从 (5,0) 到 B的延长线 (1.8, 2.4))
-                # (A dot B_unit) * B_unit = (15 / 5) * (3/5, 4/5) = 3 * (0.6, 0.8) = (1.8, 2.4)
                 fig3.add_trace(go.Scatter(x=[5, 1.8], y=[0, 2.4], mode='lines', name='Proj A onto B',
                                           line=dict(color='blue', width=2, dash='dash')))
                 fig3.add_trace(go.Scatter(x=[0, 1.8], y=[0, 2.4], mode='lines', name='Shadow of A (Length=3)',
                                           line=dict(color='blue', width=6, dash='dot')))
-
                 fig3.update_layout(title="Visual 3: Commutativity (Shadow B × |A| == Shadow A × |B| == 15)",
                                    xaxis=dict(range=[-1, 6], scaleanchor="y", scaleratio=1), yaxis=dict(range=[-1, 5]),
                                    height=400, margin=dict(l=0, r=0, b=0, t=30))
                 st.plotly_chart(fig3, use_container_width=True)
 
                 # ==========================================
-                # 3. 代数展开与 p=-p 证明
+                # 3. 代数展开与 p=-p 证明 (严谨化：引入标准正交基底)
                 # ==========================================
                 st.markdown("---")
-                st.markdown("### 3. The Algebraic Breakdown: Why $x_1x_2 + y_1y_2$?")
+                st.markdown("### 3. The Algebraic Breakdown: Defining the Orthonormal Basis")
                 st.markdown(r"""
-                Using the Linearity (Distributive Property) we just proved, we can expand the product of $\vec{a} = x_1\hat{i} + y_1\hat{j}$ and $\vec{b} = x_2\hat{i} + y_2\hat{j}$ into **four separate multiplications**:
-                $$\vec{a} \cdot \vec{b} = x_1x_2(\hat{i} \cdot \hat{i}) + x_1y_2(\hat{i} \cdot \hat{j}) + y_1x_2(\hat{j} \cdot \hat{i}) + y_1y_2(\hat{j} \cdot \hat{j})$$
-                """)
+                    To compute this algebraically, we must place our vectors in a Cartesian coordinate system defined by a **Standard Orthonormal Basis** ($\hat{i}$ and $\hat{j}$). 
+                    "Orthonormal" means two strictly defined rules:
+                    1. **Normal (Unit Length):** The basis vectors have a length of exactly $1$. Therefore, $\hat{i} \cdot \hat{i} = 1$ and $\hat{j} \cdot \hat{j} = 1$.
+                    2. **Orthogonal:** They are perfectly perpendicular to each other.
+                    """)
+
+                st.markdown(r"""
+                    Now, expand the product of $\vec{a} = x_1\hat{i} + y_1\hat{j}$ and $\vec{b} = x_2\hat{i} + y_2\hat{j}$ using our proven Distributive Property:
+                    $$\vec{a} \cdot \vec{b} = x_1x_2(\hat{i} \cdot \hat{i}) + x_1y_2(\hat{i} \cdot \hat{j}) + y_1x_2(\hat{j} \cdot \hat{i}) + y_1y_2(\hat{j} \cdot \hat{j})$$
+                    """)
 
                 st.info(r"""
-                **Why does the orthogonal product ($\hat{i} \cdot \hat{j}$) always equal $0$?**
+                    **The Symmetry of Orthogonality:** Why does the mixed term ($\hat{i} \cdot \hat{j}$) always equal $0$?
 
-                Assume their product is $p$. If we move one vector to point in the exact opposite direction (making it negative $-\hat{i}$), the algebraic product becomes $-p$. 
+                    Assume their product is $p$. If we move one vector to point in the exact opposite direction (making it negative $-\hat{i}$), the algebraic product mathematically becomes $-p$. 
 
-                However, by Axiom 2 (Relative Position), the fundamental geometric interaction (they are still perfectly perpendicular) hasn't changed. Therefore, the result must remain the same:
-                $$-p = p \implies p = 0$$
+                    However, assuming Euclidean space is **isotropic** (behaves the same in all directions), flipping an orthogonal axis does not change the physical 90-degree intersection. By Axiom 2, the geometric interaction remains identical.
+                    $$-p = p \implies p = 0$$
 
-                Thus, the orthogonal cross-terms disappear! We are elegantly left with:
-                $$\vec{a} \cdot \vec{b} = x_1x_2 + y_1y_2$$
-                """)
+                    Substituting $\hat{i} \cdot \hat{i} = 1$ and $\hat{i} \cdot \hat{j} = 0$, the cross-terms vanish cleanly:
+                    $$\vec{a} \cdot \vec{b} = x_1x_2 + y_1y_2$$
+                    """)
 
-                # [Visual 4: 正交基底乘积为0的对称性证明]
+                # [Visual 4]
                 fig4 = go.Figure()
                 fig4.add_trace(go.Scatter(x=[0, 0], y=[0, 3], mode='lines+markers+text', name='j (Up)', text=['', 'j'],
                                           textposition='top right', line=dict(color='red', width=5)))
@@ -7423,14 +7421,14 @@ def render_la_vectors():
                 # ==========================================
                 st.markdown("#### A Visual Proof: The Surviving Projection")
                 st.markdown(r"""
-                Let's draw a vector pointing **top-left** $OA = (-3, 4)$ and a vector pointing **straight-right** $OB = (5, 0)$. 
-                Because orthogonal components multiply to $0$, the vertical part of $OA$ contributes nothing. Only the longitudinal (horizontal) projection of $OA$ onto $OB$ survives.
+                    Take a vector $OA = (-3, 4)$ and $OB = (5, 0)$. 
+                    Because orthogonal basis vectors multiply to $0$, the vertical component ($4\hat{j}$) contributes absolutely nothing.
 
-                * **Algebraically:** $(-3 \times 5) + (4 \times 0) = -15$
-                * **Geometrically:** The horizontal shadow of $OA$ is $-3$. Multiplying it by the length of $OB$ ($5$) gives $-15$. Both methods match perfectly!
-                """)
+                    * **Algebraically:** $(-3 \times 5) + (4 \times 0) = -15$
+                    * **Geometrically:** The horizontal shadow of $OA$ is $-3$. Multiplying it by the length of $OB$ ($5$) gives $-15$. 
+                    """)
 
-                # [Visual 5a: 左上与正右向量的投影]
+                # [Visual 5a]
                 fig5a = go.Figure()
                 fig5a.add_trace(
                     go.Scatter(x=[0, -3], y=[0, 4], mode='lines+markers+text', name='Vector OA', text=['O', 'A(-3, 4)'],
@@ -7449,15 +7447,15 @@ def render_la_vectors():
                 st.plotly_chart(fig5a, use_container_width=True)
 
                 # ==========================================
-                # 4b. 余弦定理暴力展开证明
+                # 4b. 余弦定理暴力展开证明 (严谨化：几何与代数的逻辑桥梁)
                 # ==========================================
-                st.markdown("#### The General Proof: Law of Cosines")
+                st.markdown("#### The General Proof: Bridging Geometry and Algebra")
                 st.markdown(r"""
-                To prove this works for *any* two vectors $A(x_1, y_1)$ and $B(x_2, y_2)$, we form a triangle and use the **Law of Cosines**:
-                $$|AB|^2 = |OA|^2 + |OB|^2 - 2|OA||OB|\cos\angle AOB$$
-                """)
+                    Is it a coincidence that the algebraic definition ($x_1x_2 + y_1y_2$) perfectly matches the geometric reality ($|A||B|\cos\theta$) for *all* vectors? 
+                    No. We can verify this consistency using an independent geometric theorem: the **Law of Cosines**.
+                    """)
 
-                # [Visual 5b: 一般三角形的余弦定理]
+                # [Visual 5b]
                 fig5b = go.Figure()
                 fig5b.add_trace(
                     go.Scatter(x=[0, 2], y=[0, 4], mode='lines+markers+text', name='Vector OA', text=['O', 'A(x1, y1)'],
@@ -7474,25 +7472,28 @@ def render_la_vectors():
                 st.plotly_chart(fig5b, use_container_width=True)
 
                 st.markdown(r"""
-                Substitute the coordinate distances using the Pythagorean theorem:
-                $$x_2^2 - 2x_1x_2 + x_1^2 + y_2^2 - 2y_1y_2 + y_1^2 = (x_1^2 + y_1^2) + (x_2^2 + y_2^2) - 2|OA||OB|\cos\angle AOB$$
+                    From the Law of Cosines:
+                    $$|AB|^2 = |OA|^2 + |OB|^2 - 2|OA||OB|\cos\angle AOB$$
 
-                Cancel the squared terms and divide by $-2$:
-                $$x_1x_2 + y_1y_2 = |OA||OB|\cos\angle AOB$$
-                """)
+                    Substitute the coordinate distances using the Pythagorean theorem:
+                    $$x_2^2 - 2x_1x_2 + x_1^2 + y_2^2 - 2y_1y_2 + y_1^2 = (x_1^2 + y_1^2) + (x_2^2 + y_2^2) - 2|OA||OB|\cos\angle AOB$$
+
+                    Cancel the squared terms and divide by $-2$:
+                    $$x_1x_2 + y_1y_2 = |OA||OB|\cos\angle AOB$$
+                    """)
                 st.success(
-                    "Through calculation, we have proven the coordinate multiplication perfectly equals the geometric definition!")
+                    "This proves that in a flat Euclidean space, our algebraic axiom logically enforces the physical projection geometry.")
 
                 # ==========================================
                 # 5. 余弦合角公式 (带滑块)
                 # ==========================================
                 st.markdown("---")
-                st.markdown("### 4. A Beautiful Application: The Cosine Difference Formula")
+                st.markdown("### 4. Application: Rotational Invariance & The Cosine Difference Formula")
                 st.markdown(r"""
-                We can use Axiom 2 to effortlessly prove $\cos(\alpha - \beta)$. Imagine a Unit Circle with Vector A at angle $\alpha$ and Vector B at angle $\beta$. 
-                """)
+                    Because the dot product depends solely on the relative angle and magnitudes, it is **invariant under coordinate rotations**. We can exploit this to easily prove $\cos(\alpha - \beta)$.
+                    """)
 
-                # [Visual 6: 动态滑块]
+                # [Visual 6]
                 rot_angle = st.slider("Rotate the System (Match Vector B to X-axis)", 0, 45, 0,
                                       help="Drag this to rotate the vectors clockwise!")
                 alpha_rad = np.radians(75 - rot_angle)
@@ -7512,55 +7513,315 @@ def render_la_vectors():
                 fig6.add_trace(
                     go.Scatter(x=[0, bx], y=[0, by], mode='lines+markers+text', name='Vector B', text=['', 'B'],
                                textposition='bottom right', line=dict(color='blue', width=4)))
-                fig6.update_layout(title="Visual 6: Rotating the Vectors",
+                fig6.update_layout(title="Visual 6: Rotational Invariance of the Dot Product",
                                    xaxis=dict(range=[-0.2, 1.2], scaleanchor="y", scaleratio=1),
                                    yaxis=dict(range=[-0.2, 1.2]), height=400, margin=dict(l=0, r=0, b=0, t=30))
                 st.plotly_chart(fig6, use_container_width=True)
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.markdown("**Method 1: Before Rotation**")
+                    st.markdown("**Method 1: Original Coordinates**")
                     st.latex(r"\vec{A} \cdot \vec{B} = \cos\alpha\cos\beta + \sin\alpha\sin\beta")
 
                 with col2:
-                    st.markdown("**Method 2: After Rotation**")
+                    st.markdown("**Method 2: Rotated Coordinates**")
                     st.latex(r"\vec{A}' \cdot \vec{B}' = \cos(\alpha-\beta)")
 
                 st.success(
                     r"**The Geometric Equivalence:** $ \cos(\alpha - \beta) = \cos\alpha\cos\beta + \sin\alpha\sin\beta $")
 
     # --- TAB 3: Cross Product & Normal Vectors ---
-    with tab_cross:
-        st.header("The Cross Product: Birth of the Normal")
-        st.markdown(
-            "The cross product generates a new vector that is strictly perpendicular to the plane formed by the original two vectors. This 'Normal' vector is the backbone of 3D geometry.")
+        # --- TAB 3: The Cross Product ---
+        with tab_cross:
+            st.header("The Cross Product: Generating the Normal Vector")
 
-        st.latex(
-            r"\vec{n} = \vec{a} \times \vec{b} = \begin{vmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ a_x & a_y & a_z \\ b_x & b_y & b_z \end{vmatrix}")
+            # ==========================================
+            # 1. 动机与几何定义
+            # ==========================================
+            st.markdown("### 1. Motivation: Torque and Area")
+            st.markdown(r"""
+            If the Dot Product measures how "parallel" two vectors are, the Cross Product measures how **"perpendicular"** they are. 
 
-        if st.checkbox("Launch 3D Visualizer"):
-            fig = go.Figure()
-            fig.add_trace(go.Scatter3d(x=[0, 1], y=[0, 0], z=[0, 0], mode='lines+markers', name='Vector A',
-                                       line=dict(color='blue', width=4)))
-            fig.add_trace(go.Scatter3d(x=[0, 0], y=[0, 1], z=[0, 0], mode='lines+markers', name='Vector B',
-                                       line=dict(color='green', width=4)))
-            fig.add_trace(go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, 1], mode='lines+markers', name='Normal Vector (AxB)',
-                                       line=dict(color='red', width=6)))
+            **The Physical Origin:** Think of pushing a door (Torque $\vec{\tau}$). If the door handle is at position $\vec{r}$ and you push with force $\vec{F}$, pushing *parallel* to the door does nothing. Pushing strictly *perpendicular* creates maximum rotation.
+            Magnitude of Torque: $|\vec{\tau}| = |\vec{r}| |\vec{F}| \sin\theta$
 
-            fig.update_layout(scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=0), scene_dragmode='orbit')
-            st.plotly_chart(fig, use_container_width=True)
-            st.caption("The red vector is the Normal, orthogonal to both the blue and green vectors.")
+            **The Geometric Meaning:** This magnitude exactly equals the area of the parallelogram formed by the two vectors. 
+            But area is just a number. In 3D space, a surface has an **orientation**. We describe this orientation using a strictly perpendicular vector: the **Normal Vector**.
+            """)
 
-    # --- TAB 4: Applications ---
-    with tab_app:
-        st.header("Applications of Vectors")
-        st.markdown("With the dot and cross products established, we can calculate spatial relationships effortlessly.")
+            # [Visual 1: 面积与法向量的三维动态交互]
+            st.markdown("#### Visual: The Parallelogram and its Normal")
+            angle_cross = st.slider("Angle between A and B (degrees)", 0, 180, 90, key='cross_angle')
+            rad_cross = np.radians(angle_cross)
 
-        st.markdown("**1. Finding the Angle Between Vectors**")
-        st.latex(r"\cos\theta = \frac{\vec{a} \cdot \vec{b}}{|\vec{a}||\vec{b}|}")
+            v_A = np.array([2, 0, 0])
+            v_B = np.array([2 * np.cos(rad_cross), 2 * np.sin(rad_cross), 0])
+            # 叉积计算法向量
+            v_N = np.cross(v_A, v_B)
 
-        st.markdown("**2. Area of a Parallelogram**")
-        st.latex(r"\text{Area} = |\vec{a} \times \vec{b}|")
+            fig_cross1 = go.Figure()
+            # 画底部的平行四边形
+            fig_cross1.add_trace(
+                go.Mesh3d(x=[0, v_A[0], v_A[0] + v_B[0], v_B[0]], y=[0, v_A[1], v_A[1] + v_B[1], v_B[1]],
+                          z=[0, 0, 0, 0], i=[0, 0], j=[1, 2], k=[2, 3], color='lightblue', opacity=0.5, name='Area'))
+            # 画 Vector A 和 B
+            fig_cross1.add_trace(
+                go.Scatter3d(x=[0, v_A[0]], y=[0, v_A[1]], z=[0, 0], mode='lines+text', name='Vector A', text=['', 'A'],
+                             line=dict(color='red', width=5)))
+            fig_cross1.add_trace(
+                go.Scatter3d(x=[0, v_B[0]], y=[0, v_B[1]], z=[0, 0], mode='lines+text', name='Vector B', text=['', 'B'],
+                             line=dict(color='blue', width=5)))
+            # 画 Normal Vector (AxB)
+            fig_cross1.add_trace(
+                go.Scatter3d(x=[0, v_N[0]], y=[0, v_N[1]], z=[0, v_N[2]], mode='lines+text', name='A x B (Normal)',
+                             text=['', 'A x B'], line=dict(color='green', width=6)))
+
+            fig_cross1.update_layout(
+                scene=dict(xaxis=dict(range=[-3, 5]), yaxis=dict(range=[-3, 5]), zaxis=dict(range=[-1, 5]),
+                           aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=0), height=400)
+            st.plotly_chart(fig_cross1, use_container_width=True)
+
+            # ==========================================
+            # 2. 公理：右手定则与反交换律
+            # ==========================================
+            st.markdown("### 2. Axiom: The Right-Hand Rule and Anti-Commutativity")
+            st.markdown(r"""
+            Since there are two directions perpendicular to a plane (up or down), mathematics strictly defines the direction using the **Right-Hand Rule**: sweep your right fingers from $\vec{a}$ to $\vec{b}$, and your thumb points to $\vec{a} \times \vec{b}$.
+            """)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.info(r"""
+                **Anti-Commutativity:**
+                If you sweep from $\vec{b}$ to $\vec{a}$, your hand flips upside down. Thus:
+                $$\vec{a} \times \vec{b} = -(\vec{b} \times \vec{a})$$
+
+                As a direct consequence, a vector crossed with itself has $0$ area:
+                $$\vec{a} \times \vec{a} = \vec{0}$$
+                """)
+            with col2:
+                st.info(r"""
+                **The Right-Handed Coordinate System:**
+                By definition, the standard basis vectors strictly follow this rule:
+                * $\hat{i} \times \hat{j} = \hat{k}$  (and $\hat{j} \times \hat{i} = -\hat{k}$)
+                * $\hat{j} \times \hat{k} = \hat{i}$  (and $\hat{k} \times \hat{j} = -\hat{i}$)
+                * $\hat{k} \times \hat{i} = \hat{j}$  (and $\hat{i} \times \hat{k} = -\hat{j}$)
+                """)
+
+            # ==========================================
+            # 3. 严格推导：从代数展开到行列式
+            # ==========================================
+            st.markdown("---")
+            st.markdown("### 3. Rigorous Derivation: Expanding the Vectors")
+            st.markdown(r"""
+            We do not just memorize the matrix determinant. We must derive it using the distributive property. 
+            Let $\vec{a} = a_x\hat{i} + a_y\hat{j} + a_z\hat{k}$ and $\vec{b} = b_x\hat{i} + b_y\hat{j} + b_z\hat{k}$.
+
+            Expand $\vec{a} \times \vec{b}$ into 9 terms:
+            """)
+
+            st.latex(r"""
+            \begin{aligned}
+            \vec{a} \times \vec{b} &= (a_x\hat{i} + a_y\hat{j} + a_z\hat{k}) \times (b_x\hat{i} + b_y\hat{j} + b_z\hat{k}) \\
+            &= a_xb_x(\hat{i}\times\hat{i}) + a_xb_y(\hat{i}\times\hat{j}) + a_xb_z(\hat{i}\times\hat{k}) \\
+            &\quad + a_yb_x(\hat{j}\times\hat{i}) + a_yb_y(\hat{j}\times\hat{j}) + a_yb_z(\hat{j}\times\hat{k}) \\
+            &\quad + a_zb_x(\hat{k}\times\hat{i}) + a_zb_y(\hat{k}\times\hat{j}) + a_zb_z(\hat{k}\times\hat{k})
+            \end{aligned}
+            """)
+
+            st.markdown(r"""
+            Apply our axioms: self-crosses become $\vec{0}$, and mixed crosses become the third basis vector (respecting the negative signs for reverse order). The 9 terms collapse into 6 terms:
+            """)
+
+            st.latex(r"""
+            \begin{aligned}
+            \vec{a} \times \vec{b} &= 0 + a_xb_y(\hat{k}) + a_xb_z(-\hat{j}) \\
+            &\quad + a_yb_x(-\hat{k}) + 0 + a_yb_z(\hat{i}) \\
+            &\quad + a_zb_x(\hat{j}) + a_zb_y(-\hat{i}) + 0
+            \end{aligned}
+            """)
+
+            st.markdown("Group the $\hat{i}$, $\hat{j}$, and $\hat{k}$ components together:")
+            st.latex(
+                r"\vec{a} \times \vec{b} = (a_yb_z - a_zb_y)\hat{i} - (a_xb_z - a_zb_x)\hat{j} + (a_xb_y - a_yb_x)\hat{k}")
+
+            st.success(r"""
+            **The Elegance of the Determinant:** Mathematicians noticed that this messy algebraic result perfectly matches the expansion of a $3 \times 3$ determinant. This is why we write it as a matrix—it is purely a mnemonic tool for the brute-force expansion above!
+            """)
+            st.latex(
+                r"\vec{a} \times \vec{b} = \begin{vmatrix} \hat{i} & \hat{j} & \hat{k} \\ a_x & a_y & a_z \\ b_x & b_y & b_z \end{vmatrix}")
+
+            # --- TAB 4: Applications ---
+            with tab_app:
+                st.header("Applications: Lines, Planes, and Intersections")
+                st.markdown(r"""
+                With the Dot Product (orthogonality/projection) and the Cross Product (normal vectors) established, we can now translate 3D geometric shapes into algebraic equations.
+                """)
+
+                # ==========================================
+                # 1. 空间直线 (Equation of a Line)
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 1. The Line in 3D Space")
+                st.markdown(r"""
+                To define a line algebraically, we need two ingredients:
+                1. A starting position: Point $A$ with position vector $\vec{a}$.
+                2. A direction of travel: Direction vector $\vec{v}$.
+
+                **The Vector Equation:**
+                Any point $R$ (position vector $\vec{r}$) on this line can be reached by starting at $\vec{a}$ and moving a certain amount (parameter $t$) along direction $\vec{v}$.
+                """)
+                st.latex(r"\vec{r} = \vec{a} + t\vec{v}")
+
+                st.markdown(r"""
+                **The Parametric Equation:**
+                If we break the vectors down into their coordinates $\vec{r} = (x, y, z)$, $\vec{a} = (x_0, y_0, z_0)$, and $\vec{v} = (v_1, v_2, v_3)$, the single vector equation splits into three independent equations:
+                """)
+                st.latex(r"\begin{cases} x = x_0 + tv_1 \\ y = y_0 + tv_2 \\ z = z_0 + tv_3 \end{cases}")
+
+                # [Visual 1: 直线的构成]
+                fig_line = go.Figure()
+                # 原点到起始点 a
+                fig_line.add_trace(
+                    go.Scatter3d(x=[0, 1], y=[0, 2], z=[0, 1], mode='lines+text', name='Position Vector a',
+                                 text=['', 'a'], line=dict(color='blue', width=4)))
+                # 方向向量 v (从 a 延伸)
+                fig_line.add_trace(
+                    go.Scatter3d(x=[1, 1 + 2], y=[2, 2 + 1], z=[1, 1 + 2], mode='lines+text', name='Direction Vector v',
+                                 text=['', 'v'], line=dict(color='green', width=6)))
+                # 完整的直线 (t from -2 to 3)
+                t_vals = np.linspace(-2, 3, 100)
+                line_x = 1 + t_vals * 2
+                line_y = 2 + t_vals * 1
+                line_z = 1 + t_vals * 2
+                fig_line.add_trace(go.Scatter3d(x=line_x, y=line_y, z=line_z, mode='lines', name='Line r = a + tv',
+                                                line=dict(color='red', width=2, dash='dash')))
+
+                fig_line.update_layout(title="Visual 1: Constructing a Line from a Position and Direction",
+                                       scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=30), height=400)
+                st.plotly_chart(fig_line, use_container_width=True)
+
+                # ==========================================
+                # 2. 空间平面 (Equation of a Plane)
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 2. The Plane in 3D Space")
+                st.markdown(r"""
+                A line is defined by the direction it *goes*. A plane is defined by the direction it *cannot go*—the direction strictly perpendicular to its entire surface. This is the **Normal Vector ($\vec{n}$)**.
+
+                **The Vector Equation:**
+                Let $A$ ($\vec{a}$) be a known point on the plane, and $R$ ($\vec{r}$) be *any* other point on the plane. The vector connecting them is $(\vec{r} - \vec{a})$. 
+                By definition, this vector lies perfectly flat on the plane. Therefore, it must be **orthogonal** to the normal vector $\vec{n}$. How do we force two vectors to be orthogonal algebraically? We set their Dot Product to $0$.
+                """)
+                st.latex(r"(\vec{r} - \vec{a}) \cdot \vec{n} = 0")
+
+                st.markdown(r"""
+                **The Cartesian Equation:**
+                Let $\vec{n} = (A, B, C)$, $\vec{r} = (x, y, z)$, and $\vec{a} = (x_0, y_0, z_0)$. Expanding the dot product gives:
+                $$A(x - x_0) + B(y - y_0) + C(z - z_0) = 0$$
+                Grouping the constants into a single number $D$, we get the standard Cartesian form:
+                """)
+                st.latex(r"Ax + By + Cz + D = 0")
+                st.info(
+                    "The coefficients of $x, y, z$ in a Cartesian plane equation directly give you the Normal Vector $(A, B, C)$! This is a massive algebraic shortcut.")
+
+                # [Visual 2: 平面的构成]
+                fig_plane = go.Figure()
+                # 画一个平面 Ax + By + Cz = D (例如 x + y + z = 3)
+                px, py = np.meshgrid(np.linspace(0, 3, 10), np.linspace(0, 3, 10))
+                pz = 3 - px - py
+                fig_plane.add_trace(
+                    go.Surface(x=px, y=py, z=pz, colorscale='Blues', opacity=0.6, showscale=False, name='Plane'))
+                # 已知点 A(1, 1, 1)
+                fig_plane.add_trace(
+                    go.Scatter3d(x=[1], y=[1], z=[1], mode='markers+text', name='Point A', text=['A(a)'],
+                                 marker=dict(color='red', size=5)))
+                # 法向量 n(1, 1, 1) 从 A 出发
+                fig_plane.add_trace(
+                    go.Scatter3d(x=[1, 2], y=[1, 2], z=[1, 2], mode='lines+text', name='Normal Vector n',
+                                 text=['', 'n (A,B,C)'], line=dict(color='green', width=6)))
+                # 平面上的任意向量 r - a
+                fig_plane.add_trace(
+                    go.Scatter3d(x=[1, 2.5], y=[1, 0.5], z=[1, 0], mode='lines+text', name='Vector (r-a)',
+                                 text=['', '(r - a)'], line=dict(color='purple', width=4)))
+
+                fig_plane.update_layout(title="Visual 2: The Plane defined by Orthogonality to the Normal",
+                                        scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=30), height=400)
+                st.plotly_chart(fig_plane, use_container_width=True)
+
+                # ==========================================
+                # 3. 计算角度 (Angles)
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 3. Calculating Angles")
+                st.markdown(r"""
+                Finding angles between 3D objects reduces entirely to calculating the dot product of their defining vectors.
+
+                **1. Angle Between Two Lines:**
+                A line's orientation is entirely defined by its direction vector $\vec{v}$. The angle $\theta$ between two lines is simply the angle between $\vec{v_1}$ and $\vec{v_2}$.
+                $$ \cos\theta = \frac{|\vec{v_1} \cdot \vec{v_2}|}{|\vec{v_1}||\vec{v_2}|} $$
+                *(Absolute value is used if we want the acute angle).*
+
+                **2. Angle Between Two Planes:**
+                A plane's orientation is entirely defined by its normal vector $\vec{n}$. The angle between two planes is identical to the angle between their normal vectors $\vec{n_1}$ and $\vec{n_2}$.
+                $$ \cos\theta = \frac{|\vec{n_1} \cdot \vec{n_2}|}{|\vec{n_1}||\vec{n_2}|} $$
+
+                **3. Angle Between a Line and a Plane:**
+                This requires care. The dot product between the line's direction $\vec{v}$ and the plane's normal $\vec{n}$ gives the angle with the *normal* (let's call it $\phi$). However, the angle $\alpha$ with the *plane itself* is the complement ($90^\circ - \phi$).
+                Since $\cos(90^\circ - \alpha) = \sin\alpha$, the formula shifts to sine:
+                """)
+                st.latex(r"\sin\alpha = \frac{|\vec{v} \cdot \vec{n}|}{|\vec{v}||\vec{n}|}")
+
+                # ==========================================
+                # 4. 直线与平面的交点 (Intersection)
+                # ==========================================
+                st.markdown("---")
+                st.markdown("### 4. Intersection Between a Line and a Plane")
+                st.markdown(r"""
+                To find where a line pierces a plane, we use a simple algebraic substitution. We force the coordinates of the line to satisfy the strict condition (the equation) of the plane.
+
+                **The Logic:**
+                1. Write the line in **parametric form**: $x(t), y(t), z(t)$.
+                2. Substitute these $x, y, z$ into the plane's **Cartesian equation**: $Ax + By + Cz + D = 0$.
+                3. Solve for the single variable $t$.
+                4. Plug $t$ back into the line's equations to get the exact $(x, y, z)$ intersection coordinate.
+                """)
+
+                # [Visual 3: 交点与角度的综合展示]
+                fig_int = go.Figure()
+                # 画平面 z = 0
+                ix, iy = np.meshgrid(np.linspace(-3, 3, 10), np.linspace(-3, 3, 10))
+                iz = np.zeros_like(ix)
+                fig_int.add_trace(
+                    go.Surface(x=ix, y=iy, z=iz, colorscale='Greys', opacity=0.5, showscale=False, name='Plane'))
+
+                # 画法向量 (0,0,2)
+                fig_int.add_trace(
+                    go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, 2], mode='lines+text', name='Normal n', text=['', 'n'],
+                                 line=dict(color='green', width=5)))
+
+                # 画直线 (穿过原点，斜向)
+                t_int = np.linspace(-2, 2, 50)
+                lx = t_int * 1.5
+                ly = t_int * 0
+                lz = t_int * 2
+                fig_int.add_trace(
+                    go.Scatter3d(x=lx, y=ly, z=lz, mode='lines+text', name='Line v', text=['', '', '', 'v'],
+                                 textposition='top right', line=dict(color='blue', width=4)))
+
+                # 标出交点
+                fig_int.add_trace(go.Scatter3d(x=[0], y=[0], z=[0], mode='markers+text', name='Intersection',
+                                               text=['Intersection Point'],
+                                               marker=dict(color='red', size=6, symbol='diamond')))
+
+                fig_int.update_layout(title="Visual 3: Intersection and Angles",
+                                      scene=dict(aspectmode='cube', xaxis=dict(range=[-3, 3]),
+                                                 yaxis=dict(range=[-3, 3]), zaxis=dict(range=[-3, 3])),
+                                      margin=dict(l=0, r=0, b=0, t=30), height=400)
+                st.plotly_chart(fig_int, use_container_width=True)
+
+                st.info(
+                    r"**Summary:** Linear algebra transforms geometry into algebra. To find a plane, lock it down with a dot product (orthogonality). To pierce a plane, substitute parameters to solve for time ($t$).")
 
 # 4. 占位符模块
 # ==========================================
