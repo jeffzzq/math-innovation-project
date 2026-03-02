@@ -7652,177 +7652,280 @@ def render_la_vectors():
                 r"\vec{a} \times \vec{b} = \begin{vmatrix} \hat{i} & \hat{j} & \hat{k} \\ a_x & a_y & a_z \\ b_x & b_y & b_z \end{vmatrix}")
 
             # --- TAB 4: Applications ---
+            # --- TAB 4: Applications (The Ultimate Exam Engine) ---
             with tab_app:
-                st.header("Applications: Lines, Planes, and Intersections")
-                st.markdown(r"""
-                With the Dot Product (orthogonality/projection) and the Cross Product (normal vectors) established, we can now translate 3D geometric shapes into algebraic equations.
-                """)
+                st.header("The Ultimate 3D Sandbox: Exam Problem Engine")
+                st.markdown(
+                    "Select a tool below to instantly solve and visualize any vector geometry problem from your exam paper.")
 
-                # ==========================================
-                # 1. 空间直线 (Equation of a Line)
-                # ==========================================
+                # 核心导航台
+                tool_choice = st.selectbox(
+                    "🔧 Choose Your Geometry Tool:",
+                    ["1. Line Builder (From 2 Points)",
+                     "2. Plane Builder (From 3 Points)",
+                     "3. Angle Calculator",
+                     "4. Intersection Solver (Line & Plane)"]
+                )
+
                 st.markdown("---")
-                st.markdown("### 1. The Line in 3D Space")
-                st.markdown(r"""
-                To define a line algebraically, we need two ingredients:
-                1. A starting position: Point $A$ with position vector $\vec{a}$.
-                2. A direction of travel: Direction vector $\vec{v}$.
-
-                **The Vector Equation:**
-                Any point $R$ (position vector $\vec{r}$) on this line can be reached by starting at $\vec{a}$ and moving a certain amount (parameter $t$) along direction $\vec{v}$.
-                """)
-                st.latex(r"\vec{r} = \vec{a} + t\vec{v}")
-
-                st.markdown(r"""
-                **The Parametric Equation:**
-                If we break the vectors down into their coordinates $\vec{r} = (x, y, z)$, $\vec{a} = (x_0, y_0, z_0)$, and $\vec{v} = (v_1, v_2, v_3)$, the single vector equation splits into three independent equations:
-                """)
-                st.latex(r"\begin{cases} x = x_0 + tv_1 \\ y = y_0 + tv_2 \\ z = z_0 + tv_3 \end{cases}")
-
-                # [Visual 1: 直线的构成]
-                fig_line = go.Figure()
-                # 原点到起始点 a
-                fig_line.add_trace(
-                    go.Scatter3d(x=[0, 1], y=[0, 2], z=[0, 1], mode='lines+text', name='Position Vector a',
-                                 text=['', 'a'], line=dict(color='blue', width=4)))
-                # 方向向量 v (从 a 延伸)
-                fig_line.add_trace(
-                    go.Scatter3d(x=[1, 1 + 2], y=[2, 2 + 1], z=[1, 1 + 2], mode='lines+text', name='Direction Vector v',
-                                 text=['', 'v'], line=dict(color='green', width=6)))
-                # 完整的直线 (t from -2 to 3)
-                t_vals = np.linspace(-2, 3, 100)
-                line_x = 1 + t_vals * 2
-                line_y = 2 + t_vals * 1
-                line_z = 1 + t_vals * 2
-                fig_line.add_trace(go.Scatter3d(x=line_x, y=line_y, z=line_z, mode='lines', name='Line r = a + tv',
-                                                line=dict(color='red', width=2, dash='dash')))
-
-                fig_line.update_layout(title="Visual 1: Constructing a Line from a Position and Direction",
-                                       scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=30), height=400)
-                st.plotly_chart(fig_line, use_container_width=True)
 
                 # ==========================================
-                # 2. 空间平面 (Equation of a Plane)
+                # TOOL 1: LINE BUILDER (解决第 16 题)
                 # ==========================================
-                st.markdown("---")
-                st.markdown("### 2. The Plane in 3D Space")
-                st.markdown(r"""
-                A line is defined by the direction it *goes*. A plane is defined by the direction it *cannot go*—the direction strictly perpendicular to its entire surface. This is the **Normal Vector ($\vec{n}$)**.
+                if tool_choice == "1. Line Builder (From 2 Points)":
+                    st.subheader("🔨 Build a Line from Two Points")
 
-                **The Vector Equation:**
-                Let $A$ ($\vec{a}$) be a known point on the plane, and $R$ ($\vec{r}$) be *any* other point on the plane. The vector connecting them is $(\vec{r} - \vec{a})$. 
-                By definition, this vector lies perfectly flat on the plane. Therefore, it must be **orthogonal** to the normal vector $\vec{n}$. How do we force two vectors to be orthogonal algebraically? We set their Dot Product to $0$.
-                """)
-                st.latex(r"(\vec{r} - \vec{a}) \cdot \vec{n} = 0")
+                    col_p1, col_p2 = st.columns(2)
+                    with col_p1:
+                        st.markdown("**Point A**")
+                        ax = st.number_input("A_x", value=-1.0, step=1.0)
+                        ay = st.number_input("A_y", value=0.0, step=1.0)
+                        az = st.number_input("A_z", value=2.0, step=1.0)
+                    with col_p2:
+                        st.markdown("**Point B**")
+                        bx = st.number_input("B_x", value=3.0, step=1.0)
+                        by = st.number_input("B_y", value=4.0, step=1.0)
+                        bz = st.number_input("B_z", value=6.0, step=1.0)
 
-                st.markdown(r"""
-                **The Cartesian Equation:**
-                Let $\vec{n} = (A, B, C)$, $\vec{r} = (x, y, z)$, and $\vec{a} = (x_0, y_0, z_0)$. Expanding the dot product gives:
-                $$A(x - x_0) + B(y - y_0) + C(z - z_0) = 0$$
-                Grouping the constants into a single number $D$, we get the standard Cartesian form:
-                """)
-                st.latex(r"Ax + By + Cz + D = 0")
-                st.info(
-                    "The coefficients of $x, y, z$ in a Cartesian plane equation directly give you the Normal Vector $(A, B, C)$! This is a massive algebraic shortcut.")
+                    vec_a = np.array([ax, ay, az])
+                    vec_b = np.array([bx, by, bz])
+                    dir_v = vec_b - vec_a
 
-                # [Visual 2: 平面的构成]
-                fig_plane = go.Figure()
-                # 画一个平面 Ax + By + Cz = D (例如 x + y + z = 3)
-                px, py = np.meshgrid(np.linspace(0, 3, 10), np.linspace(0, 3, 10))
-                pz = 3 - px - py
-                fig_plane.add_trace(
-                    go.Surface(x=px, y=py, z=pz, colorscale='Blues', opacity=0.6, showscale=False, name='Plane'))
-                # 已知点 A(1, 1, 1)
-                fig_plane.add_trace(
-                    go.Scatter3d(x=[1], y=[1], z=[1], mode='markers+text', name='Point A', text=['A(a)'],
-                                 marker=dict(color='red', size=5)))
-                # 法向量 n(1, 1, 1) 从 A 出发
-                fig_plane.add_trace(
-                    go.Scatter3d(x=[1, 2], y=[1, 2], z=[1, 2], mode='lines+text', name='Normal Vector n',
-                                 text=['', 'n (A,B,C)'], line=dict(color='green', width=6)))
-                # 平面上的任意向量 r - a
-                fig_plane.add_trace(
-                    go.Scatter3d(x=[1, 2.5], y=[1, 0.5], z=[1, 0], mode='lines+text', name='Vector (r-a)',
-                                 text=['', '(r - a)'], line=dict(color='purple', width=4)))
+                    st.markdown("### Step-by-Step Solution")
+                    st.markdown("**1. Find the Direction Vector $\\vec{v}$:**")
+                    st.latex(
+                        rf"\vec{{v}} = \vec{{OB}} - \vec{{OA}} = \begin{{bmatrix}} {bx} - ({ax}) \\ {by} - ({ay}) \\ {bz} - ({az}) \end{{bmatrix}} = \begin{{bmatrix}} {dir_v[0]} \\ {dir_v[1]} \\ {dir_v[2]} \end{{bmatrix}}")
 
-                fig_plane.update_layout(title="Visual 2: The Plane defined by Orthogonality to the Normal",
-                                        scene=dict(aspectmode='cube'), margin=dict(l=0, r=0, b=0, t=30), height=400)
-                st.plotly_chart(fig_plane, use_container_width=True)
+                    st.markdown("**2. Form the Equations:**")
+                    st.markdown("Parametric Equations:")
+                    st.latex(rf"x = {ax} + ({dir_v[0]})t \quad y = {ay} + ({dir_v[1]})t \quad z = {az} + ({dir_v[2]})t")
 
-                # ==========================================
-                # 3. 计算角度 (Angles)
-                # ==========================================
-                st.markdown("---")
-                st.markdown("### 3. Calculating Angles")
-                st.markdown(r"""
-                Finding angles between 3D objects reduces entirely to calculating the dot product of their defining vectors.
+                    st.markdown("Cartesian Equation (Solving for $t$):")
+                    if dir_v[0] != 0 and dir_v[1] != 0 and dir_v[2] != 0:
+                        st.latex(
+                            rf"\frac{{x - ({ax})}}{{{dir_v[0]}}} = \frac{{y - ({ay})}}{{{dir_v[1]}}} = \frac{{z - ({az})}}{{{dir_v[2]}}}")
+                    else:
+                        st.warning(
+                            "One or more direction components are 0. Cartesian form must be written piecewise (e.g., if v_x=0, then x=constant).")
 
-                **1. Angle Between Two Lines:**
-                A line's orientation is entirely defined by its direction vector $\vec{v}$. The angle $\theta$ between two lines is simply the angle between $\vec{v_1}$ and $\vec{v_2}$.
-                $$ \cos\theta = \frac{|\vec{v_1} \cdot \vec{v_2}|}{|\vec{v_1}||\vec{v_2}|} $$
-                *(Absolute value is used if we want the acute angle).*
+                    # Visual: Line Builder
+                    fig_l = go.Figure()
+                    fig_l.add_trace(
+                        go.Scatter3d(x=[ax], y=[ay], z=[az], mode='markers+text', name='Point A', text=['A'],
+                                     marker=dict(color='red', size=6)))
+                    fig_l.add_trace(
+                        go.Scatter3d(x=[bx], y=[by], z=[bz], mode='markers+text', name='Point B', text=['B'],
+                                     marker=dict(color='blue', size=6)))
 
-                **2. Angle Between Two Planes:**
-                A plane's orientation is entirely defined by its normal vector $\vec{n}$. The angle between two planes is identical to the angle between their normal vectors $\vec{n_1}$ and $\vec{n_2}$.
-                $$ \cos\theta = \frac{|\vec{n_1} \cdot \vec{n_2}|}{|\vec{n_1}||\vec{n_2}|} $$
+                    t_vals = np.linspace(-1, 2, 50)
+                    lx = ax + t_vals * dir_v[0]
+                    ly = ay + t_vals * dir_v[1]
+                    lz = az + t_vals * dir_v[2]
+                    fig_l.add_trace(go.Scatter3d(x=lx, y=ly, z=lz, mode='lines', name='Line AB',
+                                                 line=dict(color='purple', width=4)))
 
-                **3. Angle Between a Line and a Plane:**
-                This requires care. The dot product between the line's direction $\vec{v}$ and the plane's normal $\vec{n}$ gives the angle with the *normal* (let's call it $\phi$). However, the angle $\alpha$ with the *plane itself* is the complement ($90^\circ - \phi$).
-                Since $\cos(90^\circ - \alpha) = \sin\alpha$, the formula shifts to sine:
-                """)
-                st.latex(r"\sin\alpha = \frac{|\vec{v} \cdot \vec{n}|}{|\vec{v}||\vec{n}|}")
+                    fig_l.update_layout(title="Visual: Constructing the Line", scene=dict(aspectmode='data'),
+                                        height=450)
+                    st.plotly_chart(fig_l, use_container_width=True)
+
 
                 # ==========================================
-                # 4. 直线与平面的交点 (Intersection)
+                # TOOL 2: PLANE BUILDER (解决第 17 题)
                 # ==========================================
-                st.markdown("---")
-                st.markdown("### 4. Intersection Between a Line and a Plane")
-                st.markdown(r"""
-                To find where a line pierces a plane, we use a simple algebraic substitution. We force the coordinates of the line to satisfy the strict condition (the equation) of the plane.
+                elif tool_choice == "2. Plane Builder (From 3 Points)":
+                    st.subheader("🔨 Build a Plane from Three Points")
+                    st.markdown(
+                        "We will use the **Cross Product** to find the normal vector strictly perpendicular to the triangle formed by A, B, and C.")
 
-                **The Logic:**
-                1. Write the line in **parametric form**: $x(t), y(t), z(t)$.
-                2. Substitute these $x, y, z$ into the plane's **Cartesian equation**: $Ax + By + Cz + D = 0$.
-                3. Solve for the single variable $t$.
-                4. Plug $t$ back into the line's equations to get the exact $(x, y, z)$ intersection coordinate.
-                """)
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        ax = st.number_input("A_x", value=1.0)
+                        ay = st.number_input("A_y", value=3.0)
+                        az = st.number_input("A_z", value=1.0)
+                    with c2:
+                        bx = st.number_input("B_x", value=4.0)
+                        by = st.number_input("B_y", value=-1.0)
+                        bz = st.number_input("B_z", value=2.0)
+                    with c3:
+                        cx = st.number_input("C_x", value=12.0)
+                        cy = st.number_input("C_y", value=0.0)
+                        cz = st.number_input("C_z", value=1.0)
 
-                # [Visual 3: 交点与角度的综合展示]
-                fig_int = go.Figure()
-                # 画平面 z = 0
-                ix, iy = np.meshgrid(np.linspace(-3, 3, 10), np.linspace(-3, 3, 10))
-                iz = np.zeros_like(ix)
-                fig_int.add_trace(
-                    go.Surface(x=ix, y=iy, z=iz, colorscale='Greys', opacity=0.5, showscale=False, name='Plane'))
+                    pA, pB, pC = np.array([ax, ay, az]), np.array([bx, by, bz]), np.array([cx, cy, cz])
+                    v_AB = pB - pA
+                    v_AC = pC - pA
+                    n_vec = np.cross(v_AB, v_AC)
 
-                # 画法向量 (0,0,2)
-                fig_int.add_trace(
-                    go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, 2], mode='lines+text', name='Normal n', text=['', 'n'],
-                                 line=dict(color='green', width=5)))
+                    st.markdown("### Step-by-Step Solution")
+                    if np.linalg.norm(n_vec) == 0:
+                        st.error("The points are collinear (on the same line). They do not form a unique plane!")
+                    else:
+                        st.markdown("**1. Find two vectors on the plane:**")
+                        st.latex(
+                            rf"\vec{{AB}} = \begin{{bmatrix}} {v_AB[0]} \\ {v_AB[1]} \\ {v_AB[2]} \end{{bmatrix}}, \quad \vec{{AC}} = \begin{{bmatrix}} {v_AC[0]} \\ {v_AC[1]} \\ {v_AC[2]} \end{{bmatrix}}")
 
-                # 画直线 (穿过原点，斜向)
-                t_int = np.linspace(-2, 2, 50)
-                lx = t_int * 1.5
-                ly = t_int * 0
-                lz = t_int * 2
-                fig_int.add_trace(
-                    go.Scatter3d(x=lx, y=ly, z=lz, mode='lines+text', name='Line v', text=['', '', '', 'v'],
-                                 textposition='top right', line=dict(color='blue', width=4)))
+                        st.markdown("**2. Cross Product for the Normal Vector $\\vec{n}$:**")
+                        st.latex(
+                            rf"\vec{{n}} = \vec{{AB}} \times \vec{{AC}} = \begin{{bmatrix}} {n_vec[0]} \\ {n_vec[1]} \\ {n_vec[2]} \end{{bmatrix}}")
 
-                # 标出交点
-                fig_int.add_trace(go.Scatter3d(x=[0], y=[0], z=[0], mode='markers+text', name='Intersection',
-                                               text=['Intersection Point'],
-                                               marker=dict(color='red', size=6, symbol='diamond')))
+                        st.markdown("**3. Construct Cartesian Equation ($Ax + By + Cz = D$):**")
+                        D_val = np.dot(n_vec, pA)
+                        st.latex(
+                            rf"({n_vec[0]})x + ({n_vec[1]})y + ({n_vec[2]})z = ({n_vec[0]})({ax}) + ({n_vec[1]})({ay}) + ({n_vec[2]})({az})")
+                        st.latex(rf"{n_vec[0]}x + {n_vec[1]}y + {n_vec[2]}z = {D_val}")
 
-                fig_int.update_layout(title="Visual 3: Intersection and Angles",
-                                      scene=dict(aspectmode='cube', xaxis=dict(range=[-3, 3]),
-                                                 yaxis=dict(range=[-3, 3]), zaxis=dict(range=[-3, 3])),
-                                      margin=dict(l=0, r=0, b=0, t=30), height=400)
-                st.plotly_chart(fig_int, use_container_width=True)
+                        # Visual: Plane Builder
+                        fig_p = go.Figure()
+                        fig_p.add_trace(
+                            go.Mesh3d(x=[ax, bx, cx], y=[ay, by, cy], z=[az, bz, cz], color='lightblue', opacity=0.6,
+                                      name='Plane'))
+                        fig_p.add_trace(go.Scatter3d(x=[ax, bx, cx, ax], y=[ay, by, cy, ay], z=[az, bz, cz, az],
+                                                     mode='lines+markers+text', text=['A', 'B', 'C', ''],
+                                                     marker=dict(color='blue', size=5),
+                                                     line=dict(color='darkblue', width=3)))
+                        # Normal vector from A
+                        fig_p.add_trace(go.Scatter3d(x=[ax, ax + n_vec[0] * 0.2], y=[ay, ay + n_vec[1] * 0.2],
+                                                     z=[az, az + n_vec[2] * 0.2], mode='lines+text',
+                                                     text=['', 'Normal n'], line=dict(color='green', width=5)))
 
-                st.info(
-                    r"**Summary:** Linear algebra transforms geometry into algebra. To find a plane, lock it down with a dot product (orthogonality). To pierce a plane, substitute parameters to solve for time ($t$).")
+                        fig_p.update_layout(title="Visual: Cross Product generates the Normal",
+                                            scene=dict(aspectmode='data'), height=450)
+                        st.plotly_chart(fig_p, use_container_width=True)
 
+
+                # ==========================================
+                # TOOL 3: ANGLE CALCULATOR (解决第 18, 19 题)
+                # ==========================================
+                elif tool_choice == "3. Angle Calculator":
+                    st.subheader("📐 Universal Angle Calculator")
+                    angle_type = st.radio("What are we measuring?",
+                                          ["Line and Line", "Plane and Plane", "Line and Plane"], horizontal=True)
+
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Vector 1 (Direction/Normal)**")
+                        v1_x = st.number_input("V1_x", value=9.0)
+                        v1_y = st.number_input("V1_y", value=13.0)
+                        v1_z = st.number_input("V1_z", value=-3.0)
+                    with col2:
+                        st.markdown("**Vector 2 (Direction/Normal)**")
+                        v2_x = st.number_input("V2_x", value=1.0)
+                        v2_y = st.number_input("V2_y", value=4.0)
+                        v2_z = st.number_input("V2_z", value=-2.0)
+
+                    v1 = np.array([v1_x, v1_y, v1_z])
+                    v2 = np.array([v2_x, v2_y, v2_z])
+                    mag1, mag2 = np.linalg.norm(v1), np.linalg.norm(v2)
+
+                    st.markdown("### Step-by-Step Solution")
+                    if mag1 == 0 or mag2 == 0:
+                        st.error("Vectors cannot be zero!")
+                    else:
+                        dot_p = np.dot(v1, v2)
+                        st.latex(
+                            rf"\vec{{v_1}} \cdot \vec{{v_2}} = ({v1_x})({v2_x}) + ({v1_y})({v2_y}) + ({v1_z})({v2_z}) = {dot_p}")
+                        st.latex(rf"|\vec{{v_1}}| = {mag1:.3f}, \quad |\vec{{v_2}}| = {mag2:.3f}")
+
+                        if angle_type == "Line and Plane":
+                            st.markdown(
+                                "For a Line and a Plane, we use **Sine** because we want the angle with the plane, not the normal.")
+                            calc_val = abs(dot_p) / (mag1 * mag2)
+                            angle = np.degrees(np.arcsin(calc_val))
+                            st.latex(
+                                rf"\sin\theta = \frac{{|{dot_p}|}}{{{mag1:.3f} \times {mag2:.3f}}} = {calc_val:.4f} \implies \theta = {angle:.1f}^\circ")
+                        else:
+                            st.markdown("For lines or planes of the same type, we use **Cosine**.")
+                            calc_val = abs(dot_p) / (mag1 * mag2)
+                            angle = np.degrees(np.arccos(calc_val))
+                            st.latex(
+                                rf"\cos\theta = \frac{{|{dot_p}|}}{{{mag1:.3f} \times {mag2:.3f}}} = {calc_val:.4f} \implies \theta = {angle:.1f}^\circ")
+
+                        # Visual: Vectors
+                        fig_a = go.Figure()
+                        fig_a.add_trace(
+                            go.Scatter3d(x=[0, v1_x], y=[0, v1_y], z=[0, v1_z], mode='lines+text', text=['', 'V1'],
+                                         line=dict(color='red', width=6)))
+                        fig_a.add_trace(
+                            go.Scatter3d(x=[0, v2_x], y=[0, v2_y], z=[0, v2_z], mode='lines+text', text=['', 'V2'],
+                                         line=dict(color='blue', width=6)))
+                        fig_a.update_layout(title="Visual: The Two Vectors", scene=dict(aspectmode='data'), height=450)
+                        st.plotly_chart(fig_a, use_container_width=True)
+
+
+                # ==========================================
+                # TOOL 4: INTERSECTION SOLVER (解决第 20 题)
+                # ==========================================
+                elif tool_choice == "4. Intersection Solver (Line & Plane)":
+                    st.subheader("🎯 Intersection of a Line and a Plane")
+
+                    col_plane, col_line = st.columns(2)
+                    with col_plane:
+                        st.markdown("**Plane: $Ax + By + Cz = D$**")
+                        pA = st.number_input("A (Normal x)", value=2.0)
+                        pB = st.number_input("B (Normal y)", value=-3.0)
+                        pC = st.number_input("C (Normal z)", value=1.0)
+                        pD = st.number_input("D (Constant)", value=-5.0)  # Notice D moves to RHS
+                    with col_line:
+                        st.markdown("**Line: Point + Direction**")
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            lx = st.number_input("Pt x", value=7.0)
+                            ly = st.number_input("Pt y", value=14.0)
+                            lz = st.number_input("Pt z", value=-9.0)
+                        with c2:
+                            vx = st.number_input("Dir x", value=3.0)
+                            vy = st.number_input("Dir y", value=6.0)
+                            vz = st.number_input("Dir z", value=-4.0)
+
+                    n_vec, v_vec, p_vec = np.array([pA, pB, pC]), np.array([vx, vy, vz]), np.array([lx, ly, lz])
+                    denominator = np.dot(n_vec, v_vec)
+                    constant_term = np.dot(n_vec, p_vec)
+
+                    st.markdown("### Step-by-Step Solution")
+                    st.markdown("**1. Substitute Parametric Line into Cartesian Plane:**")
+                    st.latex(rf"{pA}({lx} + ({vx})t) + ({pB})({ly} + ({vy})t) + ({pC})({lz} + ({vz})t) = {pD}")
+
+                    if abs(denominator) < 1e-8:
+                        st.error(
+                            "Denominator is 0. The line is strictly parallel to or inside the plane. No unique intersection.")
+                    else:
+                        t_val = (pD - constant_term) / denominator
+                        intersect_pt = p_vec + t_val * v_vec
+
+                        st.latex(rf"({denominator})t + ({constant_term}) = {pD} \implies t = {t_val:.4f}")
+                        st.markdown("**2. Calculate Intersection Point:**")
+                        st.latex(rf"I(x, y, z) = ({intersect_pt[0]:.2f}, {intersect_pt[1]:.2f}, {intersect_pt[2]:.2f})")
+
+                        # Visual: Intersection
+                        fig_i = go.Figure()
+
+                        # Dynamic Plane Generation
+                        if abs(n_vec[0]) < 0.9:
+                            u_vec = np.array([1, 0, 0])
+                        else:
+                            u_vec = np.array([0, 1, 0])
+                        u_vec = u_vec - (np.dot(u_vec, n_vec) / np.dot(n_vec, n_vec)) * n_vec
+                        u_vec = u_vec / np.linalg.norm(u_vec)
+                        w_vec = np.cross(n_vec, u_vec) / np.linalg.norm(np.cross(n_vec, u_vec))
+
+                        uu, ww = np.meshgrid(np.linspace(-10, 10, 2), np.linspace(-10, 10, 2))
+                        px = intersect_pt[0] + uu * u_vec[0] + ww * w_vec[0]
+                        py = intersect_pt[1] + uu * u_vec[1] + ww * w_vec[1]
+                        pz = intersect_pt[2] + uu * u_vec[2] + ww * w_vec[2]
+                        fig_i.add_trace(go.Surface(x=px, y=py, z=pz, colorscale='Greys', opacity=0.5, showscale=False))
+
+                        # Line and point
+                        t_line = np.linspace(t_val - 3, t_val + 3, 10)
+                        fig_i.add_trace(go.Scatter3d(x=p_vec[0] + t_line * v_vec[0], y=p_vec[1] + t_line * v_vec[1],
+                                                     z=p_vec[2] + t_line * v_vec[2], mode='lines',
+                                                     line=dict(color='blue', width=4)))
+                        fig_i.add_trace(go.Scatter3d(x=[intersect_pt[0]], y=[intersect_pt[1]], z=[intersect_pt[2]],
+                                                     mode='markers+text', text=['Intersection'],
+                                                     marker=dict(color='red', size=8, symbol='diamond')))
+
+                        fig_i.update_layout(title="Visual: The Exact Pierce Point", scene=dict(aspectmode='data'),
+                                            height=500)
+                        st.plotly_chart(fig_i, use_container_width=True)
 # 4. 占位符模块
 # ==========================================
 def render_coming_soon(topic_name):
