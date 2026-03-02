@@ -7490,32 +7490,91 @@ def render_la_vectors():
                 st.markdown("---")
                 st.markdown("### 4. Application: Rotational Invariance & The Cosine Difference Formula")
                 st.markdown(r"""
-                    Because the dot product depends solely on the relative angle and magnitudes, it is **invariant under coordinate rotations**. We can exploit this to easily prove $\cos(\alpha - \beta)$.
-                    """)
+                Because the dot product depends solely on the relative angle and magnitudes, it is **invariant under coordinate rotations**. We can exploit this to easily prove $\cos(\alpha - \beta)$.
+                """)
 
                 # [Visual 6]
                 rot_angle = st.slider("Rotate the System (Match Vector B to X-axis)", 0, 45, 0,
                                       help="Drag this to rotate the vectors clockwise!")
-                alpha_rad = np.radians(75 - rot_angle)
-                beta_rad = np.radians(45 - rot_angle)
+
+                # 动态计算当前角度
+                curr_alpha_deg = 75 - rot_angle
+                curr_beta_deg = 45 - rot_angle
+
+                alpha_rad = np.radians(curr_alpha_deg)
+                beta_rad = np.radians(curr_beta_deg)
+
                 ax, ay = np.cos(alpha_rad), np.sin(alpha_rad)
                 bx, by = np.cos(beta_rad), np.sin(beta_rad)
 
+                # ---------------------------------------------------------
+                # 核心修复：手写画 2D 圆弧的辅助函数
+                # ---------------------------------------------------------
+                def get_arc_2d(radius, start_angle_rad, end_angle_rad, num_points=50):
+                    t = np.linspace(start_angle_rad, end_angle_rad, num_points)
+                    return radius * np.cos(t), radius * np.sin(t)
+
                 fig6 = go.Figure()
+
+                # 1. 画单位圆和坐标轴
                 theta = np.linspace(0, 2 * np.pi, 100)
                 fig6.add_trace(go.Scatter(x=np.cos(theta), y=np.sin(theta), mode='lines',
                                           line=dict(color='lightgrey', dash='dash'), showlegend=False))
+                fig6.add_trace(go.Scatter(x=[-1.2, 1.2], y=[0, 0], mode='lines', line=dict(color='black', width=1),
+                                          showlegend=False))
+                fig6.add_trace(go.Scatter(x=[0, 0], y=[-1.2, 1.2], mode='lines', line=dict(color='black', width=1),
+                                          showlegend=False))
+
+                # 2. 画向量 A 和 B
+                fig6.add_trace(go.Scatter(x=[0, ax], y=[0, ay], mode='lines+markers', name='Vector A',
+                                          line=dict(color='red', width=4)))
+                fig6.add_trace(go.Scatter(x=[0, bx], y=[0, by], mode='lines+markers', name='Vector B',
+                                          line=dict(color='blue', width=4)))
+
+                # 3. 画角度圆弧与标注 (仅当角度大于 0 时绘制，避免重叠)
+                if curr_alpha_deg > 0:
+                    arc_a_x, arc_a_y = get_arc_2d(0.2, 0, alpha_rad)
+                    fig6.add_trace(go.Scatter(x=arc_a_x, y=arc_a_y, mode='lines', line=dict(color='red', width=2),
+                                              showlegend=False))
+                    # 动态角度标签：旋转前显示 α，旋转中显示具体度数
+                    label_alpha_arc = "α" if rot_angle == 0 else f"{curr_alpha_deg}°"
+                    fig6.add_trace(
+                        go.Scatter(x=[np.cos(alpha_rad / 2) * 0.28], y=[np.sin(alpha_rad / 2) * 0.28], mode='text',
+                                   text=[label_alpha_arc], textfont=dict(color='red', size=14), showlegend=False))
+
+                if curr_beta_deg > 0:
+                    arc_b_x, arc_b_y = get_arc_2d(0.35, 0, beta_rad)
+                    fig6.add_trace(go.Scatter(x=arc_b_x, y=arc_b_y, mode='lines', line=dict(color='blue', width=2),
+                                              showlegend=False))
+                    # 动态角度标签
+                    label_beta_arc = "β" if rot_angle == 0 else f"{curr_beta_deg}°"
+                    fig6.add_trace(
+                        go.Scatter(x=[np.cos(beta_rad / 2) * 0.45], y=[np.sin(beta_rad / 2) * 0.45], mode='text',
+                                   text=[label_beta_arc], textfont=dict(color='blue', size=14), showlegend=False))
+
+                # 4. 动态坐标端点标注 (教学展示的核心)
+                if rot_angle == 0:
+                    label_a = "A(cos α, sin α)"
+                    label_b = "B(cos β, sin β)"
+                elif rot_angle == 45:  # Vector B 完全贴在 X 轴上
+                    label_a = "A'(cos(α-β), sin(α-β))"
+                    label_b = "B'(1, 0)"
+                else:  # 旋转过渡过程
+                    label_a = f"A'({ax:.2f}, {ay:.2f})"
+                    label_b = f"B'({bx:.2f}, {by:.2f})"
+
                 fig6.add_trace(
-                    go.Scatter(x=[0, 1.2], y=[0, 0], mode='lines', line=dict(color='black', width=1), showlegend=False))
+                    go.Scatter(x=[ax * 1.25], y=[ay * 1.15], mode='text', text=[label_a], textposition='middle center',
+                               textfont=dict(color='red', size=13), showlegend=False))
                 fig6.add_trace(
-                    go.Scatter(x=[0, ax], y=[0, ay], mode='lines+markers+text', name='Vector A', text=['', 'A'],
-                               textposition='top right', line=dict(color='red', width=4)))
-                fig6.add_trace(
-                    go.Scatter(x=[0, bx], y=[0, by], mode='lines+markers+text', name='Vector B', text=['', 'B'],
-                               textposition='bottom right', line=dict(color='blue', width=4)))
+                    go.Scatter(x=[bx * 1.25], y=[by * 1.15], mode='text', text=[label_b], textposition='middle center',
+                               textfont=dict(color='blue', size=13), showlegend=False))
+
                 fig6.update_layout(title="Visual 6: Rotational Invariance of the Dot Product",
-                                   xaxis=dict(range=[-0.2, 1.2], scaleanchor="y", scaleratio=1),
-                                   yaxis=dict(range=[-0.2, 1.2]), height=400, margin=dict(l=0, r=0, b=0, t=30))
+                                   xaxis=dict(range=[-1.5, 1.5], scaleanchor="y", scaleratio=1, zeroline=False,
+                                              showgrid=False),
+                                   yaxis=dict(range=[-1.5, 1.5], zeroline=False, showgrid=False),
+                                   height=500, margin=dict(l=0, r=0, b=0, t=30))
                 st.plotly_chart(fig6, use_container_width=True)
 
                 col1, col2 = st.columns(2)
@@ -7525,7 +7584,8 @@ def render_la_vectors():
 
                 with col2:
                     st.markdown("**Method 2: Rotated Coordinates**")
-                    st.latex(r"\vec{A}' \cdot \vec{B}' = \cos(\alpha-\beta)")
+                    st.latex(
+                        r"\vec{A}' \cdot \vec{B}' = \cos(\alpha-\beta)(1) + \sin(\alpha-\beta)(0) = \cos(\alpha-\beta)")
 
                 st.success(
                     r"**The Geometric Equivalence:** $ \cos(\alpha - \beta) = \cos\alpha\cos\beta + \sin\alpha\sin\beta $")
