@@ -7986,6 +7986,454 @@ def render_la_vectors():
                         fig_i.update_layout(title="Visual: The Exact Pierce Point", scene=dict(aspectmode='data'),
                                             height=500)
                         st.plotly_chart(fig_i, use_container_width=True)
+
+
+#矩阵
+
+# ==========================================
+# 辅助绘图函数 (保持不变)
+# ==========================================
+import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
+
+
+# ==========================================
+# 辅助绘图函数 (保持不变)
+# ==========================================
+def draw_vector(fig, x, y, name, color, dash=False, origin=(0, 0), show_arrow=True, opacity=1.0):
+    line_style = dict(color=color, width=3 if not dash else 2, dash='dash' if dash else 'solid')
+    fig.add_trace(go.Scatter(
+        x=[origin[0], origin[0] + x], y=[origin[1], origin[1] + y],
+        mode='lines', line=line_style, name=name, opacity=opacity,
+        showlegend=False if dash else True, hoverinfo='none' if dash else 'all'
+    ))
+    if show_arrow:
+        fig.add_annotation(
+            x=origin[0] + x, y=origin[1] + y, ax=origin[0], ay=origin[1],
+            xref="x", yref="y", axref="x", ayref="y",
+            showarrow=True, arrowhead=2, arrowsize=1.2, arrowwidth=3, arrowcolor=color, opacity=opacity
+        )
+
+
+def create_base_figure(max_range=6):
+    fig = go.Figure()
+    fig.update_layout(
+        xaxis=dict(range=[-max_range, max_range], zeroline=True, zerolinewidth=2, zerolinecolor='black', showgrid=True,
+                   gridcolor='lightgrey', dtick=1),
+        yaxis=dict(range=[-max_range, max_range], zeroline=True, zerolinewidth=2, zerolinecolor='black', showgrid=True,
+                   gridcolor='lightgrey', dtick=1, scaleanchor="x", scaleratio=1),
+        width=700, height=700, margin=dict(l=20, r=20, t=40, b=20), plot_bgcolor='#f8f9fa'
+    )
+    return fig
+
+def draw_warped_grid(fig, M, color='rgba(150, 200, 255, 0.4)'):
+    """绘制经过矩阵 M 扭曲后的整个网格"""
+    grid_range = 5
+    for i in range(-grid_range, grid_range + 1):
+        # 横向网格线
+        pt1 = M @ np.array([-grid_range, i])
+        pt2 = M @ np.array([grid_range, i])
+        fig.add_trace(go.Scatter(x=[pt1[0], pt2[0]], y=[pt1[1], pt2[1]], mode='lines', line=dict(color=color, width=1.5), hoverinfo='skip'))
+        # 纵向网格线
+        pt3 = M @ np.array([i, -grid_range])
+        pt4 = M @ np.array([i, grid_range])
+        fig.add_trace(go.Scatter(x=[pt3[0], pt4[0]], y=[pt3[1], pt4[1]], mode='lines', line=dict(color=color, width=1.5), hoverinfo='skip'))
+
+# ==========================================
+# 核心渲染函数
+# ==========================================
+def render_la_matrices():
+    st.title("📐 The Geometric Essence of Matrices")
+    st.markdown("A step-by-step visual journey from basic vectors to spatial transformations.")
+
+    tab1, tab2, tab3= st.tabs([
+        "📖 Part I: The Vector Foundation",
+        "🔲 Part II: Matrix Transformations",
+        "🔄 Part III: Multiplication & Composition"
+    ])
+
+    # ------------------------------------------
+    # Tab 1: 向量基础 (前三章)
+    # ------------------------------------------
+    with tab1:
+        st.header("Part I: The Vector Foundation")
+
+        chapter_p1 = st.radio(
+            "Select Chapter:",
+            ["1. The Rulers (Basis)", "2. Traveling (Linear Combo)", "3. The Reach (Span)"],
+            horizontal=True,
+            key="radio_p1"
+        )
+        st.markdown("---")
+
+        col_text, col_plot = st.columns([1, 1.5])
+
+        with col_text:
+            if chapter_p1 == "1. The Rulers (Basis)":
+                st.markdown("### The fundamental building blocks")
+                st.markdown("""
+                Before a matrix can warp space, we must define the space itself.
+
+                In standard 2D space, we use two special vectors as our ultimate reference points:
+                * **$\hat{i}$ (i-hat)**: exactly 1 unit right $(1, 0)$.
+                * **$\hat{j}$ (j-hat)**: exactly 1 unit up $(0, 1)$.
+
+                Every concept in matrices relies on knowing **where these two vectors land**.
+                """)
+
+                with col_plot:
+                    fig1 = create_base_figure(max_range=3)
+                    draw_vector(fig1, 1, 0, "i-hat", "#e74c3c")
+                    draw_vector(fig1, 0, 1, "j-hat", "#2ecc71")
+                    fig1.update_layout(title="Ch 1: Standard Basis Vectors")
+                    st.plotly_chart(fig1, use_container_width=True)
+
+            elif chapter_p1 == "2. Traveling (Linear Combo)":
+                st.markdown("### How to reach any destination")
+                st.markdown(
+                    "We reach any coordinate, like $\\vec{v}$, by **scaling** our basis vectors and **adding** them together.")
+
+                a = st.slider("Scale i-hat (Red)", -5.0, 5.0, 2.0, 0.5)
+                b = st.slider("Scale j-hat (Green)", -5.0, 5.0, 3.0, 0.5)
+
+                st.latex(rf"\vec{{v}} = {a}\hat{{i}} + {b}\hat{{j}}")
+                st.info(
+                    "💡 **Bridge to Part II:** This simple act of scaling and adding is the literal definition of Matrix Multiplication!")
+
+                with col_plot:
+                    fig2 = create_base_figure(max_range=6)
+                    draw_vector(fig2, 1, 0, "i-hat", "rgba(231, 76, 60, 0.3)")
+                    draw_vector(fig2, 0, 1, "j-hat", "rgba(46, 204, 113, 0.3)")
+                    draw_vector(fig2, a, 0, f"{a} * i-hat", "#e74c3c")
+                    draw_vector(fig2, 0, b, f"{b} * j-hat", "#2ecc71")
+                    draw_vector(fig2, a, 0, "", "#e74c3c", dash=True, origin=(0, b), show_arrow=False)
+                    draw_vector(fig2, 0, b, "", "#2ecc71", dash=True, origin=(a, 0), show_arrow=False)
+                    draw_vector(fig2, a, b, "Result v", "#9b59b6")
+                    fig2.update_layout(title="Ch 2: Linear Combination")
+                    st.plotly_chart(fig2, use_container_width=True)
+
+            elif chapter_p1 == "3. The Reach (Span)":
+                st.markdown("### The limits of our vectors")
+                st.markdown("The **Span** is the set of all possible points you can reach by mixing two vectors.")
+
+                c1, c2 = st.columns(2)
+                with c1:
+                    v1_x = st.number_input("Vector 1 X", value=1.0, step=0.5)
+                    v1_y = st.number_input("Vector 1 Y", value=1.0, step=0.5)
+                with c2:
+                    v2_x = st.number_input("Vector 2 X", value=-2.0, step=0.5)
+                    v2_y = st.number_input("Vector 2 Y", value=-2.0, step=0.5)
+
+                show_span = st.checkbox("🌌 Show the Span", value=True)
+
+                det = v1_x * v2_y - v1_y * v2_x
+                if abs(det) < 1e-5:
+                    st.error(
+                        "🚨 **Dimensional Collapse!** These vectors are collinear. The span is trapped on a 1D line.")
+                else:
+                    st.success("✨ **Freedom!** Their span covers the entire 2D plane.")
+
+                with col_plot:
+                    fig3 = create_base_figure(max_range=8)
+                    if show_span:
+                        span_range = np.linspace(-6, 6, 13)
+                        span_x, span_y = [], []
+                        for c in span_range:
+                            for d in span_range:
+                                span_x.append(c * v1_x + d * v2_x)
+                                span_y.append(c * v1_y + d * v2_y)
+                        fig3.add_trace(go.Scatter(x=span_x, y=span_y, mode='markers',
+                                                  marker=dict(size=5, color='rgba(52, 152, 219, 0.4)'),
+                                                  hoverinfo='skip'))
+                    draw_vector(fig3, v1_x, v1_y, "Vec 1", "#e74c3c")
+                    draw_vector(fig3, v2_x, v2_y, "Vec 2", "#2ecc71")
+                    fig3.update_layout(title="Ch 3: Span & Dimensionality")
+                    st.plotly_chart(fig3, use_container_width=True)
+
+    # ------------------------------------------
+    # Tab 2: 矩阵变换 (后两章，继承故事线)
+    # ------------------------------------------
+    with tab2:
+        st.header("Part II: Matrix Transformations")
+
+        # 沿用 Tab 1 的结构风格
+        chapter_p2 = st.radio(
+            "Select Chapter:",
+            ["4. The Matrix is a Verb", "5. The Grand Simulator"],
+            horizontal=True,
+            key="radio_p2"
+        )
+        st.markdown("---")
+
+        if chapter_p2 == "4. The Matrix is a Verb":
+            col_text, col_plot = st.columns([1, 1])
+            with col_text:
+                st.markdown("### The Secret of the Matrix Columns")
+                st.markdown("""
+                In Part I, we learned that any point can be found by tracking $\hat{i}$ and $\hat{j}$. 
+
+                Now, imagine **warping** the entire spatial grid. Because the grid remains parallel and evenly spaced (the definition of a *Linear* Transformation), we **only need to track where $\hat{i}$ and $\hat{j}$ land!**
+                """)
+                st.info("""
+                A $2 \times 2$ matrix is simply a **"record book"**:
+                * **Column 1**: The new landing spot of $\hat{i}$.
+                * **Column 2**: The new landing spot of $\hat{j}$.
+                """)
+                st.latex(r"""
+                \text{Matrix } M = \begin{bmatrix} \color{red}a & \color{green}b \\ \color{red}c & \color{green}d \end{bmatrix} \implies 
+                \begin{cases} 
+                \text{New } \hat{i} \text{ lands at } (\color{red}a, \color{red}c) \\ 
+                \text{New } \hat{j} \text{ lands at } (\color{green}b, \color{green}d) 
+                \end{cases}
+                """)
+
+            with col_plot:
+                # 给出一个静态的、极简的对比图，作为过渡
+                fig4 = create_base_figure(max_range=4)
+                # 原来的
+                draw_vector(fig4, 1, 0, "Old i", "rgba(231, 76, 60, 0.3)")
+                draw_vector(fig4, 0, 1, "Old j", "rgba(46, 204, 113, 0.3)")
+                # 新的 (对应一个矩阵 [2, -1; 1, 2])
+                draw_vector(fig4, 2, 1, "New i (Col 1)", "#e74c3c")
+                draw_vector(fig4, -1, 2, "New j (Col 2)", "#2ecc71")
+                fig4.update_layout(title="Ch 4: Matrix columns = Transformed Basis Vectors")
+                st.plotly_chart(fig4, use_container_width=True)
+
+        elif chapter_p2 == "5. The Grand Simulator":
+            st.markdown("### Putting it all together: Matrix Multiplication")
+            st.markdown(
+                "Now, drag the sliders to redefine the matrix (the new landing spots of the basis vectors). Then, watch how a custom vector $\\vec{v}$ is dragged along with the warped space.")
+
+            col_ctrl, col_plot = st.columns([1, 1.5])
+
+            with col_ctrl:
+                st.markdown("#### Matrix Definition")
+                c1, c2 = st.columns(2)
+                with c1:
+                    i_new_x = st.slider("New i-hat X (a)", -3.0, 3.0, 1.0, 0.5)
+                    i_new_y = st.slider("New i-hat Y (c)", -3.0, 3.0, 0.0, 0.5)
+                with c2:
+                    j_new_x = st.slider("New j-hat X (b)", -3.0, 3.0, 0.0, 0.5)
+                    j_new_y = st.slider("New j-hat Y (d)", -3.0, 3.0, 1.0, 0.5)
+
+                M = np.array([[i_new_x, j_new_x], [i_new_y, j_new_y]])
+
+                st.markdown("#### The Target Vector $\\vec{v}$")
+                c3, c4 = st.columns(2)
+                with c3:
+                    v_x = st.number_input("v_X (Steps of i)", value=2.0, step=0.5)
+                with c4:
+                    v_y = st.number_input("v_Y (Steps of j)", value=1.0, step=0.5)
+
+                target_v = np.array([v_x, v_y])
+                new_v = M @ target_v
+
+                st.markdown("---")
+                st.info(
+                    f"💡 **The ultimate connection:** The original vector meant 'take {v_x} steps of red, and {v_y} steps of green'. After transformation, it **still means exactly that**, just with the *new* red and green vectors! That's what matrix multiplication is.")
+                st.latex(
+                    rf"\begin{{bmatrix}} \color{{red}}{i_new_x} & \color{{green}}{j_new_x} \\ \color{{red}}{i_new_y} & \color{{green}}{j_new_y} \end{{bmatrix}} \begin{{bmatrix}} {v_x} \\ {v_y} \end{{bmatrix}} = \begin{{bmatrix}} {new_v[0]:.1f} \\ {new_v[1]:.1f} \end{{bmatrix}}")
+
+            with col_plot:
+                fig5 = go.Figure()
+
+                # 画变形网格
+                grid_range = 6
+                for i in range(-grid_range, grid_range + 1):
+                    # 横向网格线
+                    pt1 = M @ np.array([-grid_range, i])
+                    pt2 = M @ np.array([grid_range, i])
+                    fig5.add_trace(go.Scatter(x=[pt1[0], pt2[0]], y=[pt1[1], pt2[1]], mode='lines',
+                                              line=dict(color='rgba(150, 200, 255, 0.4)', width=1.5), hoverinfo='skip'))
+                    # 纵向网格线
+                    pt3 = M @ np.array([i, -grid_range])
+                    pt4 = M @ np.array([i, grid_range])
+                    fig5.add_trace(go.Scatter(x=[pt3[0], pt4[0]], y=[pt3[1], pt4[1]], mode='lines',
+                                              line=dict(color='rgba(150, 200, 255, 0.4)', width=1.5), hoverinfo='skip'))
+
+                fig5.add_trace(
+                    go.Scatter(x=[0], y=[0], mode='markers', marker=dict(color='black', size=8), showlegend=False))
+
+                # 旧向量
+                fig5.add_trace(
+                    go.Scatter(x=[0, target_v[0]], y=[0, target_v[1]], mode='lines+markers+text', name='Original v',
+                               text=['', f'Old v({v_x}, {v_y})'], textposition='bottom right',
+                               textfont=dict(color='grey', size=12), line=dict(color='grey', width=2, dash='dash')))
+
+                # 新基底
+                draw_vector(fig5, i_new_x, i_new_y, "New i-hat", "#e74c3c")
+                draw_vector(fig5, j_new_x, j_new_y, "New j-hat", "#2ecc71")
+
+                # 辅助线 (体现它依然是线性组合)
+                v1_scaled = v_x * np.array([i_new_x, i_new_y])
+                v2_scaled = v_y * np.array([j_new_x, j_new_y])
+                draw_vector(fig5, v1_scaled[0], v1_scaled[1], "", "#e74c3c", dash=True, origin=v2_scaled,
+                            show_arrow=False)
+                draw_vector(fig5, v2_scaled[0], v2_scaled[1], "", "#2ecc71", dash=True, origin=v1_scaled,
+                            show_arrow=False)
+
+                # 变换后的新向量
+                fig5.add_trace(
+                    go.Scatter(x=[0, new_v[0]], y=[0, new_v[1]], mode='lines+markers+text', name='Transformed v',
+                               text=['', f'New v({new_v[0]:.1f}, {new_v[1]:.1f})'], textposition='top right',
+                               textfont=dict(color='purple', size=16), line=dict(color='purple', width=5)))
+
+                fig5.update_layout(
+                    title="Ch 5: The Grand Simulator",
+                    xaxis=dict(range=[-6, 6], zeroline=True, zerolinewidth=2, zerolinecolor='black'),
+                    yaxis=dict(range=[-6, 6], scaleanchor="x", scaleratio=1, zeroline=True, zerolinewidth=2,
+                               zerolinecolor='black'),
+                    height=650, margin=dict(l=0, r=0, b=0, t=40)
+                )
+                st.plotly_chart(fig5, use_container_width=True)
+
+    # ------------------------------------------
+    # Tab 3: 矩阵乘法与复合变换 (极致细节版)
+    # ------------------------------------------
+    with tab3:
+        st.header("Part III: Matrix Multiplication is Composition")
+
+        chapter_p3 = st.radio(
+            "Select Chapter:",
+            ["6. The Calculation vs. The Geometry", "7. Proof: Why AB ≠ BA", "8. Proof: A(BC) = (AB)C"],
+            horizontal=True,
+            key="radio_p3"
+        )
+        st.markdown("---")
+
+        # ==========================================
+        # 章节 6：引入
+        # ==========================================
+        if chapter_p3 == "6. The Calculation vs. The Geometry":
+            col_text, col_plot = st.columns([1, 1])
+            with col_text:
+                st.markdown("### The Bridge Between Numbers and Space")
+                st.markdown("""
+                You've probably memorized the tedious rule for multiplying matrices: *"Row multiplied by Column, then add them up."*
+
+                But **why** is it defined this way?
+
+                Because mathematically, multiplying two matrices $A \times B$ is the exact operation of applying transformation $B$ to the space, and then applying transformation $A$ to that already-warped space. 
+                """)
+                st.info("""
+                💡 **Rule of thumb:** Always read from **Right to Left**. 
+                $AB\vec{v}$ means:
+                1. Vector $\vec{v}$ is the starting point.
+                2. Matrix $B$ acts on it first.
+                3. Matrix $A$ acts on the result.
+                """)
+            with col_plot:
+                st.latex(
+                    r"\underbrace{\begin{bmatrix} a & b \\ c & d \end{bmatrix}}_{\text{Matrix A}} \underbrace{\begin{bmatrix} e & f \\ g & h \end{bmatrix}}_{\text{Matrix B}} = \underbrace{\begin{bmatrix} ae+bg & af+bh \\ ce+dg & cf+dh \end{bmatrix}}_{\text{The Combined Transformation}}")
+                st.markdown(
+                    "*The messy numbers on the right are simply the new coordinates of $\hat{i}$ and $\hat{j}$ after both transformations have occurred!*")
+
+        # ==========================================
+        # 章节 7：通过计算与网格变形证明 AB ≠ BA
+        # ==========================================
+        elif chapter_p3 == "7. Proof: Why AB ≠ BA":
+            st.markdown("### Step 1: The Algebraic Proof (Calculation)")
+            st.markdown(
+                "Let's define two very distinct matrices. Matrix $A$ is an extreme **Shear**, and Matrix $B$ is a **90° Rotation**.")
+
+            # 定义两个差异极大的矩阵
+            st.latex(
+                r"A (\text{Shear}) = \begin{bmatrix} 1 & 2 \\ 0 & 1 \end{bmatrix}, \quad B (\text{Rotate}) = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}")
+
+            A = np.array([[1, 2], [0, 1]])
+            B = np.array([[0, -1], [1, 0]])
+
+            col_calc1, col_calc2 = st.columns(2)
+            with col_calc1:
+                st.markdown("**Calculate $AB$ (B first, then A):**")
+                st.latex(
+                    r"AB = \begin{bmatrix} 1 & 2 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} \mathbf{2} & \mathbf{-1} \\ \mathbf{1} & \mathbf{0} \end{bmatrix}")
+                AB = A @ B
+            with col_calc2:
+                st.markdown("**Calculate $BA$ (A first, then B):**")
+                st.latex(
+                    r"BA = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 1 & 2 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} \mathbf{0} & \mathbf{-1} \\ \mathbf{1} & \mathbf{2} \end{bmatrix}")
+                BA = B @ A
+
+            st.error(
+                "🚨 **Look at the numbers:** The resulting matrices $\\begin{bmatrix} 2 & -1 \\ 1 & 0 \\end{bmatrix}$ and $\\begin{bmatrix} 0 & -1 \\ 1 & 2 \\end{bmatrix}$ are completely different. The computation proves $AB \\neq BA$. But what does this mean physically?")
+
+            st.markdown("---")
+            st.markdown("### Step 2: The Geometric Proof (Visualizing the Grids)")
+            st.markdown(
+                "Let's look at the entire fabric of space. Notice how the green ($\hat{j}$) and red ($\hat{i}$) basis vectors land in totally different spots!")
+
+            col_geom1, col_geom2 = st.columns(2)
+            with col_geom1:
+                st.markdown("#### Universe 1: Transformation $AB$")
+                fig_ab = create_base_figure(max_range=4)
+                # 绘制基础虚线原网格
+                draw_warped_grid(fig_ab, np.eye(2), color='lightgrey')
+                # 绘制变形后的网格
+                draw_warped_grid(fig_ab, AB, color='rgba(52, 152, 219, 0.4)')
+                draw_vector(fig_ab, AB[0, 0], AB[1, 0], "New i", "#e74c3c")
+                draw_vector(fig_ab, AB[0, 1], AB[1, 1], "New j", "#2ecc71")
+                fig_ab.update_layout(height=450, margin=dict(l=0, r=0, t=30, b=0))
+                st.plotly_chart(fig_ab, use_container_width=True)
+
+            with col_geom2:
+                st.markdown("#### Universe 2: Transformation $BA$")
+                fig_ba = create_base_figure(max_range=4)
+                # 绘制基础虚线原网格
+                draw_warped_grid(fig_ba, np.eye(2), color='lightgrey')
+                # 绘制变形后的网格
+                draw_warped_grid(fig_ba, BA, color='rgba(155, 89, 182, 0.4)')
+                draw_vector(fig_ba, BA[0, 0], BA[1, 0], "New i", "#e74c3c")
+                draw_vector(fig_ba, BA[0, 1], BA[1, 1], "New j", "#2ecc71")
+                fig_ba.update_layout(height=450, margin=dict(l=0, r=0, t=30, b=0))
+                st.plotly_chart(fig_ba, use_container_width=True)
+
+        # ==========================================
+        # 章节 8：通过计算与几何证明结合律
+        # ==========================================
+        elif chapter_p3 == "8. Proof: A(BC) = (AB)C":
+            st.markdown("### Step 1: The Algebraic Proof (Calculation)")
+            st.markdown(
+                "Is matrix multiplication associative? Let's prove it by computing it both ways using three random matrices.")
+
+            st.latex(
+                r"A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}, \quad B = \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix}, \quad C = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}")
+
+            col_assoc1, col_assoc2 = st.columns(2)
+            with col_assoc1:
+                st.markdown("**Path 1: $A(BC)$**")
+                st.latex(
+                    r"BC = \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix}")
+                st.latex(
+                    r"A(BC) = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix} = \mathbf{\begin{bmatrix} 2 & -2 \\ 2 & 0 \end{bmatrix}}")
+
+            with col_assoc2:
+                st.markdown("**Path 2: $(AB)C$**")
+                st.latex(
+                    r"AB = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 2 & 2 \\ 0 & 2 \end{bmatrix}")
+                st.latex(
+                    r"(AB)C = \begin{bmatrix} 2 & 2 \\ 0 & 2 \end{bmatrix} \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \mathbf{\begin{bmatrix} 2 & -2 \\ 2 & 0 \end{bmatrix}}")
+
+            st.success(
+                "✅ **The math confirms it:** Both groupings result in the exact same matrix $\\begin{bmatrix} 2 & -2 \\ 2 & 0 \\end{bmatrix}$.")
+
+            st.markdown("---")
+            st.markdown("### Step 2: The Geometric Truth")
+            st.markdown("""
+            The calculation proves it works, but **Geometry explains WHY it works**.
+
+            Imagine you have a piece of clay (the 2D space), and you perform three actions:
+            1. **$C$**: Rotate it 90 degrees.
+            2. **$B$**: Stretch it by 2x.
+            3. **$A$**: Shear it.
+
+            * **$A(BC)$ means:** You hand the clay to someone who does $(BC)$ (Rotate then Stretch). Once they hand it back, you do $A$ (Shear).
+            * **$(AB)C$ means:** You do $C$ (Rotate) first. Then you hand it to someone who performs the combined action $(AB)$ (Stretch then Shear).
+
+            Because the **physical sequence of events (C ➔ B ➔ A) never changed**, the final shape of the clay MUST be identical! The parentheses only change *how we group the instructions*, not the order of the universe's physics.
+            """)
+
 # 4. 占位符模块
 # ==========================================
 def render_coming_soon(topic_name):
@@ -8018,6 +8466,7 @@ def render_coming_soon(topic_name):
 # 5. 主程序入口 (极简叙事版)
 # ==========================================
 def main():
+
     st.sidebar.title("🧮 Mathovator")
     st.sidebar.caption("Matrikulasi Innovation Project")
 
@@ -8116,7 +8565,7 @@ def main():
     if topic_selection == "--- 📐 THE LINEAR ALGEBRA SAGA ---" or topic_selection == "Chapter I: Vectors":
         render_la_vectors()
 
-    elif topic_selection == "Chapter II: Matrices ":
+    elif topic_selection == "Chapter II: Matrices":
         render_la_matrices()
 
 if __name__ == "__main__":
