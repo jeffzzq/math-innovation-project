@@ -1961,7 +1961,7 @@ elif module == "Matrice":
         """)
 
     with tab6:
-        st.header("Part VI: The Anatomy of the Inverse (Numerical Proof)")
+        st.header("Part VI: The Anatomy of the Inverse")
         st.markdown("""
         > *"Stop memorizing the rules. Let's plug in the numbers and build the machine ourselves."*
 
@@ -2048,7 +2048,7 @@ elif module == "Matrice":
             st.caption("They are perpendicular!")
 
         with col_scan2:
-            st.markdown("**Scanning $\vec{v_3}$**")
+            st.markdown("**Scanning $\\vec{v_3}$**")
             st.latex(r"\begin{bmatrix} 1 & -2 & 4 \end{bmatrix} \cdot \begin{bmatrix} 0 \\ 2 \\ 1 \end{bmatrix}")
             st.latex(r"= 0 - 4 + 4 = \mathbf{0}")
             st.caption("They are perpendicular!")
