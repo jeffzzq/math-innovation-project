@@ -4887,81 +4887,128 @@ def render_topic_integration():
     ])
 
     # ==========================================
-    # --- Tab 0: 解构积分公式的本质 (The Philosophy) ---
+    # --- Tab 0: 升维的艺术 (The Philosophy of Ascension) ---
     # ==========================================
     with tab0:
-        st.header("🧱 Deconstructing the Formula")
+        st.header("🌌 The Origin: Integration as Dimensional Ascension")
         st.markdown("""
-        We learn the formulas for the area of a circle ($\pi r^2$) and the volume of a sphere ($\\frac{4}{3}\pi r^3$) in primary school. 
-        But where do they come from? Definite integrals are not just abstract symbols; they are **manufacturing instructions**.
-        """)
+            In primary school, we are handed formulas to memorize: Circumference ($2\pi r$), Area ($\pi r^2$), and the mysterious Volume of a Sphere ($\\frac{4}{3}\pi r^3$). 
+            But where do they come from? Why $\\frac{4}{3}$? 
 
-        st.subheader("Why does Volume = $\int \pi [f(x)]^2 \, dx$?")
+            Calculus reveals a profound truth: **Integration is the engine of dimensional ascension.** By accumulating the lower dimension, we build the higher one.
+            """)
 
-        col_text, col_vis = st.columns([1.5, 1])
+        st.divider()
+
+        col_text, col_vis = st.columns([1.2, 1])
 
         with col_text:
+            st.subheader("Unlocking the Sphere: $V = \\frac{4}{3}\pi R^3$")
             st.markdown(
-                "Imagine taking a single point on a curve, $y = f(x)$, and rotating it 360 degrees around the X-axis.")
+                "How do we measure the volume of a 3D sphere? We don't. We slice it into infinite 2D circles, measure their flat areas, and stack them up. This is the ultimate proof.")
 
-            st.info("**Step 1: The Radius ($r$)**")
+            st.info("**1. The Equation of the Boundary**")
             st.markdown(
-                "The distance from the X-axis to the curve is simply the height of the function. So, the radius of our rotation is **$r = f(x)$**.")
+                "Imagine a sphere of radius $R$ centered at the origin. If we look at its cross-section on the XY-plane, it's a circle with the equation $x^2 + y^2 = R^2$. Therefore, the height at any point $x$ is $y = \sqrt{R^2 - x^2}$.")
 
-            st.info("**Step 2: The Face Area (2D)**")
+            st.success("**2. The 2D Slice (The Face Area)**")
             st.markdown(
-                "Rotating that point creates a perfect circle. The area of a circle is $\pi r^2$. Substituting our radius, the area of this flat circular face is **$\pi [f(x)]^2$**.")
+                "If we slice the sphere vertically at position $x$, the cross-section is a perfect 2D circle with radius $r = y$. The area of this flat slice is:")
+            st.latex(r"A(x) = \pi r^2 = \pi (\sqrt{R^2 - x^2})^2 = \pi (R^2 - x^2)")
 
-            st.success("**Step 3: The Thickness ($dx$) and Volume (3D)**")
+            st.error("**3. The 3D Ascension (Integration)**")
             st.markdown(
-                "A 2D circle has no volume. To make it a physical object, we give it an infinitely small thickness, called **$dx$**. Now we have a tiny cylinder (a disc). Its volume is Area $\\times$ Thickness: **$\pi [f(x)]^2 \, dx$**.")
+                "To build the 3D volume, we multiply this 2D area by an infinitely small thickness $dx$ to get a thin disc, and then **sum ($\int$)** all these discs from the left edge ($-R$) to the right edge ($R$):")
+            st.latex(r"V = \int_{-R}^{R} \pi (R^2 - x^2) \, dx")
 
-            st.error("**Step 4: The Accumulation ($\int$)**")
+            st.warning("**4. The Final Calculation**")
+            st.markdown("Let's pull out the constant $\pi$ and integrate the polynomial:")
+            st.latex(r"V = \pi \left[ R^2 x - \frac{x^3}{3} \right]_{-R}^{R}")
+            st.latex(
+                r"= \pi \left( \left(R^3 - \frac{R^3}{3}\right) - \left(-R^3 - \frac{-R^3}{3}\right) \right) = \frac{4}{3}\pi R^3")
             st.markdown(
-                "The integral sign $\int$ is just an elongated 'S' for **Sum**. It tells us to glue all these infinitely thin discs together from point $a$ to point $b$ to build the final solid shape.")
+                "And just like that, the mystery of primary school math is solved by the sheer logic of calculus.")
 
         with col_vis:
-            st.caption("Visualizing a single $dx$ disc")
+            st.markdown("### The Riemann Sphere")
+            st.caption(
+                "Slide to increase the number of solid discs ($n$) and watch the 2D cylinders ascend into a 3D sphere.")
 
-            r_val = 2.0
-            dx_val = 0.5
+            # 核心滑块
+            n_discs = st.slider("Number of Solid Discs ($n$)", min_value=2, max_value=60, value=8, step=2)
 
-            theta = np.linspace(0, 2 * np.pi, 50)
-            x_disc = np.linspace(0, dx_val, 2)
-            Theta, X_disc = np.meshgrid(theta, x_disc)
+            # 球体参数
+            R = 2.0
+            dx = (2 * R) / n_discs
 
-            Y_disc = r_val * np.cos(Theta)
-            Z_disc = r_val * np.sin(Theta)
+            theta = np.linspace(0, 2 * np.pi, 60)
 
-            fig_disc = go.Figure()
-            fig_disc.add_trace(
-                go.Surface(x=X_disc, y=Y_disc, z=Z_disc, colorscale='Blues', showscale=False, opacity=0.8))
-            fig_disc.add_trace(go.Scatter3d(x=[dx_val / 2, dx_val / 2], y=[0, r_val], z=[0, 0],
-                                            mode='lines+text', text=['', 'r = f(x)'],
-                                            line=dict(color='red', width=5), name='Radius'))
-            fig_disc.add_trace(go.Scatter3d(x=[-1, 2], y=[0, 0], z=[0, 0], mode='lines',
-                                            line=dict(color='white', width=3, dash='dash'), name='X-axis'))
+            fig = go.Figure()
 
-            fig_disc.update_layout(
+            # 1. 绘制真实的平滑球体外壳（半透明）
+            phi_smooth = np.linspace(0, np.pi, 30)
+            Theta_s, Phi_s = np.meshgrid(theta, phi_smooth)
+            X_s = R * np.cos(Phi_s)
+            Y_s = R * np.sin(Phi_s) * np.cos(Theta_s)
+            Z_s = R * np.sin(Phi_s) * np.sin(Theta_s)
+
+            fig.add_trace(go.Surface(x=X_s, y=Y_s, z=Z_s, colorscale='Greys',
+                                     showscale=False, opacity=0.15, name="True Sphere", hoverinfo='skip'))
+
+            # 2. 绘制由 n 个【实心】圆柱体组成的阶梯球体
+            x_disc_1d = [-R]  # 绝对封死最左边的端点
+            r_disc_1d = [0.0]
+
+            for i in range(n_discs):
+                x_start = -R + i * dx
+                x_end = x_start + dx
+                x_mid = (x_start + x_end) / 2
+
+                # 计算这个切片位置的圆柱半径
+                r_val = np.sqrt(max(0, R ** 2 - x_mid ** 2))
+
+                # 【关键修复】：画出圆柱体的“垂直切面”（连接上下两个阶梯的盖子）
+                x_disc_1d.append(x_start)
+                r_disc_1d.append(r_val)
+
+                # 画出圆柱体的“水平外壳”（侧面）
+                x_disc_1d.append(x_end)
+                r_disc_1d.append(r_val)
+
+            # 绝对封死最右边的端点
+            x_disc_1d.append(R)
+            r_disc_1d.append(0.0)
+
+            X_d, Theta_d = np.meshgrid(x_disc_1d, theta)
+            R_d, _ = np.meshgrid(r_disc_1d, theta)
+
+            # 生成 Y 和 Z
+            Y_d = R_d * np.cos(Theta_d)
+            Z_d = R_d * np.sin(Theta_d)
+
+            fig.add_trace(go.Surface(x=X_d, y=Y_d, z=Z_d, colorscale='Blues',
+                                     showscale=False, opacity=1.0, name="Solid Discs Stack",
+                                     contours=dict(x=dict(show=True, color='black', width=3))))  # 加粗边缘线，立体感更强
+
+            fig.update_layout(
                 scene=dict(
-                    xaxis_title='Thickness (dx)', yaxis_title='', zaxis_title='',
-                    xaxis=dict(showticklabels=False, range=[-1, 2]),
-                    yaxis=dict(showticklabels=False, range=[-3, 3]),
-                    zaxis=dict(showticklabels=False, range=[-3, 3]),
+                    xaxis_title='X Axis (Integration Path)', yaxis_title='', zaxis_title='',
+                    xaxis=dict(range=[-2.5, 2.5], showbackground=False),
+                    yaxis=dict(range=[-2.5, 2.5], showbackground=False),
+                    zaxis=dict(range=[-2.5, 2.5], showbackground=False),
+                    aspectmode='cube'
                 ),
-                margin=dict(l=0, r=0, b=0, t=30),
-                height=350,
+                margin=dict(l=0, r=0, b=0, t=20),
+                height=500,
                 template="plotly_dark",
                 showlegend=False
             )
-            st.plotly_chart(fig_disc, use_container_width=True)
-            st.latex(r"dV = \underbrace{\pi [f(x)]^2}_{\text{Area}} \times \underbrace{dx}_{\text{Thickness}}")
+            st.plotly_chart(fig, use_container_width=True)
 
         st.divider()
-        st.markdown("### 💡 The Big Picture")
+        st.markdown("### 🔑 The Golden Rule of Integration")
         st.markdown(
-            "When you calculate the volume of a cone or a sphere in primary school, someone already did the integral for you. Calculus is simply giving you the source code to build *any* shape!")
-
+            "> *To calculate the total amount of a physical property (Volume, Mass, Work), isolate an infinitesimally small piece ($dx$), calculate its localized value, and sum them across space. Integration bridges the gap between the perfect 2D geometry we understand, and the complex 3D reality we inhabit.*")
     # ==========================================
     # --- Tab 1: 你的原版 Basic (一字不删！) ---
     # ==========================================
