@@ -4878,13 +4878,93 @@ def render_topic_integration():
     st.markdown(
         "Welcome to the **Integration** chapter! Here, math comes to life. Play with the interactive tools below to truly understand what integrals do.")
 
-    tab1, tab2, tab3 = st.tabs([
+    # --- 新增了 tab0 作为原理解释层，后面的全是你原汁原味的代码 ---
+    tab0, tab1, tab2, tab3 = st.tabs([
+        "0. The Origin (The Logic)",
         "1. Basic",
         "2. Interactive Area & Volume",
         "3. Trapezoidal Rule"
     ])
 
-    # --- Tab 1 ~ 3 保持简洁清晰的静态展示 ---
+    # ==========================================
+    # --- Tab 0: 解构积分公式的本质 (The Philosophy) ---
+    # ==========================================
+    with tab0:
+        st.header("🧱 Deconstructing the Formula")
+        st.markdown("""
+        We learn the formulas for the area of a circle ($\pi r^2$) and the volume of a sphere ($\\frac{4}{3}\pi r^3$) in primary school. 
+        But where do they come from? Definite integrals are not just abstract symbols; they are **manufacturing instructions**.
+        """)
+
+        st.subheader("Why does Volume = $\int \pi [f(x)]^2 \, dx$?")
+
+        col_text, col_vis = st.columns([1.5, 1])
+
+        with col_text:
+            st.markdown(
+                "Imagine taking a single point on a curve, $y = f(x)$, and rotating it 360 degrees around the X-axis.")
+
+            st.info("**Step 1: The Radius ($r$)**")
+            st.markdown(
+                "The distance from the X-axis to the curve is simply the height of the function. So, the radius of our rotation is **$r = f(x)$**.")
+
+            st.info("**Step 2: The Face Area (2D)**")
+            st.markdown(
+                "Rotating that point creates a perfect circle. The area of a circle is $\pi r^2$. Substituting our radius, the area of this flat circular face is **$\pi [f(x)]^2$**.")
+
+            st.success("**Step 3: The Thickness ($dx$) and Volume (3D)**")
+            st.markdown(
+                "A 2D circle has no volume. To make it a physical object, we give it an infinitely small thickness, called **$dx$**. Now we have a tiny cylinder (a disc). Its volume is Area $\\times$ Thickness: **$\pi [f(x)]^2 \, dx$**.")
+
+            st.error("**Step 4: The Accumulation ($\int$)**")
+            st.markdown(
+                "The integral sign $\int$ is just an elongated 'S' for **Sum**. It tells us to glue all these infinitely thin discs together from point $a$ to point $b$ to build the final solid shape.")
+
+        with col_vis:
+            st.caption("Visualizing a single $dx$ disc")
+
+            r_val = 2.0
+            dx_val = 0.5
+
+            theta = np.linspace(0, 2 * np.pi, 50)
+            x_disc = np.linspace(0, dx_val, 2)
+            Theta, X_disc = np.meshgrid(theta, x_disc)
+
+            Y_disc = r_val * np.cos(Theta)
+            Z_disc = r_val * np.sin(Theta)
+
+            fig_disc = go.Figure()
+            fig_disc.add_trace(
+                go.Surface(x=X_disc, y=Y_disc, z=Z_disc, colorscale='Blues', showscale=False, opacity=0.8))
+            fig_disc.add_trace(go.Scatter3d(x=[dx_val / 2, dx_val / 2], y=[0, r_val], z=[0, 0],
+                                            mode='lines+text', text=['', 'r = f(x)'],
+                                            line=dict(color='red', width=5), name='Radius'))
+            fig_disc.add_trace(go.Scatter3d(x=[-1, 2], y=[0, 0], z=[0, 0], mode='lines',
+                                            line=dict(color='white', width=3, dash='dash'), name='X-axis'))
+
+            fig_disc.update_layout(
+                scene=dict(
+                    xaxis_title='Thickness (dx)', yaxis_title='', zaxis_title='',
+                    xaxis=dict(showticklabels=False, range=[-1, 2]),
+                    yaxis=dict(showticklabels=False, range=[-3, 3]),
+                    zaxis=dict(showticklabels=False, range=[-3, 3]),
+                ),
+                margin=dict(l=0, r=0, b=0, t=30),
+                height=350,
+                template="plotly_dark",
+                showlegend=False
+            )
+            st.plotly_chart(fig_disc, use_container_width=True)
+            st.latex(r"dV = \underbrace{\pi [f(x)]^2}_{\text{Area}} \times \underbrace{dx}_{\text{Thickness}}")
+
+        st.divider()
+        st.markdown("### 💡 The Big Picture")
+        st.markdown(
+            "When you calculate the volume of a cone or a sphere in primary school, someone already did the integral for you. Calculus is simply giving you the source code to build *any* shape!")
+
+    # ==========================================
+    # --- Tab 1: 你的原版 Basic (一字不删！) ---
+    # ==========================================
     with tab1:
         st.header("📚 Extended Integration Cheat Sheet")
         st.caption("Practical integral formulas involving linear transformations (ax + b).")
@@ -4967,7 +5047,7 @@ def render_topic_integration():
         st.divider()
 
         # ==========================================
-        # 终极对照表：换元法 vs 分部积分法 (大量实例)
+        # 终极对照表：换元法 vs 分部积分法 (大量实例) - 绝对不删！
         # ==========================================
         st.subheader("🧠 The Ultimate Diagnostic: Substitution vs. By Parts (LOPET)")
         st.caption(
@@ -5026,9 +5106,9 @@ def render_topic_integration():
         st.divider()
 
         # ==========================================
-        # The Professor's Vault: Black Magic Integrals
+        # The Professor's Vault: Black Magic Integrals - 原味归来！
         # ==========================================
-        st.subheader("🎩Advanced Integration Cases & Special Techniques")
+        st.subheader("🎩 Advanced Integration Cases & Special Techniques")
         st.write(
             "Detailed step-by-step analysis of complex integrals requiring specialized algebraic and trigonometric methods.")
 
@@ -5150,248 +5230,236 @@ def render_topic_integration():
 
             st.success(r"**Final Answer:** $x - \ln(1 + e^x) + C$")
 
-        # --- Tab 4: 终极动态面积与旋转体积 (空白宽容 + 智能解析版) ---
-        # ==========================================
-        with tab2:
-            st.header("Interactive Area & Volume Visualizer")
-            st.write(
-                "Calculate the area between two curves, choose the axis of revolution, and interact with the models! You can enter `pi`, `2pi`, `sqrt(2)`, or `e` for boundaries.")
+    # ==========================================
+    # --- Tab 2: 你的原版 Interactive Volume ---
+    # ==========================================
+    with tab2:
+        st.header("Interactive Area & Volume Visualizer")
+        st.write(
+            "Calculate the area between two curves, choose the axis of revolution, and interact with the models! You can enter `pi`, `2pi`, `sqrt(2)`, or `e` for boundaries.")
 
-            # 1. 用户交互区 UI
-            col_axis, col_input1, col_input2 = st.columns([1, 1.5, 1.5])
-            with col_axis:
-                rotation_axis = st.radio("Axis of Revolution", ["X-axis", "Y-axis"])
-            with col_input1:
-                user_f = st.text_input("Top/Right Function $f(x)$", value="sin(x)")
-                a_str = st.text_input("Lower Bound ($a = x_1$)", value="0")
-            with col_input2:
-                # 默认把 g(x) 设为空白，模拟学生的真实操作
-                user_g = st.text_input("Bottom/Left Function $g(x)$", value="")
-                b_str = st.text_input("Upper Bound ($b = x_2$)", value="2pi")
+        # 1. 用户交互区 UI
+        col_axis, col_input1, col_input2 = st.columns([1, 1.5, 1.5])
+        with col_axis:
+            rotation_axis = st.radio("Axis of Revolution", ["X-axis", "Y-axis"])
+        with col_input1:
+            user_f = st.text_input("Top/Right Function $f(x)$", value="sin(x)")
+            a_str = st.text_input("Lower Bound ($a = x_1$)", value="0")
+        with col_input2:
+            # 默认把 g(x) 设为空白，模拟学生的真实操作
+            user_g = st.text_input("Bottom/Left Function $g(x)$", value="")
+            b_str = st.text_input("Upper Bound ($b = x_2$)", value="2pi")
 
-                # 2. 安全解析与数学引擎计算
-                x_sym = sp.Symbol('x')
-                try:
-                    import re
-                    def preprocess_formula(formula):
-                        f = formula.replace('^', '**')
-                        # 自动为常见函数补全括号
-                        f = re.sub(r'(sqrt|sin|cos|tan|exp|log|ln)\s*([a-zA-Z])', r'\1(\2)', f)
-                        # 自动把 "数字+字母" 中间补上乘号
-                        f = re.sub(r'(\d)\s*([a-zA-Z\(])', r'\1*\2', f)
-                        return f
+            # 2. 安全解析与数学引擎计算
+            x_sym = sp.Symbol('x')
+            try:
+                import re
+                def preprocess_formula(formula):
+                    f = formula.replace('^', '**')
+                    # 自动为常见函数补全括号
+                    f = re.sub(r'(sqrt|sin|cos|tan|exp|log|ln)\s*([a-zA-Z])', r'\1(\2)', f)
+                    # 自动把 "数字+字母" 中间补上乘号
+                    f = re.sub(r'(\d)\s*([a-zA-Z\(])', r'\1*\2', f)
+                    return f
 
-                    safe_f_str = user_f.strip() if user_f.strip() else "0"
-                    safe_g_str = user_g.strip() if user_g.strip() else "0"
-                    safe_a_str = a_str.strip() if a_str.strip() else "0"
-                    safe_b_str = b_str.strip() if b_str.strip() else "1"
+                safe_f_str = user_f.strip() if user_f.strip() else "0"
+                safe_g_str = user_g.strip() if user_g.strip() else "0"
+                safe_a_str = a_str.strip() if a_str.strip() else "0"
+                safe_b_str = b_str.strip() if b_str.strip() else "1"
 
-                    safe_f = preprocess_formula(safe_f_str)
-                    safe_g = preprocess_formula(safe_g_str)
-                    safe_a = preprocess_formula(safe_a_str)
-                    safe_b = preprocess_formula(safe_b_str)
+                safe_f = preprocess_formula(safe_f_str)
+                safe_g = preprocess_formula(safe_g_str)
+                safe_a = preprocess_formula(safe_a_str)
+                safe_b = preprocess_formula(safe_b_str)
 
-                    # 【核心修复】：建立字典，强制把输入的字母 'e' 翻译成数学常数 E
-                    local_dict = {'e': sp.E}
+                # 【核心修复】：建立字典，强制把输入的字母 'e' 翻译成数学常数 E
+                local_dict = {'e': sp.E}
 
-                    # 解析函数时带上字典
-                    expr_f = sp.sympify(safe_f, locals=local_dict)
-                    expr_g = sp.sympify(safe_g, locals=local_dict)
+                # 解析函数时带上字典
+                expr_f = sp.sympify(safe_f, locals=local_dict)
+                expr_g = sp.sympify(safe_g, locals=local_dict)
 
-                    # 解析上下限时也带上字典 (这样学生在 Bound 里输 e 也没问题)
-                    a = float(sp.sympify(safe_a, locals=local_dict).evalf())
-                    b = float(sp.sympify(safe_b, locals=local_dict).evalf())
+                # 解析上下限时也带上字典
+                a = float(sp.sympify(safe_a, locals=local_dict).evalf())
+                b = float(sp.sympify(safe_b, locals=local_dict).evalf())
 
-                    f_num = sp.lambdify(x_sym, expr_f, 'numpy')
-                    g_num = sp.lambdify(x_sym, expr_g, 'numpy')
+                f_num = sp.lambdify(x_sym, expr_f, 'numpy')
+                g_num = sp.lambdify(x_sym, expr_g, 'numpy')
 
-                    def f_val(val):
-                        res = f_num(val)
-                        return np.full_like(val, res) if np.isscalar(res) else res
+                def f_val(val):
+                    res = f_num(val)
+                    return np.full_like(val, res) if np.isscalar(res) else res
 
-                    def g_val(val):
-                        res = g_num(val)
-                        return np.full_like(val, res) if np.isscalar(res) else res
+                def g_val(val):
+                    res = g_num(val)
+                    return np.full_like(val, res) if np.isscalar(res) else res
 
-                    st.session_state['f_val_func'] = f_val
-                    st.session_state['g_val_func'] = g_val
+                st.session_state['f_val_func'] = f_val
+                st.session_state['g_val_func'] = g_val
 
-                except Exception as e:
-                    st.error(
-                        f"Syntax Error: Invalid math expression. You can use 'pi', '2pi', 'e', 'sqrt(2)', etc.\n\nDetail: {e}")
-                    st.stop()
+            except Exception as e:
+                st.error(
+                    f"Syntax Error: Invalid math expression. You can use 'pi', '2pi', 'e', 'sqrt(2)', etc.\n\nDetail: {e}")
+                st.stop()
 
-            # ===============================
-            # 开始计算逻辑
-            # ===============================
-            if a >= b:
-                st.error("Lower bound must be less than upper bound!")
-            else:
-                st.markdown("### Step-by-Step Solution")
+        # ===============================
+        # 开始计算逻辑
+        # ===============================
+        if a >= b:
+            st.error("Lower bound must be less than upper bound!")
+        else:
+            st.markdown("### Step-by-Step Solution")
 
-                # 计算面积
-                area_integral = expr_f - expr_g
-                area_res, _ = integrate.quad(lambda val: f_val(val) - g_val(val), a, b)
+            # 计算面积
+            area_integral = expr_f - expr_g
+            area_res, _ = integrate.quad(lambda val: f_val(val) - g_val(val), a, b)
 
-                st.info("**1. Area Between Curves:**")
+            st.info("**1. Area Between Curves:**")
+            st.latex(
+                rf"A = \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx = {area_res:.4f} \text{{ units}}^2")
+
+            # 计算体积
+            st.info(f"**2. Volume of Revolution (around {rotation_axis}):**")
+
+            if rotation_axis == "X-axis":
+                st.write("Using the **Washer Method**: " + r"$V = \pi \int_a^b [f(x)^2 - g(x)^2] dx$")
+                vol_res = np.pi * integrate.quad(lambda val: (f_val(val)) ** 2 - (g_val(val)) ** 2, a, b)[0]
                 st.latex(
-                    rf"A = \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx = {area_res:.4f} \text{{ units}}^2")
+                    rf"V_x = \pi \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)})^2 - ({sp.latex(expr_g)})^2 \right) dx")
+            else:
+                st.write("Using the **Cylindrical Shell Method**: " + r"$V = 2\pi \int_a^b x[f(x) - g(x)] dx$")
+                vol_res = 2 * np.pi * integrate.quad(lambda val: val * (f_val(val) - g_val(val)), a, b)[0]
+                st.latex(
+                    rf"V_y = 2\pi \int_{{{a}}}^{{{b}}} x \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx")
 
-                # 计算体积
-                st.info(f"**2. Volume of Revolution (around {rotation_axis}):**")
+            st.success(f"**Final Volume:** {vol_res:.4f} units³")
+
+            # ===============================
+            # 3. 动态绘图 (全 Plotly 双雄)
+            # ===============================
+            st.markdown("### Visualizations")
+
+            col_plot1, col_plot2 = st.columns(2)
+
+            with col_plot1:
+                fig_2d = go.Figure()
+
+                span = b - a
+                if span < 1e-3: span = 1.0
+                x_wide = np.linspace(a - span * 1.5, b + span * 1.5, 500)
+
+                fig_2d.add_trace(go.Scatter(x=x_wide, y=f_val(x_wide), mode='lines', name='$f(x)$',
+                                            line=dict(color='blue', width=2)))
+                fig_2d.add_trace(go.Scatter(x=x_wide, y=g_val(x_wide), mode='lines', name='$g(x)$',
+                                            line=dict(color='red', width=2)))
+
+                x_fill = np.linspace(a, b, 200)
+                fig_2d.add_trace(
+                    go.Scatter(x=x_fill, y=g_val(x_fill), mode='lines', line=dict(width=0), showlegend=False,
+                               hoverinfo='skip'))
+                fig_2d.add_trace(go.Scatter(x=x_fill, y=f_val(x_fill), mode='lines', fill='tonexty',
+                                            fillcolor='rgba(135, 206, 235, 0.5)', line=dict(width=0),
+                                            name='Integral Area', hoverinfo='skip'))
+
+                fig_2d.add_hline(y=0, line_color="black", line_width=1)
+                fig_2d.add_vline(x=0, line_color="black", line_width=1)
+
+                fig_2d.update_layout(
+                    title="2D Area (Scroll to Zoom, Drag to Pan)",
+                    margin=dict(l=0, r=0, b=0, t=40),
+                    hovermode="x unified",
+                    xaxis=dict(zeroline=False),
+                    yaxis=dict(zeroline=False),
+                    height=400
+                )
+                st.plotly_chart(fig_2d, use_container_width=True)
+
+            with col_plot2:
+                theta = np.linspace(0, 2 * np.pi, 60)
+                u = np.linspace(a, b, 100)
+                U, Theta = np.meshgrid(u, theta)
+                fig_3d = go.Figure()
 
                 if rotation_axis == "X-axis":
-                    st.write("Using the **Washer Method**: " + r"$V = \pi \int_a^b [f(x)^2 - g(x)^2] dx$")
-                    vol_res = np.pi * integrate.quad(lambda val: (f_val(val)) ** 2 - (g_val(val)) ** 2, a, b)[0]
-                    st.latex(
-                        rf"V_x = \pi \int_{{{a}}}^{{{b}}} \left( ({sp.latex(expr_f)})^2 - ({sp.latex(expr_g)})^2 \right) dx")
+                    X_out, Y_out, Z_out = U, f_val(U) * np.cos(Theta), f_val(U) * np.sin(Theta)
+                    X_in, Y_in, Z_in = U, g_val(U) * np.cos(Theta), g_val(U) * np.sin(Theta)
                 else:
-                    st.write("Using the **Cylindrical Shell Method**: " + r"$V = 2\pi \int_a^b x[f(x) - g(x)] dx$")
-                    vol_res = 2 * np.pi * integrate.quad(lambda val: val * (f_val(val) - g_val(val)), a, b)[0]
-                    st.latex(
-                        rf"V_y = 2\pi \int_{{{a}}}^{{{b}}} x \left( ({sp.latex(expr_f)}) - ({sp.latex(expr_g)}) \right) dx")
+                    X_out, Y_out, Z_out = U * np.cos(Theta), f_val(U), U * np.sin(Theta)
+                    X_in, Y_in, Z_in = U * np.cos(Theta), g_val(U), U * np.sin(Theta)
 
-                st.success(f"**Final Volume:** {vol_res:.4f} units³")
+                fig_3d.add_trace(
+                    go.Surface(x=X_out, y=Y_out, z=Z_out, colorscale='Blues', opacity=0.9, name='Outer',
+                               showscale=False))
+                fig_3d.add_trace(go.Surface(x=X_in, y=Y_in, z=Z_in, colorscale='Reds', opacity=0.5, name='Inner',
+                                            showscale=False))
 
-                # ===============================
-                # 3. 动态绘图 (全 Plotly 双雄)
-                # ===============================
-                st.markdown("### Visualizations")
+                fig_3d.update_layout(
+                    title="3D Volume (Drag to Rotate)",
+                    margin=dict(l=0, r=0, b=0, t=40),
+                    scene=dict(xaxis_title='X Axis', yaxis_title='Y Axis', zaxis_title='Z Axis'),
+                    height=400
+                )
+                st.plotly_chart(fig_3d, use_container_width=True)
 
-                col_plot1, col_plot2 = st.columns(2)
+    # ==========================================
+    # --- Tab 3: 你的原版 Trapezoidal Rule ---
+    # ==========================================
+    with tab3:
+        st.header("Interactive Numerical Integration: Trapezoidal Rule")
+        st.write(
+            "See how the number of trapezoids ($n$) affects the accuracy of the area between the two curves.")
 
-                # --- 左图：Plotly 2D 交互式全景图 ---
-                with col_plot1:
-                    fig_2d = go.Figure()
+        if a >= b:
+            st.warning(
+                "⚠️ Please ensure Lower Bound ($a$) is less than Upper Bound ($b$) in Tab 2 to view this section.")
+        elif 'f_val_func' not in st.session_state or 'g_val_func' not in st.session_state:
+            st.warning("⚠️ Please enter valid functions in Tab 2 first.")
+        else:
+            n_slider = st.slider("Number of Trapezoids ($n$)", min_value=1, max_value=50, value=6)
 
-                    span = b - a
-                    if span < 1e-3: span = 1.0
-                    x_wide = np.linspace(a - span * 1.5, b + span * 1.5, 500)
+            current_f = st.session_state['f_val_func']
+            current_g = st.session_state['g_val_func']
 
-                    fig_2d.add_trace(go.Scatter(x=x_wide, y=f_val(x_wide), mode='lines', name='$f(x)$',
-                                                line=dict(color='blue', width=2)))
-                    fig_2d.add_trace(go.Scatter(x=x_wide, y=g_val(x_wide), mode='lines', name='$g(x)$',
-                                                line=dict(color='red', width=2)))
+            exact_area, _ = integrate.quad(lambda val: current_f(val) - current_g(val), a, b)
 
-                    x_fill = np.linspace(a, b, 200)
-                    fig_2d.add_trace(
-                        go.Scatter(x=x_fill, y=g_val(x_fill), mode='lines', line=dict(width=0), showlegend=False,
-                                   hoverinfo='skip'))
-                    fig_2d.add_trace(go.Scatter(x=x_fill, y=f_val(x_fill), mode='lines', fill='tonexty',
-                                                fillcolor='rgba(135, 206, 235, 0.5)', line=dict(width=0),
-                                                name='Integral Area', hoverinfo='skip'))
+            x_trap = np.linspace(a, b, n_slider + 1)
+            y_trap_f = current_f(x_trap)
+            y_trap_g = current_g(x_trap)
 
-                    fig_2d.add_hline(y=0, line_color="black", line_width=1)
-                    fig_2d.add_vline(x=0, line_color="black", line_width=1)
+            y_trap_diff = y_trap_f - y_trap_g
+            if hasattr(np, 'trapezoid'):
+                trap_res = np.trapezoid(y_trap_diff, x_trap)
+            else:
+                trap_res = np.trapz(y_trap_diff, x_trap)
 
-                    fig_2d.update_layout(
-                        title="2D Area (Scroll to Zoom, Drag to Pan)",
-                        margin=dict(l=0, r=0, b=0, t=40),
-                        hovermode="x unified",
-                        xaxis=dict(zeroline=False),
-                        yaxis=dict(zeroline=False),
-                        height=400
-                    )
-                    st.plotly_chart(fig_2d, use_container_width=True)
+            st.success(f"**Trapezoidal Estimate:** {trap_res:.4f}")
+            st.write(f"Compare this with the exact integral: {exact_area:.4f}")
 
-                # --- 右图：Plotly 交互式 3D 旋转模型 ---
-                with col_plot2:
-                    theta = np.linspace(0, 2 * np.pi, 60)
-                    u = np.linspace(a, b, 100)
-                    U, Theta = np.meshgrid(u, theta)
-                    fig_3d = go.Figure()
+            fig_trap, ax_t = plt.subplots(figsize=(8, 4), dpi=100)
 
-                    if rotation_axis == "X-axis":
-                        X_out, Y_out, Z_out = U, f_val(U) * np.cos(Theta), f_val(U) * np.sin(Theta)
-                        X_in, Y_in, Z_in = U, g_val(U) * np.cos(Theta), g_val(U) * np.sin(Theta)
-                    else:
-                        X_out, Y_out, Z_out = U * np.cos(Theta), f_val(U), U * np.sin(Theta)
-                        X_in, Y_in, Z_in = U * np.cos(Theta), g_val(U), U * np.sin(Theta)
+            span = b - a
+            x_smooth = np.linspace(a - span * 0.2, b + span * 0.2, 300)
 
-                    fig_3d.add_trace(
-                        go.Surface(x=X_out, y=Y_out, z=Z_out, colorscale='Blues', opacity=0.9, name='Outer',
-                                   showscale=False))
-                    fig_3d.add_trace(go.Surface(x=X_in, y=Y_in, z=Z_in, colorscale='Reds', opacity=0.5, name='Inner',
-                                                showscale=False))
+            ax_t.plot(x_smooth, current_f(x_smooth), 'b-', linewidth=2, label="$f(x)$")
+            ax_t.plot(x_smooth, current_g(x_smooth), 'r-', linewidth=2, label="$g(x)$")
 
-                    fig_3d.update_layout(
-                        title="3D Volume (Drag to Rotate)",
-                        margin=dict(l=0, r=0, b=0, t=40),
-                        scene=dict(xaxis_title='X Axis', yaxis_title='Y Axis', zaxis_title='Z Axis'),
-                        height=400
-                    )
-                    st.plotly_chart(fig_3d, use_container_width=True)
+            for i in range(n_slider):
+                verts = [
+                    (x_trap[i], y_trap_g[i]),
+                    (x_trap[i], y_trap_f[i]),
+                    (x_trap[i + 1], y_trap_f[i + 1]),
+                    (x_trap[i + 1], y_trap_g[i + 1])
+                ]
+                poly = Polygon(verts, facecolor='lightgreen', edgecolor='green', alpha=0.4, linewidth=1.5)
+                ax_t.add_patch(poly)
 
-            # ==========================================
-            # --- Tab 5: 动态交互版梯形法则 (支持双曲线 & 防崩溃) ---
-            # ==========================================
-            with tab3:
-                st.header("Interactive Numerical Integration: Trapezoidal Rule")
-                st.write(
-                    "See how the number of trapezoids ($n$) affects the accuracy of the area between the two curves.")
+                ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_f[i], y_trap_f[i + 1]], 'g--', alpha=0.8)
+                ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_g[i], y_trap_g[i + 1]], 'g--', alpha=0.8)
 
-                # 【拦截保护】：如果 a >= b，或者 Tab 4 的函数解析失败，直接不跑后续代码
-                if a >= b:
-                    st.warning(
-                        "⚠️ Please ensure Lower Bound ($a$) is less than Upper Bound ($b$) in Tab 4 to view this section.")
-                elif 'f_val_func' not in st.session_state or 'g_val_func' not in st.session_state:
-                    st.warning("⚠️ Please enter valid functions in Tab 4 first.")
-                else:
-                    n_slider = st.slider("Number of Trapezoids ($n$)", min_value=1, max_value=50, value=6)
-
-                    # 从全局状态提取函数
-                    current_f = st.session_state['f_val_func']
-                    current_g = st.session_state['g_val_func']
-
-                    # 为 Tab 5 独立计算精确面积，防止跨 Tab 变量丢失
-                    exact_area, _ = integrate.quad(lambda val: current_f(val) - current_g(val), a, b)
-
-                    # 计算梯形法则
-                    x_trap = np.linspace(a, b, n_slider + 1)
-                    y_trap_f = current_f(x_trap)
-                    y_trap_g = current_g(x_trap)
-
-                    # 梯形的高度是两曲线之差
-                    y_trap_diff = y_trap_f - y_trap_g
-                    # 自动兼容新旧版本 NumPy 的写法
-                    if hasattr(np, 'trapezoid'):
-                        # 如果是新版 NumPy (2.0+)
-                        trap_res = np.trapezoid(y_trap_diff, x_trap)
-                    else:
-                        # 如果是旧版 NumPy (1.x)
-                        trap_res = np.trapz(y_trap_diff, x_trap)
-
-                    st.success(f"**Trapezoidal Estimate:** {trap_res:.4f}")
-                    st.write(f"Compare this with the exact integral: {exact_area:.4f}")
-
-                    # 绘制双曲线之间的梯形
-                    fig_trap, ax_t = plt.subplots(figsize=(8, 4), dpi=100)
-
-                    span = b - a
-                    x_smooth = np.linspace(a - span * 0.2, b + span * 0.2, 300)
-
-                    ax_t.plot(x_smooth, current_f(x_smooth), 'b-', linewidth=2, label="$f(x)$")
-                    ax_t.plot(x_smooth, current_g(x_smooth), 'r-', linewidth=2, label="$g(x)$")
-
-                    # 画梯形：连接 f(x) 和 g(x) 之间的空间
-                    for i in range(n_slider):
-                        verts = [
-                            (x_trap[i], y_trap_g[i]),
-                            (x_trap[i], y_trap_f[i]),
-                            (x_trap[i + 1], y_trap_f[i + 1]),
-                            (x_trap[i + 1], y_trap_g[i + 1])
-                        ]
-                        poly = Polygon(verts, facecolor='lightgreen', edgecolor='green', alpha=0.4, linewidth=1.5)
-                        ax_t.add_patch(poly)
-
-                        # 画出梯形的上下边，视觉更清晰
-                        ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_f[i], y_trap_f[i + 1]], 'g--', alpha=0.8)
-                        ax_t.plot([x_trap[i], x_trap[i + 1]], [y_trap_g[i], y_trap_g[i + 1]], 'g--', alpha=0.8)
-
-                    ax_t.set_title(f"Approximation with {n_slider} Trapezoids")
-                    ax_t.grid(True, linestyle='--', alpha=0.5)
-                    ax_t.legend()
-                    st.pyplot(fig_trap)
+            ax_t.set_title(f"Approximation with {n_slider} Trapezoids")
+            ax_t.grid(True, linestyle='--', alpha=0.5)
+            ax_t.legend()
+            st.pyplot(fig_trap)
 
 
 def render_chapter_ode():
