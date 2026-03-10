@@ -21,7 +21,7 @@ def set_t(val):
 # ==========================================
 # 主体内容
 # ==========================================
-st.header("🌌 Topic 1: Evolution of Number Systems — Dynamic Vector Rotation")
+st.header("🌌 Topic 1: Evolution of Number Systems")
 
 # 4 个核心标签页
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -374,8 +374,8 @@ with tab3:
         fig3.add_trace(go.Scatter(x=[x, x], y=[0, y], mode='lines', line=dict(color='#FF2E63', width=2, dash='dot'),
                                   name='Imag Projection'))
         fig3.add_trace(go.Scatter(x=[0, x], y=[0, y], mode='lines+markers',
-                                  marker=dict(size=12, color='white', symbol='arrow-bar-up', angleref='previous'),
-                                  line=dict(color='white', width=5), name='Polar Vector z'))
+                                  marker=dict(size=12, color='black', symbol='arrow-bar-up', angleref='previous'),
+                                  line=dict(color='red', width=5), name='Polar Vector z'))
         arc_t = np.linspace(0, theta_rad, 50)
         fig3.add_trace(
             go.Scatter(x=0.5 * np.cos(arc_t), y=0.5 * np.sin(arc_t), mode='lines', line=dict(color='orange', width=3),
@@ -403,7 +403,7 @@ with tab4:
 
     if physics_step == "1. Mechanism: Bending the Line (Birth of e)":
         with col1:
-            st.markdown("### Where does $e$ come from?")
+            st.markdown("### Where does $e$ and $i$ come from?")
             growth_type = st.radio("Accelerator Type:",
                                    ["Real Growth (Compound Interest)", "Imaginary Growth (Rotation Force)"])
             if growth_type == "Real Growth (Compound Interest)":
