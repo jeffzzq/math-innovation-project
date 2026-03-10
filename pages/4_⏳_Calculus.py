@@ -3283,7 +3283,7 @@ def render_topic_differentiation():
                 4. Your new instructions are: for every **1 step Up (New Y)**, you go **2 steps Right (New X)**.
                 5. What is the slope of this new line? Rise over Run = **$1/2$**.
 
-                **Conclusion:** When you reflect a curve, its slope perfectly flips to its reciprocal (倒数).
+                **Conclusion:** When you reflect a curve, its slope perfectly flips to its reciprocal.
                 * If the slope of $e^x$ at point $(a, b)$ is **$b$**.
                 * The slope of $\ln(x)$ at the reflected point $(b, a)$ must be **$1/b$**.
 
@@ -4469,7 +4469,7 @@ def render_numerical_methods():
                 "**Theorem:** If $f(x)$ is continuous on the interval $[a, b]$, and $f(a) \cdot f(b) < 0$ (meaning they have opposite signs), a root MUST exist between them.")
             st.write("Testing our equation $f(x) = \ln(x) + x - 2$:")
             st.write("- At $x=1$: $f(1) = -1$ (Negative)")
-            st.write("- At $x=2$: $f(2) \approx 0.693$ (Positive)")
+            st.write("- At $x=2$: $f(2) \\approx 0.693$ (Positive)")
             st.success(
                 "Conclusion: A root definitely exists between $x=1$ and $x=2$. This narrows down our search area and provides an excellent initial guess $x_0$.")
 
@@ -4543,7 +4543,7 @@ def render_numerical_methods():
         with col_conv1:
             st.success("**Quadratic Convergence (The Superpower)**")
             st.write(
-                "Normally, Newton's method is quadratic ($e_{n+1} \approx C \cdot e_n^2$). This means the number of accurate decimal places **DOUBLES** with every step!")
+                "Normally, Newton's method is quadratic ($e_{n+1} \\approx C \cdot e_n^2$). This means the number of accurate decimal places **DOUBLES** with every step!")
             st.markdown("""
                 * **Step 1:** Error $0.1$ (1 accurate digit)
                 * **Step 2:** Error $0.01$ (2 accurate digits)
@@ -4555,7 +4555,7 @@ def render_numerical_methods():
         with col_conv2:
             st.error("**Linear Convergence (The Trap)**")
             st.write(
-                "If the root is a **Multiple Root** (the curve 'kisses' the x-axis instead of piercing it), both $f(x)$ and slope $f'(x)$ approach zero simultaneously. The formula loses its power ($e_{n+1} \approx 0.5 \cdot e_n$).")
+                "If the root is a **Multiple Root** (the curve 'kisses' the x-axis instead of piercing it), both $f(x)$ and slope $f'(x)$ approach zero simultaneously. The formula loses its power ($e_{n+1} \\approx 0.5 \cdot e_n$).")
             st.markdown("""
                 * **Step 1:** Error $0.1$
                 * **Step 2:** Error $0.05$
