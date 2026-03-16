@@ -303,11 +303,7 @@ def show_sequence_page():
                 st.markdown("**Step 4: Final Logic**")
                 st.latex(r"S > 1 + \frac{1}{2} + \frac{1}{2} + \frac{1}{2} + \dots = \infty")
                 st.error("Since we can add $1/2$ infinitely many times, the sum must be Infinite.")
-                st.info("📺 **Video Resources:**")
-                st.markdown(
-                    "[▶️ 3Blue1Brown: The Harmonic Series Paradox](https://www.youtube.com/watch?v=ly_J23__eHw)")
-                st.markdown(
-                    "[▶️ Khan Academy: Proof of Divergence](https://www.khanacademy.org/math/calculus-all/cc-cal-series-tests/cc-cal-integral-test/v/harmonic-series-divergence)")
+                
             with c2:
                 st.write("**Visualizing the Lower Bound:**")
                 x_vals = [1, 2, 4, 8, 16, 32]
@@ -319,79 +315,314 @@ def show_sequence_page():
                                   yaxis_title="Sum Value", xaxis_type="log", template="plotly_dark", height=500)
                 st.plotly_chart(fig, use_container_width=True)
 
+
         elif "Basel" in series_choice:
+
             with c1:
+
                 st.markdown("### 👑 2. The Basel Problem")
+
                 st.markdown("**Claim:** $\sum_{n=1}^{\infty} \\frac{1}{n^2} = \\frac{\pi^2}{6}$")
+
                 st.markdown("#### 📝 Step-by-Step Proof (Euler, 1734)")
+
                 st.markdown("**Step 1: Maclaurin Series Expansion**")
+
                 st.write("We know the series for $\sin(x)$:")
+
                 st.latex(r"\sin(x) = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \dots")
+
                 st.write("Divide by $x$ to remove the constant term:")
+
                 st.latex(r"\frac{\sin(x)}{x} = 1 - \frac{x^2}{6} + \frac{x^4}{120} - \dots \quad \text{--- (Eq 1)}")
+
                 st.markdown("**Step 2: Infinite Product Formula**")
-                st.write("The roots of $\sin(x)/x$ are $\pm \pi, \pm 2\pi, \pm 3\pi \dots$. So:")
+
+                st.write("The roots of $\sin(x)/x$ are $\pm \pi, \pm 2\pi, \pm 3\pi \dots$")
+
+                st.write("In formal mathematics, Euler expressed this as an infinite product using the $\prod$ symbol:")
+
+                st.latex(r"\frac{\sin(x)}{x} = \prod_{n=1}^{\infty} \left( 1 - \frac{x^2}{n^2 \pi^2} \right)")
+
+                st.write(
+                    "But to understand Euler's genius, we must **expand these brackets out** to see what's inside:")
+
                 st.latex(
+
                     r"\frac{\sin(x)}{x} = \left(1-\frac{x^2}{\pi^2}\right)\left(1-\frac{x^2}{4\pi^2}\right)\left(1-\frac{x^2}{9\pi^2}\right)\dots \quad \text{--- (Eq 2)}")
+
                 st.markdown("**Step 3: Extract the $x^2$ Coefficient**")
+
+                st.write(
+                    "Imagine multiplying out those infinite brackets. To create an $x^2$ term, you must pick the $x^2$ fraction from *one* bracket, and multiply it by the $1$ from *all the other* brackets. Adding all these possibilities together gives:")
+
                 st.latex(
+
                     r"\text{Coeff of } x^2 = -\frac{1}{\pi^2} - \frac{1}{4\pi^2} - \frac{1}{9\pi^2} - \dots = -\frac{1}{\pi^2} \sum_{n=1}^{\infty} \frac{1}{n^2}")
+
                 st.markdown("**Step 4: Equate Coefficients**")
+
                 st.write("Compare $x^2$ coefficient from Eq 1 ($-1/6$) and Eq 2:")
+
                 st.latex(r"-\frac{1}{6} = -\frac{1}{\pi^2} \sum_{n=1}^{\infty} \frac{1}{n^2}")
-                st.success(r"Multiply by $-\pi^2$:  $\sum \frac{1}{n^2} = \frac{\pi^2}{6}$")
+
+                st.success(r"Multiply by $-\pi^2$:  $\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}$")
+
                 st.info("📺 **Video Resources:**")
+
                 st.markdown(
+
                     "[▶️ 3Blue1Brown: The Basel Problem Visualized](https://www.youtube.com/watch?v=d-o3eB9sfls)")
-                st.markdown("[▶️ Numberphile: Pi squared over 6](https://www.youtube.com/watch?v=0A6e9p8e20Y)")
+
             with c2:
+
                 st.write("**Visualizing Convergence:**")
+
                 n_b = 50
+
                 x_b = np.arange(1, n_b + 1)
+
                 y_b = np.cumsum(1 / (x_b ** 2))
+
                 target = (np.pi ** 2) / 6
+
                 fig = go.Figure()
+
                 fig.add_trace(
+
                     go.Scatter(x=x_b, y=y_b, mode='lines', name='Partial Sum', line=dict(color='#00ADB5', width=3)))
+
                 fig.add_shape(type="line", x0=0, y0=target, x1=n_b, y1=target, line=dict(color="#FF2E63", dash="dash"))
-                fig.add_annotation(x=n_b / 2, y=target - 0.1, text="Target: 1.6449...", font=dict(color="#FF2E63"))
+
+                fig.add_annotation(x=n_b / 2, y=target - 0.1, text="Target: π²/6 ≈ 1.6449", font=dict(color="#FF2E63"))
+
                 fig.update_layout(title="Approaching π²/6", xaxis_title="n", template="plotly_dark", height=500)
+
                 st.plotly_chart(fig, use_container_width=True)
 
+
+
+
         elif "Fibonacci" in series_choice:
+
+            # ---------------------------------------------------------
+
+            # PART 1: Basic Derivation (Left Col) & Ratio Graph (Right Col)
+
+            # ---------------------------------------------------------
+
             with c1:
+
                 st.markdown("### 🌻 3. Fibonacci & Golden Ratio")
+
                 st.markdown("**Claim:** The ratio of consecutive terms converges to $\phi \\approx 1.618$.")
+
                 st.markdown("#### 📝 Step-by-Step Derivation")
+
                 st.markdown("**Step 1: The Recursive Definition**")
+
                 st.latex(r"F_{n+1} = F_n + F_{n-1}")
+
                 st.markdown("**Step 2: Construct the Ratio**")
+
                 st.write("Divide the whole equation by $F_n$:")
+
                 st.latex(r"\frac{F_{n+1}}{F_n} = \frac{F_n}{F_n} + \frac{F_{n-1}}{F_n} = 1 + \frac{F_{n-1}}{F_n}")
+
                 st.markdown("**Step 3: Define the Limit**")
+
                 st.write("Let $L = \lim_{n \\to \infty} \\frac{F_{n+1}}{F_n}$.")
+
                 st.latex(r"L = 1 + \frac{1}{L}")
+
                 st.markdown("**Step 4: Solve the Quadratic**")
+
                 st.write("Multiply by $L$: $L^2 = L + 1 \implies L^2 - L - 1 = 0$.")
+
                 st.latex(r"L = \frac{-(-1) \pm \sqrt{(-1)^2 - 4(1)(-1)}}{2(1)} = \frac{1 \pm \sqrt{5}}{2}")
+
                 st.success(r"Taking the positive root: $\phi = \frac{1 + \sqrt{5}}{2} \approx 1.61803$")
-                st.info("📺 **Video Resources:**")
-                st.markdown("[▶️ Numberphile: The Golden Ratio](https://www.youtube.com/watch?v=ghxQA3vvhsk)")
-                st.markdown("[▶️ TED-Ed: The magic of Fibonacci numbers](https://www.youtube.com/watch?v=SjSHVDfXHQ4)")
+
             with c2:
+
                 st.write("**Visualizing Ratio Convergence:**")
+
                 fibs = [1, 1]
+
                 for i in range(15): fibs.append(fibs[-1] + fibs[-2])
+
                 ratios = [fibs[i] / fibs[i - 1] for i in range(1, len(fibs))]
-                fig = go.Figure()
-                fig.add_trace(
-                    go.Scatter(x=list(range(1, len(ratios) + 1)), y=ratios, mode='lines+markers', name='Ratio Fn/Fn-1',
-                               line=dict(color='#FDB827', width=3)))
-                fig.add_shape(type="line", x0=1, y0=1.618, x1=15, y1=1.618, line=dict(dash='dash', color='white'))
-                fig.add_annotation(x=8, y=1.618, text="φ (1.618)", ay=-30)
-                fig.update_layout(title="Oscillation Damping", xaxis_title="n", yaxis_title="Ratio",
-                                  template="plotly_dark", height=500)
-                st.plotly_chart(fig, use_container_width=True)
+
+                fig_ratio = go.Figure()
+
+                fig_ratio.add_trace(go.Scatter(
+
+                    x=list(range(1, len(ratios) + 1)), y=ratios, mode='lines+markers',
+
+                    name='Ratio Fn/Fn-1', line=dict(color='#FDB827', width=3)
+
+                ))
+
+                fig_ratio.add_shape(type="line", x0=1, y0=1.618, x1=15, y1=1.618, line=dict(dash='dash', color='white'))
+
+                fig_ratio.add_annotation(x=8, y=1.618, text="φ (1.618)", ay=-30, font=dict(color="white"))
+
+                fig_ratio.update_layout(
+
+                    title="Oscillation Damping", xaxis_title="n", yaxis_title="Ratio",
+
+                    template="plotly_dark", height=400, margin=dict(l=0, r=0, b=0, t=40)
+
+                )
+
+                st.plotly_chart(fig_ratio, use_container_width=True)
+
+            # ---------------------------------------------------------
+
+            # PART 2: Mind-Blowing Extra (Full Screen Width)
+
+            # ---------------------------------------------------------
+
+            # Stepping outside c1 and c2 so these take up the whole screen
+
+            st.divider()
+
+            st.markdown("### 🤯 Mind-Blowing Extra: The Two Spirals of Fibonacci")
+
+            st.write(
+                "When people think of the Fibonacci sequence, they immediately picture the classic 'Conch Shell' shape. But mathematically, there are actually **two entirely different spirals** at play.")
+
+            # Create two new columns just for the explanation
+
+            col_conch, col_helix = st.columns(2)
+
+            with col_conch:
+
+                st.markdown("#### 🐚 1. The Geometric Conch (Nature)")
+
+                st.write(
+                    "This is the spiral we see in sunflowers, snail shells, and galaxies. It's built by drawing quarter-circles inside squares with Fibonacci-length sides. **It lives entirely in our flat, 2D real world.**")
+
+                # Plotting the classic Conch Golden Spiral
+
+                theta_conch = np.linspace(0, 4 * np.pi, 200)
+
+                r_conch = ((1 + np.sqrt(5)) / 2) ** (2 * theta_conch / np.pi)
+
+                fig_conch = go.Figure()
+
+                fig_conch.add_trace(go.Scatter(
+
+                    x=r_conch * np.cos(theta_conch), y=r_conch * np.sin(theta_conch),
+
+                    mode='lines', line=dict(color='#FDB827', width=4), name="Golden Spiral"
+
+                ))
+
+                fig_conch.update_layout(
+
+                    xaxis=dict(scaleanchor="y", scaleratio=1, visible=False),
+
+                    yaxis=dict(visible=False), height=350, template="plotly_dark", margin=dict(l=0, r=0, b=0, t=30)
+
+                )
+
+                st.plotly_chart(fig_conch, use_container_width=True)
+
+            with col_helix:
+
+                st.markdown("#### 🌌 2. The Algebraic Helix (Hidden Dimension)")
+
+                st.write("What if we want to calculate the **1.5th** Fibonacci number? We must use Binet's formula:")
+
+                st.latex(r"F_n = \frac{\phi^n - (-0.618)^n}{\sqrt{5}}")
+
+                st.write(
+                    "Notice the negative number. Raising a negative number to a decimal power (like $1.5$) requires taking a **square root of a negative**. This forces the sequence to spawn **Imaginary Numbers ($i$)**!")
+
+                st.write(
+                    "To connect the dots, the sequence leaps off the 1D number line into the **3D Complex Plane**. The integers we know (1, 1, 2, 3...) are simply the exact moments this 3D helix crashes down into our 'Real' reality.")
+
+            # Full-width 3D Plot representing the Algebraic Helix (placed below the two text columns)
+
+            n_continuous = np.linspace(-2.0, 5.5, 500)
+
+            phi_val = (1 + np.sqrt(5)) / 2
+
+            psi_val = (1 - np.sqrt(5)) / 2
+
+            real_vals = (phi_val ** n_continuous - np.cos(np.pi * n_continuous) * (
+                        np.abs(psi_val) ** n_continuous)) / np.sqrt(5)
+
+            imag_vals = (-np.sin(np.pi * n_continuous) * (np.abs(psi_val) ** n_continuous)) / np.sqrt(5)
+
+            n_ints = np.arange(-2, 6)
+
+            int_real = (phi_val ** n_ints - np.cos(np.pi * n_ints) * (np.abs(psi_val) ** n_ints)) / np.sqrt(5)
+
+            int_imag = np.zeros_like(n_ints)
+
+            fig_fib = go.Figure()
+
+            # 3D Helix
+
+            fig_fib.add_trace(go.Scatter3d(
+
+                x=n_continuous, y=real_vals, z=imag_vals, mode='lines',
+
+                line=dict(color='#00ADB5', width=6), name="Continuous Complex Helix"
+
+            ))
+
+            # Real Integers (Red Dots)
+
+            fig_fib.add_trace(go.Scatter3d(
+
+                x=n_ints, y=int_real, z=int_imag, mode='markers+text',
+
+                marker=dict(size=8, color='#FF2E63'), text=[f"F({n})" for n in n_ints],
+
+                textposition="top center", name="Real Integers (Our World)"
+
+            ))
+
+            # The "Real" Floor Shadow
+
+            fig_fib.add_trace(go.Scatter3d(
+
+                x=n_continuous, y=real_vals, z=np.zeros_like(real_vals), mode='lines',
+
+                line=dict(color='#FF2E63', width=2, dash='dash'), opacity=0.4,
+
+                name="Shadow on the Real Floor"
+
+            ))
+
+            fig_fib.update_layout(
+
+                scene=dict(xaxis_title='Index (n)', yaxis_title='Real Value', zaxis_title='Imaginary Value',
+
+                           aspectmode='manual', aspectratio=dict(x=2.5, y=1, z=1)),
+
+                height=550, margin=dict(l=0, r=0, b=0, t=0), template="plotly_dark",
+
+                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+
+            )
+
+            st.plotly_chart(fig_fib, use_container_width=True)
+
+            # ---------------------------------------------------------
+
+            # PART 3: Resources
+
+            # ---------------------------------------------------------
+
+            st.info("📺 **Video Resources:**")
+
+            st.markdown("[▶️ Numberphile: The Golden Ratio](https://www.youtube.com/watch?v=ghxQA3vvhsk)")
+
+
 
     # ==========================================
     # TAB 4: Pascal to Normal
