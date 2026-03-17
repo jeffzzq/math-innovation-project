@@ -73,7 +73,7 @@ def main():
         count = 112
 
     # 在侧边栏极其醒目的位置展示！
-    st.sidebar.metric(label="🔥 Total Explorers", value=count)
+    st.sidebar.metric(label="🔥 Total Page Views", value=count, help="Total number of times this universe has been accessed.")
     st.sidebar.divider()
     # ==========================================
     # 👆👆👆 计数器代码结束 👆👆👆
