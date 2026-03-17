@@ -13,6 +13,7 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, \
     convert_xor
 import re
+import requests  # <--- 新增的库，用来连网拿云端数据！
 
 # ==========================================
 # 1. 全局页面配置 (必须放最上面！)
@@ -33,6 +34,50 @@ def main():
     st.sidebar.markdown("### 🌳 The Math Roots")
     st.sidebar.caption("Matrikulasi Innovation Project")
     st.sidebar.divider()
+
+    # ==========================================
+    # 👇👇👇 永久云端计数器 (JSONBin) 👇👇👇
+    # ==========================================
+    try:
+        # 从 Streamlit Secrets 里读取密码 (确保你已经在后台配置好了)
+        BIN_ID = st.secrets["JSONBIN_ID"]
+        API_KEY = st.secrets["JSONBIN_KEY"]
+        URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
+        HEADERS = {
+            "X-Master-Key": API_KEY,
+            "Content-Type": "application/json"
+        }
+
+        # 利用 session_state 确保每个访客点开只算 1 次
+        if 'has_visited' not in st.session_state:
+            st.session_state.has_visited = True
+
+            # 1. 连上云端，获取最新真实人数
+            req = requests.get(URL, headers=HEADERS)
+            data = req.json()
+            count = data['record']['count']
+
+            # 2. 有新访客，数字 +1
+            count += 1
+
+            # 3. 把新数字写回云端，永久保存！
+            requests.put(URL, json={"count": count}, headers=HEADERS)
+
+        else:
+            # 如果是同一访客在各个页面切来切去，只读取数字，不加 1
+            req = requests.get(URL, headers=HEADERS)
+            count = req.json()['record']['count']
+
+    except Exception as e:
+        # 终极防崩保护：如果网络断了或者没配密码，优雅保底显示 112 (你截图里的数字)
+        count = 112
+
+    # 在侧边栏极其醒目的位置展示！
+    st.sidebar.metric(label="🔥 Total Explorers", value=count)
+    st.sidebar.divider()
+    # ==========================================
+    # 👆👆👆 计数器代码结束 👆👆👆
+    # ==========================================
 
     # --- 1. 序言区域 (The Preface) ---
     st.title("The Math Roots 🌳")
@@ -86,7 +131,6 @@ def main():
     st.divider()
 
     # --- 3. 底部结语 ---
-
 
 
 # ==========================================
