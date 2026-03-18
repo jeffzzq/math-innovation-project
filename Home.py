@@ -25,7 +25,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
+# ==========================================
+# 🔍 Google Search Console 验证 (隐身植入)
+# ==========================================
+st.markdown(
+    '<meta name="google-site-verification" content="a8uPEIvVdeSAhH52jfcLKWuEC_rq5NHiN7ZJnjTFgrU" />',
+    unsafe_allow_html=True
+)
 # ==========================================
 # 2. 主程序入口
 # ==========================================
