@@ -26,8 +26,22 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🔍 Google Search Console 验证 (隐身植入)
+# 🚀 强制植入 Google Analytics (用于搜索验证)
 # ==========================================
+ga_id = "G-6N2EPBE323"
+ga_code = f"""
+<script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{ga_id}');
+</script>
+"""
+# 使用 st.html 强行把脚本塞进页面（Streamlit 1.34.0+ 推荐）
+st.html(ga_code)
+
+# 同时也把之前的 Meta Tag 也加上去，双重保险！
 st.markdown(
     '<meta name="google-site-verification" content="a8uPEIvVdeSAhH52jfcLKWuEC_rq5NHiN7ZJnjTFgrU" />',
     unsafe_allow_html=True
