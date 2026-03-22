@@ -119,11 +119,12 @@ def main():
 
     st.divider()
 
+
     # --- 2. 卷宗大纲 (The Volumes) ---
-    st.subheader("🏛️ The Four Volumes of Discovery")
+    st.subheader("🏛️ The Six Volumes of Discovery")
     st.write("Select a volume from the sidebar to step into the labyrinth.")
 
-    # 使用 columns 来做一个漂亮的网格布局，模拟四大卷宗
+    # 使用 columns 来做一个漂亮的网格布局
     c1, c2 = st.columns(2)
 
     with c1:
@@ -132,20 +133,30 @@ def main():
         **The Genesis of Quantity.** Witness the struggle to expand the boundaries of reality. From the resistance against negative debts to the 'mental torture' of imaginary roots, explore how breaking the rules unlocked the geometry of the universe.
         """)
 
-        st.success("""
-        ### 📖 Volume II: Sequences & Series
-        **The Rhythm of Infinity.** How do we grasp the endless? Watch the battle to tame infinite growth, the birth of the natural constant $e$, and how chaotic curves are forced into perfect, infinite polynomials.
-        """)
-
-    with c2:
         st.warning("""
         ### 📖 Volume III: Linear Algebra
         **The Spatial Fabric.** Step beyond the limitations of human sight. Visualize vectors, cross products, and matrices—the invisible geometric engines that orchestrate everything from modern physics to artificial intelligence.
         """)
 
         st.error("""
+        ### 📖 Volume V: Set Theory
+        **The Architecture of the Void.** Descend into the absolute bedrock of logic. Witness Georg Cantor’s dangerous dance with multiple infinities, the paradoxes that broke the mathematical world, and the obsessive quest to define reality from an empty set.
+        """)
+
+    with c2:
+        st.success("""
+        ### 📖 Volume II: Sequences & Series
+        **The Rhythm of Infinity.** How do we grasp the endless? Watch the battle to tame infinite growth, the birth of the natural constant $e$, and how chaotic curves are forced into perfect, infinite polynomials.
+        """)
+
+        st.error("""
         ### 📖 Volume IV: The Calculus Saga
         **The War on Infinity.** A 2000-year epic. Experience the paralyzing paradoxes of antiquity, the fierce race to calculate motion, and the ultimate triumph of grounding 'change' into pure, rigorous logic.
+        """)
+
+        st.info("""
+        ### 📖 Volume VI: Probability & Statistics
+        **The Taming of Chaos.** From smoky 17th-century gambling dens to the rigorous axioms of modern science. Watch humanity weaponize mathematics to predict the unpredictable, quantify ignorance, and conquer the ultimate frontier of uncertainty.
         """)
 
     st.divider()
