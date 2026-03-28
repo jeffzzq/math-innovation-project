@@ -3,9 +3,9 @@ import streamlit as st
 # ==========================================
 # Page Configuration
 # ==========================================
-st.set_page_config(page_title="Chapter 1: The Architecture of Logic", page_icon="🧩", layout="wide")
+st.set_page_config(page_title="The Final Frontier of Reason: Set Theory", page_icon="🧩", layout="wide")
 
-st.title("🧩 Chapter 1: The Architecture of Logic")
+st.title("🧩 The Final Frontier of Reason: Set Theory")
 st.markdown("""
 > *"No one shall expel us from the paradise that Cantor has created for us." — David Hilbert*
 """)

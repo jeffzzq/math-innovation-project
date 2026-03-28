@@ -1,5 +1,15 @@
 import streamlit as st
-
+import numpy as np
+import matplotlib.pyplot as plt
+import streamlit as st
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import streamlit as st
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 # ==========================================
 # Page Configuration
 # ==========================================
@@ -833,16 +843,619 @@ if chapter == "📖 Chapter 1: History of Probability":
             By turning probability into the calculation of "measure" (length, area, volume), Kolmogorov allowed probability to inherit all the rigorous tools of Calculus and Real Analysis. Probability was finally recognized as an orthodox, foundational branch of modern mathematics.
             """)
 
+import streamlit as st
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
 
 # ==========================================
-# Chapter 2: Probability Distributions (Placeholder)
+# Chapter 2: Probability Distributions
 # ==========================================
-elif chapter == "📐 Chapter 2: Probability Distributions":
 
-    st.title("📐 The Shape of Chaos (Distributions)")
+# 假设侧边栏导航变量叫 chapter
+if chapter == "📐 Chapter 2: Probability Distributions":
+    st.title("📐 The Shape of Chaos: Distributions")
     st.markdown(
-        "When events become numbers, and the discrete becomes continuous. This is the territory of the Normal, Poisson, Binomial, and Cauchy distributions.")
+        "When unpredictable, random events are translated into numbers, the discrete crosses over into the continuous. Mathematicians weren't just calculating odds; they were finding perfect order inside absolute chaos.")
     st.divider()
 
-    st.info(
-        "🚧 **Director's Note:** The content for distributions (and those interactive charts you actually need) will unfold here...")
+    tab1, tab2, tab3 = st.tabs([
+        "📊 The Discrete World",
+        "📈 The Continuous Universe",
+        "🌉 The Great Approximations"
+    ])
+
+    # ==========================================
+    # Tab 1: Discrete Random Variables
+    # ==========================================
+    # ==========================================
+    # Tab 1: Discrete Random Variables
+    # ==========================================
+    with tab1:
+        st.header("📊 Discrete Random Variables: The Art of Counting")
+        st.markdown(r"""
+            **What is Discrete?** Imagine flipping coins, counting goals in a match, or tallying the number of typos on a page. The results can only be integers ($0, 1, 2, 3\dots$). You cannot flip $1.5$ heads. Probabilities exist as **independent points (or bars)**.
+            """)
+
+        st.subheader("1. The Binomial Distribution")
+        st.markdown(r"""
+            * **The Origin Story:** Developed by Jacob Bernoulli in the 17th century, driven by the era's obsession with gambling.
+            * **The Motivation:** Bernoulli wanted to know: *If I play a game $n$ times, and my chance of winning is exactly $p$ every single time, what is the probability that I win exactly $k$ times?*
+            * **The Formula:** $$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
+            * **The Computational Wall:** Look at the combination term $\binom{n}{k}$. If you flip 1000 coins and want to know the odds of 500 heads, you must calculate $1000!$ (factorial). Without computers, this calculation was a mathematical nightmare.
+            * **The De Moivre Breakthrough (1733):** French mathematician **Abraham de Moivre** was hired by gamblers to solve these massive binomial calculations. Realizing calculating huge factorials was a dead end, he used a revolutionary mathematical trick (which led to Stirling's Approximation). He proved that as $n$ grows to infinity, the clunky factorials collapse into a continuous exponential formula containing the magical constant $\mathbf{\sqrt{2\pi}}$. He didn't just approximate the Binomial; he wrote down the very first equation of the Normal Distribution—decades before Gauss!
+            """)
+
+        with st.expander("🔍 Deep Dive: The Mathematical Derivation of De Moivre-Laplace", expanded=False):
+            st.markdown(r"""
+                How does the discrete Binomial formula become the continuous Normal curve? We will explore this using a beautiful algebraic derivation.
+
+                > ⚠️ **A Note on Mathematical Rigor**
+                > A perfectly strict mathematical proof of this transition requires highly advanced tools like **Characteristic Functions**, **Measure Theory**, and rigorous **Big-O error bounding** as $n \to \infty$. That level of pure mathematics is notoriously complex and often obscures the intuition. 
+                >
+                > To keep this journey accessible and focus on the raw algebraic beauty, we are presenting the classic **Heuristic Derivation** (often called the *Physicist's Proof*). It uses Stirling's Approximation and Taylor Series to reveal the exact mechanical connection between a coin flip and a bell curve, without getting lost in the weeds of modern limit theorems.
+
+                **The Starting Point: The Binomial PMF**
+                For $n$ trials with probability $p$ and $q = 1-p$, the probability of $k$ successes is:
+                $$P(X=k) = \frac{n!}{k!(n-k)!} p^k q^{n-k}$$
+                """)
+
+            st.info(r"""
+                #### Step 1: Applying Stirling's Approximation
+                For very large values of $n$, calculating factorials directly is impossible. We use **Stirling's Approximation**:
+                $$n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$$
+
+                **Where does this come from? (A quick proof):**
+                * **Logarithms:** To calculate $n! = 1 \times 2 \times \dots \times n$, we take the natural logarithm to turn multiplication into addition: $\ln(n!) = \ln(1) + \ln(2) + \dots + \ln(n)$.
+                * **Integration:** Adding these discrete values is equivalent to summing the area of rectangles. We approximate this sum using the continuous integral of $\ln(x)$: 
+                $$\int_1^n \ln(x) \,dx = \big[ x\ln(x) - x \big]_1^n \approx n\ln(n) - n$$
+                * **Exponentiation:** To find $n!$, we reverse the logarithm by taking the exponent with base $e$: 
+                $$n! \approx e^{n\ln(n) - n} = \left(\frac{n}{e}\right)^n$$
+                * **The Error Correction ($\sqrt{2\pi n}$):** Approximating discrete rectangles with a smooth continuous curve leaves a tiny error at the corners. Advanced calculus proves that to perfectly patch this error, we must multiply by the geometric constant $\sqrt{2\pi n}$. *(We will reveal exactly why $\pi$ appears at the very end!)*
+
+                Let's substitute this into the full Binomial PMF: $P(X=k) = \frac{n!}{k!(n-k)!} p^k q^{n-k}$.
+
+                **1. Substitute the factorials:**
+                $$P(X=k) \approx \frac{ \sqrt{2\pi n} \left(\frac{n}{e}\right)^n }{ \left[ \sqrt{2\pi k} \left(\frac{k}{e}\right)^k \right] \left[ \sqrt{2\pi (n-k)} \left(\frac{n-k}{e}\right)^{n-k} \right] } \times p^k q^{n-k}$$
+
+                **2. Cancel the $e$ terms:**
+                Look at the denominators of the fractions inside the brackets. We have $e^n$ on top, and $e^k \cdot e^{n-k}$ on the bottom.
+                Using index laws, $e^k \cdot e^{n-k} = e^{k + (n-k)} = e^n$. 
+                They perfectly cancel each other out: $\frac{e^n}{e^n} = 1$.
+
+                **3. Group the square roots (Part 1):**
+                Pull all the square root terms to the front. The $\sqrt{2\pi}$ on top cancels with one $\sqrt{2\pi}$ on the bottom. We are left with the front coefficient:
+                $$\text{Coefficient} = \frac{\sqrt{n}}{\sqrt{2\pi} \sqrt{k} \sqrt{n-k}} = \sqrt{\frac{n}{2\pi k(n-k)}}$$
+
+                **4. The Exponent Trick (Part 2):**
+                What is left from the main equation? We have $n^n$ on top, $k^k(n-k)^{n-k}$ on the bottom, and the original probabilities $p^k q^{n-k}$.
+                $$\frac{n^n}{k^k (n-k)^{n-k}} \times p^k q^{n-k}$$
+                Here is the algebraic trick. Since $n = k + (n-k)$, we can split the top $n^n$ into two parts: $n^k \cdot n^{n-k}$. 
+                Now, just group the terms with the same exponents together!
+
+                * Group everything to the power of $k$: $\frac{n^k \cdot p^k}{k^k} = \left(\frac{np}{k}\right)^k$
+                * Group everything to the power of $n-k$: $\frac{n^{n-k} \cdot q^{n-k}}{(n-k)^{n-k}} = \left(\frac{nq}{n-k}\right)^{n-k}$
+
+                Multiply Part 1 and Part 2 together, and we get our simplified starting point:
+                $$P(X=k) \approx \underbrace{\sqrt{\frac{n}{2\pi k(n-k)}}}_{\text{Part 1: The Coefficient}} \times \underbrace{\left(\frac{np}{k}\right)^k \left(\frac{nq}{n-k}\right)^{n-k}}_{\text{Part 2: The Exponential Term}}$$
+                """)
+
+            st.warning(r"""
+            #### Step 2: Simplifying the Coefficient (Part 1)
+            Let's evaluate the coefficient around the highest probability, which occurs at the mean. 
+            Let the expected value be $\mu = np$. Since $k$ is very close to $np$, we can approximate $k \approx np$ and $(n-k) \approx nq$.
+
+            Substitute these into the square root:
+            $$\sqrt{\frac{n}{2\pi (np)(nq)}} = \frac{1}{\sqrt{2\pi npq}}$$
+
+            In a Binomial distribution, the Variance is defined as $\sigma^2 = npq$, so the Standard Deviation is $\sigma = \sqrt{npq}$. 
+            Substitute $\sigma$ into the denominator, and we get the exact constant for the Normal Distribution:
+            $$\mathbf{\frac{1}{\sigma\sqrt{2\pi}}}$$
+            """)
+
+            st.success(r"""
+            #### Step 3: Taylor Series Expansion (Part 2)
+            Now we must solve the exponential part: $A = \left(\frac{np}{k}\right)^k \left(\frac{nq}{n-k}\right)^{n-k}$.
+
+            To simplify exponents, we take the natural logarithm ($\ln$):
+            $$\ln(A) = -k \ln\left(\frac{k}{np}\right) - (n-k) \ln\left(\frac{n-k}{nq}\right)$$
+
+            Let $d$ be the deviation from the mean, so $k = np + d$, and therefore $(n-k) = nq - d$. Substitute $k$ and $n-k$:
+            $$\ln(A) = -(np+d) \ln\left(1 + \frac{d}{np}\right) - (nq-d) \ln\left(1 - \frac{d}{nq}\right)$$
+
+            We use the **Taylor Series Expansion** for logarithms: $\ln(1+x) \approx x - \frac{x^2}{2}$. Applying this to our terms (where $x = \frac{d}{np}$ and $x = -\frac{d}{nq}$):
+
+            1. $(np+d)\left(\frac{d}{np} - \frac{d^2}{2n^2p^2}\right) \approx d + \frac{d^2}{2np}$
+            2. $(nq-d)\left(-\frac{d}{nq} - \frac{d^2}{2n^2q^2}\right) \approx -d + \frac{d^2}{2nq}$
+
+            Add them together (don't forget the negative signs from the $\ln(A)$ equation):
+            $$\ln(A) \approx -\left[ \left(d + \frac{d^2}{2np}\right) + \left(-d + \frac{d^2}{2nq}\right) \right]$$
+
+            The linear $d$ terms cancel out perfectly ($d - d = 0$). We are left with:
+            $$\ln(A) \approx -\frac{d^2}{2n} \left(\frac{1}{p} + \frac{1}{q}\right) = -\frac{d^2}{2n} \left(\frac{p+q}{pq}\right)$$
+            Since $p+q = 1$, this simplifies exactly to:
+            $$\ln(A) \approx \mathbf{-\frac{d^2}{2npq}}$$
+
+            **The Final Substitution:**
+            Recall that $d$ is the deviation from the mean $(k - \mu)$, and $npq$ is the variance $(\sigma^2)$.
+            $$\ln(A) \approx -\frac{(k - \mu)^2}{2\sigma^2}$$
+
+            To remove the natural logarithm, we exponentiate with base $e$:
+            $$A \approx \mathbf{e^{-\frac{(k - \mu)^2}{2\sigma^2}}}$$
+
+            Multiply this by the coefficient from Step 2, and we have rigorously derived the Normal Distribution PDF from the Binomial PMF:
+            $$\mathbf{f(k) \approx \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{k-\mu}{\sigma}\right)^2}}$$
+            """)
+
+            st.error(r"""
+                #### Step 4: The Grand Finale (Solving the $\sqrt{n}$ and $\pi$ Mysteries)
+                We derived the shape $e^{-\frac{1}{2}x^2}$. But a true probability curve must have a total area of exactly $1.0$ (100% chance). To fix this, we must solve two final mysteries.
+
+                ---
+
+                ### 🔍 Mystery 1: Why divide by $\sqrt{n}$? (The Conservation of Probability)
+                Why does Stirling's approximation force a $\sqrt{n}$ into the denominator? 
+
+                Think of "Total Probability" as a fixed mathematical mass of exactly $1.0$. 
+                As the number of trials ($n$) increases, the possible outcomes spread out further. The width of your bell curve (the Standard Deviation) grows proportionally to **$\sqrt{n}$**.
+
+                **The Rule of Conservation:** If you stretch the base of the curve to be $\sqrt{n}$ times *wider*, the only way to keep the total area the same is to compress the peak, making it $1/\sqrt{n}$ times *shorter*. 
+
+                The $\sqrt{2\pi n}$ in Step 1 is mathematics automatically normalizing the peak of the curve, ensuring your probability never exceeds 100%.
+
+                ---
+
+                ### 🔍 Mystery 2: The Impossible Integral and the '$r$' Key
+                Now we must calculate the exact area of the curve to make it equal 1. Let's call this Area $A$:
+                $$A = \int_{-\infty}^{\infty} e^{-\frac{1}{2}x^2} \,dx$$
+
+                **The Locked Door:** This integral is mathematically impossible to solve using standard elementary functions. To use the Reverse Chain Rule (U-substitution), we desperately need a loose $x$ on the outside to absorb the derivative. But there is no $x$. We are locked out.
+
+                **The Dimensional Shift (The Double Integral Trick):**
+                Mathematicians bypass this by squaring the area ($A^2$). By multiplying the 1D integral by a copy of itself (using $y$ as the dummy variable), we shift from a 2D area to a 3D volume:
+                $$
+                \begin{aligned}
+                A^2 &= \left( \int_{-\infty}^{\infty} e^{-\frac{1}{2}x^2} \,dx \right) \times \left( \int_{-\infty}^{\infty} e^{-\frac{1}{2}y^2} \,dy \right) \\
+                A^2 &= \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} e^{-\frac{1}{2}(x^2+y^2)} \,dx \,dy
+                \end{aligned}
+                $$
+
+                Notice the exponent is now $x^2 + y^2$. In geometry, $x^2 + y^2 = r^2$, which is the equation of a **Circle**. This symmetry allows us to switch our coordinate system from a rectangular Cartesian grid ($x, y$) to a circular Polar grid ($r, \theta$).
+
+                **The Polar Area Element (Where the '$r$' comes from):**
+                In a Cartesian grid, a tiny area element is a simple square: $\text{Area} = dx \cdot dy$.
+                In a Polar grid, we measure area using tiny circular wedges. 
+
+                The length of this wedge is simply the change in radius, $dr$. However, the width of the wedge is an **arc length**. In geometry, arc length is defined as the radius multiplied by the angle ($s = r\theta$). Therefore, a tiny change in angle ($d\theta$) creates an arc width of exactly $r \,d\theta$.
+
+                Because the arc gets wider as the radius increases, the area of our mathematical polar wedge becomes:
+                $$\text{Area} = (dr) \times (r \,d\theta) = \mathbf{r} \,dr \,d\theta$$
+
+                **The Key Turns (The Final Calculation):**
+                This geometric reality hands us a free, extra $\mathbf{r}$ (known formally as the Jacobian determinant). Our impossible Cartesian integral transforms into a solvable Polar integral. The boundaries also change to cover the entire 2D plane: radius $r$ goes from $0$ to $\infty$, and angle $\theta$ goes a full circle from $0$ to $2\pi$:
+                $$A^2 = \int_{0}^{2\pi} \int_{0}^{\infty} \mathbf{r} \cdot e^{-\frac{1}{2}r^2} \,dr \,d\theta$$
+
+                Now we can finally calculate this volume step-by-step behind the locked door:
+
+                **1. Solving the Inner Integral (The $r$ Magic)**
+                First, we integrate the radius part from the center ($0$) to infinity ($\infty$):
+                $$\int_0^\infty \mathbf{r} \cdot e^{-\frac{1}{2}r^2} \,dr$$
+
+                *Click!* Let's use U-substitution to unlock this. 
+                * Let $u = -\frac{1}{2}r^2$. 
+                * The derivative is $\frac{du}{dr} = -r$, which means $-du = \mathbf{r \,dr}$.
+
+                Look at that! The extra $\mathbf{r}$ from our geometry perfectly absorbs into $-du$. The locked door opens, and the impossible equation simplifies into: $\int -e^u \,du$.
+
+                We change our boundaries ($0$ and $\infty$) to match our new $u$:
+                * At the center ($r = 0$): $u = -\frac{1}{2}(0)^2 = \mathbf{0}$.
+                * At infinity ($r \to \infty$): $u = -\frac{1}{2}(\infty)^2 = \mathbf{-\infty}$.
+
+                Plugging in these new boundaries, our inner integral becomes:
+                $$\int_{0}^{-\infty} -e^u \,du = \int_{-\infty}^{0} e^u \,du = \big[ e^u \big]_{-\infty}^{0}$$
+
+                Evaluating the boundaries ($e^0 - e^{-\infty}$):
+                $$1 - 0 = \mathbf{1}$$
+
+                **The result of the inner integral is exactly 1.** **2. Sweeping the Outer Integral (The $\pi$ Magic)**
+                Now we integrate this result ($1$) over the outer boundary, which is the angle $\theta$ sweeping a full circle ($0$ to $2\pi$):
+                $$
+                \begin{aligned}
+                A^2 &= \int_{0}^{2\pi} (1) \,d\theta \\
+                A^2 &= \big[ \theta \big]_0^{2\pi} \\
+                \mathbf{A^2} &= \mathbf{2\pi}
+                \end{aligned}
+                $$
+
+                **3. Back to 1D (The Square Root)**
+                Since the squared area is $2\pi$, the original 1D area is simply the square root:
+                $$A = \sqrt{2\pi}$$
+
+                **The Ultimate Conclusion:** The raw area of the Bell Curve is $\sqrt{2\pi}$. To force this probability area to be exactly $1.0$ (100%), we must divide the entire mathematical model by $\sqrt{2\pi}$. 
+                This is the ultimate reason why the constant $\frac{1}{\sqrt{2\pi}}$ stands at the front of the Normal Distribution. The derivation is completely proven!
+                """)
+            # 💥 3D 可视化：让学生亲眼看到这座“山丘”
+            st.markdown("### 🏔️ Visualize the 3D Integration Trick")
+            st.markdown(
+                "Because we added a second dimension, the 2D curve spun into this 3D hill. To measure its total volume, we must sweep our 'pizza slice' area around the center. A full sweep is exactly **$2\pi$ radians**, which is exactly why **$\pi$** becomes permanently attached to the Normal Distribution formula!")
+
+            # 生成 3D 钟形曲线数据
+            x_val = np.linspace(-3, 3, 60)
+            y_val = np.linspace(-3, 3, 60)
+            X, Y = np.meshgrid(x_val, y_val)
+            Z = np.exp(-(X ** 2 + Y ** 2) / 2)  # 3D Gaussian
+
+            # 使用 Plotly 画 3D 曲面图
+            fig_3d = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', opacity=0.9)])
+
+            fig_3d.update_layout(
+                title='The 3D Gaussian Hill (r² = x² + y²)',
+                autosize=False,
+                width=700,
+                height=500,
+                margin=dict(l=0, r=0, b=0, t=40),
+                scene=dict(
+                    xaxis_title='X (Coin 1)',
+                    yaxis_title='Y (Coin 2)',
+                    zaxis_title='Probability',
+                    # 隐藏背景网格让图形更干净
+                    xaxis=dict(showbackground=False),
+                    yaxis=dict(showbackground=False),
+                    zaxis=dict(showbackground=False)
+                ),
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+
+            st.plotly_chart(fig_3d, use_container_width=True)
+
+            st.success(r"""
+                **The Final Normalization:** The 3D volume (sweeping $2\pi$) tells us the base 2D area squared is $2\pi$. Thus, the 2D area is exactly $\sqrt{2\pi}$. We divide our curve by $\sqrt{2\pi}$ to force the area to $1.0$. **The derivation is complete.**
+                """)
+
+        st.divider()
+
+        st.subheader("2. The Poisson Distribution")
+        st.markdown(r"""
+            * **The Origin Story:** Introduced by Siméon Denis Poisson, originally used to model rare events, like Prussian soldiers accidentally kicked to death by horses.
+            * **The Motivation:** It is the evolution of the Binomial distribution under extreme conditions. What if your sample size is massive ($n \to \infty$) but the chance of success is incredibly tiny ($p \to 0$)? 
+            * **The Genius Shift:** Poisson tied them together by defining an average rate of occurrence: $\lambda = np$. This completely bypassed the impossible factorial combinations of $n$.
+            * **The Formula:** $$P(X=k) = \frac{e^{-\lambda} \lambda^k}{k!}$$
+            """)
+        with st.expander("🔍 Deep Dive: The Elegant Mutation from Binomial to Poisson", expanded=False):
+            st.markdown(r"""
+            Unlike the monstrous Normal Distribution derivation, Poisson's proof is actually a **beautiful, clean mathematical limit**. It shows exactly what happens to the Binomial formula when you stretch $n$ to infinity ($\infty$) while shrinking $p$ to zero ($0$).
+
+            **The Setup: The "Constant Rate" Substitution**
+            We start with the standard Binomial formula:
+            $$P(X=k) = \frac{n!}{k!(n-k)!} p^k (1-p)^{n-k}$$
+
+            Poisson's genius was realizing that if an event is incredibly rare but there are nearly infinite trials, the *average rate* of the event happening ($\lambda$) stays constant. So, we define $\lambda = np$. 
+            This means $p = \frac{\lambda}{n}$. Let's substitute $p$ out of the equation:
+            $$P(X=k) = \frac{n!}{k!(n-k)!} \left(\frac{\lambda}{n}\right)^k \left(1-\frac{\lambda}{n}\right)^{n-k}$$
+
+            Now, let's break this ugly monster into **three separate parts** and watch what happens as $n \to \infty$.
+
+            ---
+
+            **Part 1: The Factorial Fraction**
+            Let's pull out the factorials and the $n^k$ from the denominator:
+            $$\frac{n!}{n^k (n-k)!} = \frac{n \cdot (n-1) \cdot (n-2) \dots (n-k+1)}{n \cdot n \cdot n \dots n}$$
+            We can split this into $k$ individual fractions:
+            $$1 \times \left(1 - \frac{1}{n}\right) \times \left(1 - \frac{2}{n}\right) \dots \left(1 - \frac{k-1}{n}\right)$$
+            **The Infinity Limit:** As $n$ approaches infinity ($\infty$), fractions like $\frac{1}{n}$ or $\frac{2}{n}$ become exactly $0$. So this entire massive chunk simply collapses into $1 \times 1 \times 1 \dots = \mathbf{1}$.
+
+            **Part 2: The Constant ($\lambda$ and $k$)**
+            From the middle of our substituted formula, we are left with $\frac{\lambda^k}{k!}$. 
+            Since neither $\lambda$ (the constant average rate) nor $k$ (the specific number of successes we want) depends on $n$, this part is completely immune to the infinity limit. It stays exactly as it is: **$\frac{\lambda^k}{k!}$**.
+
+            **Part 3: The Exponential Limit (Euler's Signature)**
+            Finally, we look at the right tail of the formula: $\left(1-\frac{\lambda}{n}\right)^{n-k}$. Using index laws, we split it into two:
+            $$\left(1-\frac{\lambda}{n}\right)^n \times \left(1-\frac{\lambda}{n}\right)^{-k}$$
+            **The Infinity Limit:** * The second term $\left(1-\frac{\lambda}{\infty}\right)^{-k}$ becomes $(1 - 0)^{-k} = 1^{-k} = \mathbf{1}$.
+            * The first term is one of the most famous limits in all of mathematics (the exact definition of Euler's number $e$):
+            $$\lim_{n \to \infty} \left(1 + \frac{x}{n}\right)^n = e^x$$
+            Therefore, $\left(1-\frac{\lambda}{n}\right)^n$ mathematically and perfectly transforms into **$e^{-\lambda}$**.
+
+
+
+            ---
+            **The Grand Assembly**
+            Multiply the survivors of the infinity limit from the three parts together:
+            $$1 \times \frac{\lambda^k}{k!} \times e^{-\lambda} \times 1$$
+
+            And there it is—the Poisson Distribution formula, born purely from taking the Binomial formula to the extreme edge of infinity:
+            $$\mathbf{P(X=k) = \frac{\lambda^k e^{-\lambda}}{k!}}$$
+            """)
+
+        st.divider()
+
+        with st.expander("🌌 Expand the Universe: Other Discrete Distributions"):
+            st.markdown(r"""
+                The Binomial and Poisson are just the beginning. If we change the rules of the game just a little bit, we get a whole new family of probabilities!
+
+                * 🎰 **Geometric (The "First Win" Distribution)** Instead of asking "How many times will I win?", you ask: *"How many times do I have to play the claw machine until I finally win ONE plushie?"* You stop the moment you succeed.
+
+                * 🧸 **Negative Binomial (The "Collector's" Distribution)** This is the upgraded version of Geometric. *"How many times do I have to play the claw machine until I collect EXACTLY 3 plushies?"* You keep playing until you reach your target number of wins.
+
+                * 🃏 **Hypergeometric (The "No Do-Overs" Distribution)** This is Binomial's cousin, but **without replacement**. Think of drawing 5 cards from a deck to get an Ace. Once you pull a card, you don't put it back. The deck gets smaller, so the probability instantly changes for your next draw!
+                """)
+
+
+
+    # ==========================================
+    # Tab 2: Continuous Random Variables
+    # ==========================================
+    with tab2:
+        st.header("📈 Continuous Random Variables: The Philosophy of Measurement")
+        st.markdown(r"""
+        **What is Continuous?** Imagine measuring exact height, time, or weight. Theoretically, you can have $1.7$ meters, $1.75$ meters, $1.7539\dots$ meters. The values are infinitely dense.
+        **The Paradigm Shift:** Because there are infinite points, the probability of hitting one *exact* point is **$0$**. We stop calculating "points" and start using calculus to find the **area under a curve** (the probability of falling within a specific range).
+        """)
+
+        st.subheader("The Normal (Gaussian) Distribution")
+        st.markdown(r"""
+        * **The Origin Story:** Carl Friedrich Gauss noticed that tiny measurement errors in his astronomical observations formed a perfectly symmetrical, bell-shaped curve. Small errors were common; huge errors were exceptionally rare.
+        * **The Probability Density Function (PDF):** $$f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
+        """)
+
+        with st.expander("🌌 Deep Dive: Gauss's Reverse Engineering of the Bell Curve", expanded=False):
+            st.markdown(r"""
+            De Moivre and Laplace built the curve from the bottom up using coin flips. **Gauss did the exact opposite.** He worked top-down, starting with a philosophical rule about the universe and using calculus to force the math to obey it. 
+
+            Here is the exact algebraic proof Gauss used in 1809, broken down so you can understand every single symbol.
+            """)
+
+            st.info(r"""
+            #### Step 1: The Setup (Maximum Likelihood)
+            Imagine taking $n$ measurements of a star: $x_1, x_2, \dots, x_n$. 
+            Let the true, unknown position of the star be $\theta$. 
+            The error of each measurement is: $\epsilon_i = x_i - \theta$.
+
+            Assume there is an unknown probability function $f(\epsilon)$ that calculates how likely an error is. 
+            The total probability of getting your exact set of measurements (called Likelihood, $L$) is the product of all their individual probabilities:
+            $$L = f(x_1 - \theta) \cdot f(x_2 - \theta) \cdots f(x_n - \theta)$$
+
+            > 🧠 **Translation (What does this mean?):** > In probability, if you want Event A **AND** Event B to happen together, you multiply them ($P(A) \times P(B)$). Gauss is simply saying: "What is the total probability ($L$) of making Error 1 AND Error 2 AND Error 3? Just multiply all their probabilities together!"
+            """)
+
+            st.warning(r"""
+            #### Step 2: The Logarithmic Trick
+            In calculus, taking the derivative of a massive multiplication chain is a nightmare. To fix this, we take the natural logarithm ($\ln$) of both sides. 
+            Because of the logarithm rule $\ln(A \times B) = \ln(A) + \ln(B)$, the messy multiplication turns into a simple sum!
+            $$\ln(L) = \ln[f(x_1 - \theta)] + \ln[f(x_2 - \theta)] + \dots + \ln[f(x_n - \theta)]$$
+
+            To write this elegantly, mathematicians use the Greek letter **$\sum$ (Sigma)**, which simply means **"add them all up"**. Let's also invent a temporary function $g(\epsilon) = \ln[f(\epsilon)]$.
+            $$\ln(L) = \sum_{i=1}^{n} g(x_i - \theta)$$
+
+            > 🧠 **Translation (What is $\sum$?):**
+            > Don't let $\sum$ scare you. $\sum_{i=1}^{n}$ just tells you to take the formula next to it, plug in $i=1$, then $i=2$, all the way to $n$, and put a "$+$" sign between all of them. It's just a lazy way of writing a long addition sentence.
+            """)
+
+            st.success(r"""
+            #### Step 3: Finding the Peak (Calculus)
+            We want the total probability ($L$) to be as high as possible. In calculus, to find the absolute maximum peak of any curve, you take the derivative and set it to exactly **$0$** (because the slope at the peak of a mountain is completely flat).
+
+            We take the derivative of our equation with respect to $\theta$. Because $\theta$ has a minus sign in $(x_i - \theta)$, the Chain Rule gives us a negative derivative: $-g'(x_i - \theta)$.
+            $$\frac{d(\ln L)}{d\theta} = -\sum_{i=1}^{n} g'(x_i - \theta) = \mathbf{0}$$
+
+            Since the whole thing equals $0$, we can just drop the negative sign. For the probability to be at its maximum, this condition MUST be met:
+            $$\sum_{i=1}^{n} g'(x_i - \theta) = \mathbf{0}$$
+
+            > 🧠 **Translation (What did we just do?):**
+            > We mathematically asked the equation: "Under what condition is the probability the highest?" The equation answered: "Only when the sum of all the derivatives (slopes) of $g$ equals zero."
+            """)
+
+            st.error(r"""
+                #### Step 4: Gauss's God-Mode Postulate (The "Aha!" Moment)
+                Here is where Gauss changed the world. He stopped doing math and applied a physical law of nature. 
+                He stated: **"The most probable true value ($\theta$) MUST always be the Arithmetic Mean ($\bar{x}$) of the measurements."**
+
+                In statistics, the defining property of the Arithmetic Mean is that the sum of all errors from it is exactly zero:
+                $$\sum_{i=1}^{n} (x_i - \bar{x}) = \mathbf{0}$$
+
+                Now, look closely at our two equations. Gauss demanded that when $\theta$ is the mean ($\bar{x}$), our calculus equation from Step 3 MUST perfectly match nature's rule of averages:
+                1. Calculus demand: $\sum \mathbf{g'(x_i - \bar{x})} = 0$
+                2. Nature's demand: $\sum \mathbf{(x_i - \bar{x})} = 0$
+
+                **The Algebraic Lock:** How does this prove $g'(x)$ is a straight line? 
+                Let's test it with 3 simple errors: $+2$, $+3$, and $-5$.
+                * Nature's demand: $2 + 3 + (-5) = 0 \implies 2 + 3 = \mathbf{5}$
+                * Calculus demand: $g'(2) + g'(3) + g'(-5) = 0 \implies \mathbf{g'(2) + g'(3) = -g'(-5)}$
+    
+                Since errors are perfectly symmetrical, $-g'(-5)$ is just $g'(5)$. Therefore:
+                $$g'(2) + g'(3) = g'(5)$$
+                $$g'(2) + g'(3) = g'(2+3)$$
+
+                > 🧠 **Translation (The pure genius):**
+                > In all of mathematics, what is the ONLY continuous function where $f(a) + f(b) = f(a+b)$? **A straight line passing through zero!** (For example, $f(x) = 10x$. Then $10(2) + 10(3) = 10(5)$). 
+                > Because Gauss demanded these two rules always perfectly match, the derivative $g'(x)$ had no choice but to be a simple multiple of $x$. Therefore: $\mathbf{g'(x) = c \cdot x}$.
+                """)
+
+            st.info(r"""
+                #### Step 5: Integrating Back to the Shape
+                We found the derivative $g'(x) = c x$. But we want the original probability curve $f(x)$. We must reverse the process.
+
+                **1. Integrate to go backwards:**
+                $$\int (c x) \,dx = \mathbf{\frac{1}{2} c x^2 + C}$$
+
+                **2. Reverse the Logarithm:**
+                Remember in Step 2, we defined $g(x) = \ln[f(x)]$. To get rid of the $\ln$, we exponentiate both sides with base $e$:
+                $$f(x) = e^{\frac{1}{2} c x^2 + C} = e^C \cdot e^{\frac{1}{2} c x^2}$$
+
+                **3. Cleaning up the Constants:**
+                Let's rename the constant $e^C$ to $A$. Also, for this curve to be a mountain (peaking at the center and dropping to $0$) instead of a valley, $c$ must be a negative number. Let's pull out the negative sign: $-c$. 
+                Our skeleton curve is now:
+                $$f(x) = \mathbf{A \cdot e^{-\frac{1}{2} c x^2}}$$
+
+                > 🧠 **Translation (Notice the $\frac{1}{2}$?):**
+                > That $\frac{1}{2}$ inside the famous Bell Curve formula is NOT random! It is a permanent algebraic scar left behind by the integration of $x$ into $x^2$. It is welded into the equation forever.
+                """)
+
+            st.success(r"""
+                #### Step 6: The Final Form (Cracking the Constants)
+                How does the skeleton $A \cdot e^{-\frac{1}{2} c x^2}$ become the famous textbook formula? We must find what $A$ and $c$ are in the real world.
+
+                **1. Shifting the Center (The Mean, $\mu$)**
+                Our skeleton assumes the peak is perfectly at $0$. To center it on the true average ($\mu$), we replace $x$ with the distance from the mean: $(x - \mu)$.
+                $$f(x) = A \cdot e^{-\frac{1}{2} c (x-\mu)^2}$$
+
+                **2. Finding '$c$' (The Variance, $\sigma^2$)**
+                The constant $c$ controls how "steep" the mountain is. A huge $c$ means the mountain drops instantly. 
+                In statistics, **Variance ($\sigma^2$)** measures how "wide" the data spreads. So, $c$ and Variance are exact opposites. To make the calculus perfectly match the statistical definition of spread, the steepness $c$ must be exactly $\frac{1}{\sigma^2}$. Let's plug it in:
+                $$f(x) = A \cdot e^{-\frac{1}{2} \left(\frac{1}{\sigma^2}\right) (x-\mu)^2} = \mathbf{A \cdot e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}}$$
+
+                **3. Finding '$A$' (The 100% Probability Rule)**
+                For this to be a valid probability curve, the total area underneath it MUST equal exactly $1.0$. 
+                $$\int_{-\infty}^{\infty} A \cdot e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2} \,dx = 1$$
+
+                This is the exact same "Locked Door" integral Laplace solved using the 3D Polar Pizza-Slice trick! When you run that double-integral trick, the area of the curve evaluates to $\sigma \sqrt{2\pi}$. 
+
+                To force the final area to be exactly $1$, the height multiplier $A$ MUST be dividing by that area:
+                $$A = \mathbf{\frac{1}{\sigma \sqrt{2\pi}}}$$
+
+                **The Grand Assembly:**
+                Plug $A$ back in, and Gauss's philosophical average perfectly merges with Laplace's geometry, giving birth to the final equation:
+                $$\mathbf{f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}}$$
+                """)
+
+        st.markdown(r"""
+        * **The Infinite Nightmare:** The universe is full of different normal distributions. Heights ($\mu=170$, $\sigma=10$), IQ scores ($\mu=100$, $\sigma=15$), etc. Furthermore, the integral of the formula $\int e^{-x^2} dx$ has **no closed-form algebraic solution**. Mathematicians couldn't just plug numbers into an integral formula to find the area.
+        """)
+
+        st.info(r"""
+        #### 🛠️ The Genius Solution Part 1: Standardization (The Universal Currency)
+        To avoid calculating infinite versions of the bell curve, mathematicians created the **Standard Normal Distribution** ($Z$-distribution). 
+
+
+
+        Think of it as a universal currency exchange. No matter what your original data is, you convert it using the $Z$-score formula:
+        $$Z = \frac{X - \mu}{\sigma}$$
+        This instantly forces the mean to be exactly **$0$** and the standard deviation to be exactly **$1$**. Now, the entire universe of Normal Distributions shares just **one single curve**.
+        """)
+
+        st.success(r"""
+        #### 🛠️ The Genius Solution Part 2: The Taylor Series Hack (How the Z-Table is made)
+        Since the formula cannot be integrated normally, how did mathematicians calculate the exact probability areas (like $0.8413$) in the back of your statistics textbook? 
+
+        They used the **Taylor Series**. Since $e^x$ can be rewritten as an infinite polynomial, they converted the impossible curve into an infinitely long, but very simple polynomial:
+        $$e^{-\frac{1}{2}x^2} = 1 - \frac{x^2}{2} + \frac{x^4}{8} - \frac{x^6}{48} + \dots$$
+
+
+
+        While $e^{-x^2}$ is impossible to integrate, a polynomial is the easiest thing in the world to integrate! 
+        $$\int \left(1 - \frac{x^2}{2} + \frac{x^4}{8} \dots \right) dx = x - \frac{x^3}{6} + \frac{x^5}{40} \dots$$
+
+        Historically, mathematicians (and human computers) simply plugged the $Z$-values into this expanded polynomial equation and calculated the areas by hand, term by term, until the decimals were accurate enough. These brute-force numerical approximations were compiled and published as the famous **Z-Table**.
+        """)
+
+    # ==========================================
+    # Tab 3: Approximations (Visualizations)
+    # ==========================================
+    with tab3:
+        st.header("🌉 The Central Limit Theorem: Bridging the Worlds")
+        st.markdown(r"""
+        How do we solve the "Computational Wall" of massive factorials in discrete math? 
+        The **Central Limit Theorem** reveals nature's ultimate magic trick: as sample sizes grow large, almost all distributions naturally morph into the Normal bell curve. We can use continuous curves to bypass impossible discrete calculations!
+        """)
+
+        st.info(r"""
+            ### 🔑 The Secret Key: Continuity Correction (c.c.)
+            Why do we always add or subtract $0.5$? Why not $0.1$ or $0$?
+
+            **1. Why adjust at all? (The Zero Area Paradox)**
+            In a continuous Normal curve, probability is measured by *Area*. If you ask for the probability of getting exactly $10$, you are asking for the area of an infinitely thin line. In calculus: $\int_{10}^{10} f(x) \,dx = 0$. 
+            To get a real probability, we MUST stretch the discrete "point" into a "rectangle" with some physical width.
+
+            **2. Why exactly $0.5$? (The No-Gap Rule)**
+            Think of discrete numbers as physical building blocks. The integers ($9, 10, 11$) have a distance of exactly $1$ between them. 
+            To turn these points into continuous blocks that cover the entire axis *without leaving any empty gaps or overlapping*, they must split the empty space perfectly in half. 
+            * The block for $10$ spans from **$9.5$ to $10.5$**. 
+
+            If you used $0.1$ instead, block $10$ would span $[9.9, 10.1]$ and block $11$ would span $[10.9, 11.1]$. You would leave a massive empty vacuum between $10.1$ and $10.9$, destroying the rule that total probability must equal $100\%$!
+
+            ---
+
+            **3. The Intuitive Translation Guide (The Block Rule):**
+            When measuring, you must measure from the *physical edges* of the blocks you want to keep.
+            * **$P(X = 10)$** ➔ You want exactly the block $10$. Measure from its left edge to its right edge: **$P(9.5 < X < 10.5)$**
+            * **$P(X \ge 10)$** ➔ You want block $10$ and everything above it. Start from the *left edge* of $10$: **$P(X > 9.5)$**
+            * **$P(X > 10)$** ➔ You want strictly *more* than $10$ (meaning you start keeping from block $11$). Start from the *left edge* of $11$: **$P(X > 10.5)$**
+            * **$P(X \le 10)$** ➔ You want $10$ and everything below it. End at the *right edge* of $10$: **$P(X < 10.5)$**
+            * **$P(X < 10)$** ➔ You want strictly *less* than $10$ (meaning you stop keeping at block $9$). End at the *right edge* of $9$: **$P(X < 9.5)$**
+            """)
+        st.divider()
+
+        # --- Visualization 1: Binomial to Normal ---
+        st.subheader("1. Binomial to Normal Approximation")
+        st.markdown(r"""
+        When $n$ is large and $p$ is not too close to $0$ or $1$ (Rule of thumb: $np > 5$ and $nq > 5$). 
+        * **The Conversion:** $\mu = np$ and $\sigma = \sqrt{np(1-p)}$.
+        * **Don't forget:** Apply the $\pm 0.5$ Continuity Correction!
+        """)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            n_val = st.slider("Number of Trials (n)", min_value=10, max_value=200, value=30, step=10, key="n_slider")
+        with col2:
+            p_val = st.slider("Probability of Success (p)", min_value=0.05, max_value=0.95, value=0.50, step=0.05,
+                              key="p_slider")
+
+        # Calculations
+        x_binom = np.arange(0, n_val + 1)
+        y_binom = stats.binom.pmf(x_binom, n_val, p_val)
+        mu_binom = n_val * p_val
+        sigma_binom = np.sqrt(n_val * p_val * (1 - p_val))
+        x_norm_b = np.linspace(max(0, mu_binom - 4 * sigma_binom), min(n_val, mu_binom + 4 * sigma_binom), 500)
+        y_norm_b = stats.norm.pdf(x_norm_b, mu_binom, sigma_binom)
+
+        st.markdown(f"**Binomial to Normal ($\mu={mu_binom:.1f}$, $\sigma={sigma_binom:.2f}$)**")
+
+        # Matplotlib Chart 1 (Adjusted figsize to be smaller and wider)
+        fig1, ax1 = plt.subplots(figsize=(9, 3.5))
+        ax1.bar(x_binom, y_binom, color='#3780bf', alpha=0.7, label='Discrete Binomial Blocks', width=1.0,
+                edgecolor='white')
+        ax1.plot(x_norm_b, y_norm_b, color='#ff4b4b', linewidth=2.5, label='Continuous Normal Curve')
+        ax1.set_xlabel("Number of Successes (X)", fontsize=10)
+        ax1.set_ylabel("Probability", fontsize=10)
+        ax1.set_xlim([max(0, mu_binom - 4 * sigma_binom), min(n_val, mu_binom + 4 * sigma_binom)])
+        ax1.legend(loc='upper right', fontsize=9)
+        ax1.grid(axis='y', linestyle='--', alpha=0.4)
+
+        st.pyplot(fig1)
+
+        st.divider()
+
+        # --- Visualization 2: Poisson to Normal ---
+        st.subheader("2. Poisson to Normal Approximation")
+        st.markdown(r"""
+        *(Note: Not in matrikulasi syllabuses, just for complete understanding.)*
+
+        When the average rate $\lambda$ is large (typically $\lambda > 15$), the asymmetrical 'tail' of the Poisson distribution vanishes, perfectly molding into a bell curve. 
+        * **The Conversion:** $\mu = \lambda$ and $\sigma = \sqrt{\lambda}$.
+        * **The Catch:** Since Poisson is *also* a discrete distribution counting whole events, **you must use the exact same $\pm 0.5$ Continuity Correction** as you do for the Binomial!
+        """)
+
+        lam_val = st.slider("Average Rate (λ)", min_value=1, max_value=100, value=15, step=1, key="lam_slider")
+
+        # Calculations
+        max_x = int(lam_val + 4 * np.sqrt(lam_val) + 5)
+        x_poisson = np.arange(0, max_x)
+        y_poisson = stats.poisson.pmf(x_poisson, lam_val)
+        sigma_poisson = np.sqrt(lam_val)
+        x_norm_p = np.linspace(max(0, lam_val - 4 * sigma_poisson), lam_val + 4 * sigma_poisson, 500)
+        y_norm_p = stats.norm.pdf(x_norm_p, lam_val, sigma_poisson)
+
+        st.markdown(f"**Poisson to Normal ($\mu={lam_val:.1f}$, $\sigma={sigma_poisson:.2f}$)**")
+
+        # Matplotlib Chart 2 (Adjusted figsize to be smaller and wider)
+        fig2, ax2 = plt.subplots(figsize=(9, 3.5))
+        ax2.bar(x_poisson, y_poisson, color='#2ca02c', alpha=0.7, label='Discrete Poisson Blocks', width=1.0,
+                edgecolor='white')
+        ax2.plot(x_norm_p, y_norm_p, color='#800080', linewidth=2.5, label='Continuous Normal Curve')
+        ax2.set_xlabel("Number of Occurrences (X)", fontsize=10)
+        ax2.set_ylabel("Probability", fontsize=10)
+        ax2.set_xlim([max(0, lam_val - 4 * sigma_poisson), lam_val + 4 * sigma_poisson])
+        ax2.legend(loc='upper right', fontsize=9)
+        ax2.grid(axis='y', linestyle='--', alpha=0.4)
+
+        st.pyplot(fig2)
